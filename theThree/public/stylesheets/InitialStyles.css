@@ -1,0 +1,28 @@
+body {
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+canvas {
+    position:absolute;
+    width: vWidth * 100%;
+    height: vHeight * 90%;
+}
+
+
+/*#map { height: 100%; }*/
+#palette { }
+/* The map and palette are set off screen so they will not be rendered - performance*/ 
+/* Set the threejs canvas, google map and palette all the same height width*/
+.off-screen {
+ position: absolute !important;
+ top : -9999px !important;
+ left : -9999px !important;
+ width : 200px !important;
+ height : 200px !important;
+}
+}
+.views { 
+  height : 500px;
+  width : 500px;
+}
