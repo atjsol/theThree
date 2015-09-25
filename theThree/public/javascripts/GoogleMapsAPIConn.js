@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
 function loadMap(mapObj) {
+    //A promise is used because encodeURIComponent is not synchronous.
     var promise = new Promise(function (resolve, reject) {
         resolve(encodeURIComponent("500 Vernon St, oakland, ca"));
         reject(function(){
@@ -32,66 +33,54 @@ function loadMap(mapObj) {
             if (property === 'urll') {
                 return mapObj[property] + '?' + queryString;
             }
-            
             return queryString + '&' + property + '=' + mapObj[property];
         }, '');
         return urlQuery;
-    }).then(function (val) {
-        return val;
-    }).then(function (val){
-        console.log("loadmap ",val);
-        loadImage(val);
 
+    }).then(function (val){
+        loadImage(val);
     });	    
 }
 
 function loadImage(path) {
     var canvas = document.createElement('canvas');
-   
+    //render this canvas offscreen
     canvas.style.position = 'absolute';
-    canvas.style.top = '0';
+    canvas.style.top = '-9990';
     canvas.style.left = '0';
-    canvas.style.width ='256px';
-    canvas.style.height = '256px';
+    canvas.style.width ='800px';
+    canvas.style.height = '800px';
     document.body.appendChild(canvas);
 
-    var texture = new THREE.Texture(canvas);
-var planeXY = new THREE.PlaneGeometry(256, 256, 2);
+    
+    var planeXY = new THREE.PlaneGeometry(200, 200, 2);
     var img = new Image();
+    //this cross origin thing is huge - if this is not set the canvas will be dirty and webGL will give us a bunch of errors
+    img.crossOrigin = '';
     img.src = path;
-    img.crossOrigin = ''
     img.onload = function () {
         canvas.width = img.width;
         canvas.height = img.height;
-        console.dir(img);
+        
         var context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
-
+      
+        var texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
         texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-texture.repeat.set( 4, 4 );
-    var material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture })
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set( 4, 4 );
+        var material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture })
 
-    var plane = new THREE.Mesh(planeXY, material);
-    plane.rotation.set(toRad(90), 0, 0);
+        var plane = new THREE.Mesh(planeXY, material);
+        plane.rotation.set(toRad(90), 0, 0);
 
-    scene.add(plane);
+        scene.add(plane);
     };
-    console.log(texture);
+   
 
 
-    return texture;
+    
 };
 
-var path = loadMap();
-console.log(path);
-var theMap;
-
-
- //"http://maps.googleapis.com/maps/api/staticmap?center=39.06029101581083,-94.59737342812502&zoom=15&size=512x512&sensor=false&key=AIzaSyDk3wbT2nVVWhpmPjOb_3DbtrIQBXcsxtk&format=png";
-// var theMap = loadImage(path);
-// var geometry = new THREE.PlaneGeometry(200, 200);
-// var material = new THREE.MeshLambertMaterial({ map: theMap });
-// var plane = new THREE.Mesh(geometry, material);
-// scene.add(plane);
+loadMap();
