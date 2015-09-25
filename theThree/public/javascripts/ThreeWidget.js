@@ -6,7 +6,7 @@ var camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHe
 camera.position.y = 340;
 scene.add( camera );
 
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild( renderer.domElement );
 
@@ -61,46 +61,48 @@ function drawCenter(){
 	group.add( mesh );		
 }
 // drawCenter();
-function setXZPlane(planeX, planeY) {
-   
+function setXZPlane(planeX, planeY, url) {
     // instantiate a loader
     var loader = new THREE.TextureLoader();
+
+        console.log(url);
+        loader.load(
+        // resource URL
+            url,
+            // Function when resource is loaded
+            function ( texture ) {
+
+                // do something with the texture
+                var tex = new THREE.MeshBasicMaterial( {
+                    map: texture
+                });
+                var planeXY = new THREE.PlaneGeometry(planeX, planeY, 2);
+                THREE.ImageUtils.crossOrigin = 'anonymous';
+                // var texture = THREE.ImageUtils.loadTexture('http://maps.googleapis.com/maps/api/staticmap?center=Australia&size=640x400&style=element:labels|visibility:off&style=element:geometry.stroke|visibility:off&style=feature:landscape|element:geometry|saturation:-100&style=feature:water|saturation:-100|invert_lightness:true&key=AIzaSyBxxi5-bG4cnbPDPwZw0LfgSNzpPFOHs5E');
+                var material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture })
+
+                var plane = new THREE.Mesh(planeXY, material);
+                plane.rotation.set(toRad(90), 0, 0);
+
+                scene.add(plane);
+            },
+            // Function called when download progresses
+            function ( xhr ) {
+                console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+            },
+            // Function called when download errors
+            function ( xhr ) {
+                console.log( 'An error happened' );
+            }
+        );
+
     var tex;
     // load a resource
-    loader.load(
-        // resource URL
-        './house.jpg',
-        // Function when resource is loaded
-        function ( texture ) {
-            // do something with the texture
-            var tex = new THREE.MeshBasicMaterial( {
-                map: texture
-            });
-            var planeXY = new THREE.PlaneGeometry(planeX, planeY, 2);
-            console.log(THREE.ImageUtils);
-            THREE.ImageUtils.crossOrigin = 'anonymous';
-            var texture = THREE.ImageUtils.loadTexture("house.jpg");
-            console.log(texture)
-            var material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture })
-
-            var plane = new THREE.Mesh(planeXY, material);
-            plane.rotation.set(toRad(90), 0, 0);
-
-            scene.add(plane);
-        },
-        // Function called when download progresses
-        function ( xhr ) {
-            console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-        },
-        // Function called when download errors
-        function ( xhr ) {
-            console.log( 'An error happened' );
-        }
-    );
+    
     //var texture = THREE.ImageUtils.loadTexture(loadMap()); 
   
 };
-setXZPlane(200,200)
+
 function axisZ(spacing, rows){
 
 	spacing = spacing ? spacing : 20;

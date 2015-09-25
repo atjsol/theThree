@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ProfilingTarget xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ProjectTarget>
+    <TargetProject>8b10c669-75c1-4d35-97f0-86f2df17bf96</TargetProject>
+    <FriendlyName>theThree</FriendlyName>
+  </ProjectTarget>
+  <Reports>
+    <Report>
+      <Filename>C:\Users\ajohnson7\Documents\Research\theThree\theThree\theThree1_20150924.vspx</Filename>
+    </Report>
+  </Reports>
+</ProfilingTarget>
