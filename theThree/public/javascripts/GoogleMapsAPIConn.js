@@ -13,18 +13,18 @@ function loadMap(mapObj) {
     });
 
     promise.then(function (val) {
-        console.log(val);
+        
         //set defaults based on what is inputted
         //initialize map object if none exists
         mapObj = mapObj ? mapObj : {};
         mapObj.center = mapObj.hasOwnProperty('center') ? encodeURICompoent(mapObj.address) : val;        
-        mapObj.size = mapObj.hasOwnProperty('size') ? mapObj.size : "512x512";
+        mapObj.size = mapObj.hasOwnProperty('size') ? mapObj.size : "200x200";
         mapObj.scale = mapObj.hasOwnProperty('scale') ? mapObj.scale : 2;
         mapObj.key = mapObj.hasOwnProperty('key') ? mapObj.key : "AIzaSyBxxi5-bG4cnbPDPwZw0LfgSNzpPFOHs5E";
         mapObj.maptype = mapObj.hasOwnProperty('maptype') ? mapObj.maptype : "satellite";
         mapObj.format = mapObj.hasOwnProperty('format') ? mapObj.format : 'png';
         mapObj.urll = mapObj.hasOwnProperty('urll') ? mapObj.urll : "https://maps.googleapis.com/maps/api/staticmap";
-        mapObj.zoom = mapObj.hasOwnProperty('zoom') ? mapObj.zoom : 20;
+        mapObj.zoom = mapObj.hasOwnProperty('zoom') ? mapObj.zoom : 18;
         
         //build the query
         var urlQuery = Object.getOwnPropertyNames(mapObj).reduce(function (queryString, property) {
@@ -48,33 +48,34 @@ function loadImage(path) {
     canvas.style.position = 'absolute';
     canvas.style.top = '-9990';
     canvas.style.left = '0';
-    canvas.style.width ='800px';
-    canvas.style.height = '800px';
+    canvas.style.width ='200px';
+    canvas.style.height = '200px';
     document.body.appendChild(canvas);
+    var context = canvas.getContext('2d');
+    var planeXY = new THREE.PlaneGeometry(200, 200, 4);
 
     
-    var planeXY = new THREE.PlaneGeometry(200, 200, 2);
     var img = new Image();
-    //this cross origin thing is huge - if this is not set the canvas will be dirty and webGL will give us a bunch of errors
+    //this cross origin thing is huge, needs to be set before the img.src is set- if this is not set the canvas will be dirty and webGL will give us a bunch of errors
     img.crossOrigin = '';
     img.src = path;
     img.onload = function () {
         canvas.width = img.width;
         canvas.height = img.height;
         
-        var context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
       
         var texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set( 4, 4 );
-        var material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: texture })
-
+        texture.minFilter = THREE.LinearFilter;
+        // texture.wrapS = THREE.RepeatWrapping;
+        // texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set( 1, 1 );
+        var material = new THREE.MeshBasicMaterial({  map: texture });
         var plane = new THREE.Mesh(planeXY, material);
-        plane.rotation.set(toRad(90), 0, 0);
-
+        console.log (plane);
+        plane.rotation.set(toRad(-90), 0, 0);
+        plane.name ="map"
         scene.add(plane);
     };
    
