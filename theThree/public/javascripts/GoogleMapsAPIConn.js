@@ -73,9 +73,8 @@ function loadImage(path) {
         texture.repeat.set( 1, 1 );
         var material = new THREE.MeshBasicMaterial({  map: texture });
         var plane = new THREE.Mesh(planeXY, material);
-        console.log (plane);
         plane.rotation.set(toRad(-90), 0, 0);
-        plane.name ="map"
+        plane.name = "map";
         scene.add(plane);
     };
    

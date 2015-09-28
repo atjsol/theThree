@@ -35,27 +35,6 @@ function onWindowResize() {
 
 }
 
-
-
-// up is Z!
-function drawCenter(){
-	var centerDraw = [];
-	centerDraw.push(new THREE.Vector3( 5,0, 0));
-	centerDraw.push(new THREE.Vector3(0, 0,10));
-	centerDraw.push(new THREE.Vector3(-5,0, 0));
-	var center = new THREE.Shape(centerDraw);
-	// addShape(center, extrudeSettings, 0xf08000, 0, 10, 0, 0, 0, 0, 1);	
-	// var points = center.createPointsGeometry();
-	// var spacedPoints = center.createSpacedPointsGeometry( 4 );	
-	var geometry = new THREE.ShapeGeometry( center );
-    var group = new THREE.Group();
-	var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 0xffffff, side: THREE.DoubleSide } ) );
-    group.name = "Center Arrow";
-	group.add( mesh );		
-}
-// drawCenter();
-
-
 function axisZ(spacing, rows){
 // This function draws a grid
 	spacing = spacing ? spacing : 20;
@@ -83,11 +62,6 @@ function axisZ(spacing, rows){
 }
 axisZ();
 
-
-
-
-
-
 //zTrack will create a cursor that tracks on the xz plane at y=0
 function zTrack () {
   var cursorShape = new THREE.Geometry();
@@ -106,9 +80,6 @@ function zTrack () {
 
 };
 zTrack();
-
-
-
 
 var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
 
@@ -192,8 +163,16 @@ function addShape( shape, extrudeSettings, color, x, y, z, rx, ry, rz, s ) {
 
 //if you do not have an animation loop, it will not work;
 var raycaster = new THREE.Raycaster();
+var intersects = []; 
+
 function animate (){
-  
+  intersects = getIntersects();
+
+  intersects.forEach(function (object){
+    if (object.object.name === "map"){
+      intersects.map= new THREE.Vector3(object.point.x, 20, object.point.z); 
+    }
+  });
 	raycaster.setFromCamera(mouse, camera);
 	renderer.render( scene, camera );
 	requestAnimationFrame(animate);
