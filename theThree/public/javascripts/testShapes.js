@@ -1,5 +1,7 @@
 //point cloud grouping 
 // function pcgroup(points) {
+// var outlinePoints = [];
+  
 //     //create group
 //     //add points to group
 //     //make mesh

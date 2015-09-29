@@ -45,7 +45,6 @@ lineShape.lines =[];
 function nameObj (object){
   var name = prompt("Please name this Object", "North Roof");
   object.name=name;
-  objectTracker[name]=object;
 
 }
 
@@ -68,6 +67,42 @@ function lookAtMouse (){
   });
 }
 
+function makeLine (fromPoint, toPoint){
+
+  //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
+  
+  //calculate the distance
+  var distance = fromPoint.distanceTo(toPoint);
+
+  //create cylinder based onlength 
+  var geometry = new THREE.CylinderGeometry( 1,  1, distance, 32 );
+  var material = new THREE.MeshBasicMaterial( {color: 0xff0022} );
+  var cylinder = new THREE.Mesh( geometry, material );
+  cylinder.name = "cylinder";
+
+  //create a line to get the mid point via function
+  var line = new THREE.Line3(fromPoint, new THREE.Vector3(toPoint.x,20,toPoint.z) );
+  var mid = line.center();
+
+  //Move the cylinder to the calculated mid position because that is the point where the object will pivot
+  cylinder.position.x = mid.x;
+  cylinder.position.y = mid.y;
+  cylinder.position.z = mid.z;
+
+  //Set the cylinder to look from one point to the next point
+  //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
+  cylinder.lookAt(new THREE.Vector3(fromPoint.x,20000000000,fromPoint.z));
+
+  //return the line so that it can be used by whoever called it.
+  //can immediately be added to scene or group
+  return cylinder;
+};
+
+
+
+
+
+
 window.addEventListener("keyup", function (event){
   if (event.which === 65 ){ // a key
     var group = new THREE.Group();
@@ -75,7 +110,8 @@ window.addEventListener("keyup", function (event){
     var y;
     var z;
     // get the top layer of intersect
-    shapeQue = shapeQue === undefined ? [] : shapeQue;
+    shapeQue = shapeQue || [];
+    // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
     intersects.forEach(function (intersect){
       if (intersect.object.name === "map"){
         x = intersect.point.x;
@@ -83,41 +119,21 @@ window.addEventListener("keyup", function (event){
         z = intersect.point.z;
 
         //add cylinder tubes to show vectors to next point
-        //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
+      
         if ( shapeQue.length > 0){
           //get the last shape position - should be the last item added to the scene - added to scene to make it visible
           //# of children in the scene
           var numOfChildren = scene.children.length;
           var lastChild = scene.children[numOfChildren-1];
           var lastChildPos = lastChild.position;
+          //offset the y so that all the xz point will be on the same plane
           intersects.map.y=20;
-          var distance = lastChildPos.distanceTo(intersects.map);
-          //get mouse position
-
-
-          //create cylinder based onlength 
-          var geometry = new THREE.CylinderGeometry( .5,  .5, distance, 32 );
-          var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-          var cylinder = new THREE.Mesh( geometry, material );
-          cylinder.name = "mouseLook";
-          console.log(lastChildPos);
-
-          //create a line to get the mid point via function
-          var line = new THREE.Line3(lastChildPos, new THREE.Vector3(x,20,z) );
-          var mid = line.center();
- 
-
-          //Move the cylinder to the calculated mid position
-          cylinder.position.x = mid.x;
-          cylinder.position.y = mid.y;
-          cylinder.position.z = mid.z;
-          // cylinder.rotation.set(toRad(-90), 0, 0);
-          //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this.
-          cylinder.lookAt(new THREE.Vector3(lastChildPos.x,20000000000,lastChildPos.z));
+          cylinder = makeLine(lastChildPos, intersects.map);
           scene.add( cylinder );
 
         }
 
+        //Add each point to our shapeQue - from which we wull eventually make a shape via
         shapeQue.push(new THREE.Vector3(intersect.point.x, 20, intersect.point.z));
 
         var geometry = new THREE.SphereGeometry( 1, 32, 32 );
@@ -132,17 +148,6 @@ window.addEventListener("keyup", function (event){
       }
     })
 
-
-    // scene.children[children.length-1].lookAt(mouse.position);
-
-    //we are working with shapeQue[shapeNum] <- That will contain all of the points for a mounting plane.
-    if (shapeQue.length > 1) { //make sure we have more than one point
-     
-      //we want to have a cylinder from the last point to the mouse cursor
-        //first lets get the length of the cylinder that we need
-        //then lets rotate it to get it to point in the right direction. then lets position it between the two points.
-      //we want to have a cylinder between each of the apoints
-    }
   }
 
   if (event.which ===32 ) {//spacebar 
@@ -161,9 +166,8 @@ window.addEventListener("keyup", function (event){
         }
       }
     });
-
-
-    var group = addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, toRad(90), 0, 0, 1 );
+    var group = new THREE.Group();
+    group.add( addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, toRad(90), 0, 0, 1 ) );
     //transfer any objects put into the scene back into the group
     shapeQue.forEach(function (val){
       group.add(scene.children.pop());
