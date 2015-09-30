@@ -11,7 +11,7 @@
 var scene = new THREE.Scene();
 //Orthographic Camera Provides better control for design work
 // var camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
-var camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 10000 );
+var camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 1000 );
 // camera.position.z = 1000;
 camera.position.y = 340;
 camera.name = "Orthographic Camera";
@@ -90,7 +90,7 @@ function zTrack () {
 };
 zTrack();
 
-var extrudeSettings = { amount: .5, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+var extrudeSettings = { amount: 20, bevelEnabled: false, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
 
 //function taken from http://threejs.org/examples/webgl_geometry_shapes.html
 function addShape( shape, extrudeSettings, color, x, y, z, rx, ry, rz, s ) {

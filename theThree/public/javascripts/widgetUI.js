@@ -1,6 +1,6 @@
 
 //Create the google maps ui then append to the UI Contianer
-(function appendInterface (){
+function appendInterface (){
   
 
   var tabs = 
@@ -10,28 +10,29 @@
         '<li><a href="#tabs-2">Draw Options</a></li>'+
         '<li><a href="#tabs-3">Third</a></li>'+
       '</ul>'+
-
-
       
       '<div id="tabs-2">Fusce sed lorem in enim dictum bibendum.</div>'+
       '<div id="tabs-3">equat vestibulum, lacus. Mauris porttitor ullamcorper augue.</div>'+
+
     '</div>'
     ;
-  $("#interface").append(tabs);
-  $( "#tabs" ).tabs();
-})()
+  $("#interface").prepend(tabs).tabs({collapsible:true});
+}
 
 function appendMapInterface (){
   var mapTab =
-    '<div id="tabs-1">'+
-      '<form>'+
-        '<input type="text" name = "address">Address</input>'+
+    '<div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-hidden="true" style="display: none;">'+
+      '<form id="mapData">'+
+        
+        '<input type="text" name = "center">Address</input>'+
+        
         '<select name="size">'+
           '<option value="200x200">200x200</option>'+
           '<option value="300x300">300x300</option>'+
           '<option value="400x400">400x400</option>'+
           '<option value="500x500">500x500</option>'+
         '</select>'+
+
         '<select name ="zoom">'+
           '<option>17</option>'+
           '<option>18</option>'+
@@ -40,18 +41,39 @@ function appendMapInterface (){
           '<option>21</option>'+
         '</select>'+
 
-        '<input type="submit" value="Submit">'+
+      
       '</form>'+
+      '<input id="updateMap" type="button" name="submit" value="Submit">'+
+    '</div>';
 
+  $('ul.ui-tabs-nav').after(mapTab);
+  $('#updateMap').click(function (){
+    var mapObj = {};
 
+    $('#mapData').children().each(function (val){
 
+      mapObj[this.name]=this.value
+    });
+    loadMap(mapObj);
+    console.dir(mapObj);
+  // $( "form" ).submit(function( event ) {
+  //   console.log(event);
+  //   $( this ).serializeArray();
+   
 
+  //   event.preventDefault();
+  
+  // });
 
-    '</div>'+ 
-
-  $('#tabs').append(mapTab);
+  });
+  
 }
 
+
+$().ready(function (){
+  appendInterface();
+  appendMapInterface();  
+})
 
 
 

@@ -53,7 +53,7 @@ window.addEventListener("mousedown", function (event){
 });
 
 function getIntersects(){
-  var intersects= raycaster.intersectObjects(scene.children);
+  var intersects = raycaster.intersectObjects(scene.children);
   return intersects;
 };
 function lookAtMouse (){
@@ -75,7 +75,7 @@ function makeLine (fromPoint, toPoint){
   var distance = fromPoint.distanceTo(toPoint);
 
   //create cylinder based onlength 
-  var geometry = new THREE.CylinderGeometry( 1,  1, distance, 32 );
+  var geometry = new THREE.CylinderGeometry( .25,  .25, distance, 32 );
   var material = new THREE.MeshBasicMaterial( {color: 0xff0022} );
   var cylinder = new THREE.Mesh( geometry, material );
   cylinder.name = "cylinder";
@@ -98,11 +98,6 @@ function makeLine (fromPoint, toPoint){
   return cylinder;
 };
 
-
-
-
-
-
 window.addEventListener("keyup", function (event){
   if (event.which === 65 ){ // a key
     var group = new THREE.Group();
@@ -113,30 +108,31 @@ window.addEventListener("keyup", function (event){
     shapeQue = shapeQue || [];
     // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
     intersects.forEach(function (intersect){
+     
       if (intersect.object.name === "map"){
         x = intersect.point.x;
         y = intersect.point.y;
         z = intersect.point.z;
 
         //add cylinder tubes to show vectors to next point
-      
         if ( shapeQue.length > 0){
+
           //get the last shape position - should be the last item added to the scene - added to scene to make it visible
           //# of children in the scene
           var numOfChildren = scene.children.length;
           var lastChild = scene.children[numOfChildren-1];
           var lastChildPos = lastChild.position;
-          //offset the y so that all the xz point will be on the same plane
-          intersects.map.y=20;
+
+          //offset the y so that all the xz points will be on the same plane
           cylinder = makeLine(lastChildPos, intersects.map);
           scene.add( cylinder );
-
         }
 
-        //Add each point to our shapeQue - from which we wull eventually make a shape via
+        //Add each point to our shapeQue - from which we wull eventually make a shape via extrusion
         shapeQue.push(new THREE.Vector3(intersect.point.x, 20, intersect.point.z));
 
-        var geometry = new THREE.SphereGeometry( 1, 32, 32 );
+        //Add the sphere to the scene to be visible representation of what we have in our queue
+        var geometry = new THREE.SphereGeometry( .5, 32, 32 );
         var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
         var sphere = new THREE.Mesh( geometry, material );
         sphere.name = "sphere";
@@ -144,10 +140,8 @@ window.addEventListener("keyup", function (event){
         sphere.position.y = 20;
         sphere.position.z = z;
         scene.add( sphere );
-        
       }
     })
-
   }
 
   if (event.which ===32 ) {//spacebar 
@@ -160,7 +154,7 @@ window.addEventListener("keyup", function (event){
     shapeQue.forEach(function (point, i , array){
       if (array.length > 2){
         if (i === 0){
-          newOutline.moveTo(point.x,point.z);
+          newOutline.moveTo(point.x, point.z);
         } else {
           newOutline.lineTo(point.x, point.z);
         }
@@ -171,8 +165,14 @@ window.addEventListener("keyup", function (event){
     //transfer any objects put into the scene back into the group
     shapeQue.forEach(function (val){
       group.add(scene.children.pop());
-          
     });
+
+    scene.children.forEach(function (child){
+      if (child.name === "sphere" || child.name === "cylinder" ){
+
+      }
+    });
+
     //reset the shapeQue
     shapeQue = [];
 

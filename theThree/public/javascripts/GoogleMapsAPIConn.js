@@ -5,8 +5,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 function loadMap(mapObj) {
     //A promise is used because encodeURIComponent is not synchronous.
+    mapObj = mapObj || {};
+    mapObj.center = mapObj.hasOwnProperty('center') ? encodeURICompoent(mapObj.address) : val;        
+
+
+    "500 Vernon St, oakland, ca"
     var promise = new Promise(function (resolve, reject) {
-        resolve(encodeURIComponent("500 Vernon St, oakland, ca"));
+        resolve(encodeURIComponent(mapObj.center));
         reject(function(){
             console.log("Promoise REJECTED LOADMAP")
         });
@@ -16,8 +21,7 @@ function loadMap(mapObj) {
         
         //set defaults based on what is inputted
         //initialize map object if none exists
-        mapObj = mapObj || {};
-        mapObj.center = mapObj.hasOwnProperty('center') ? encodeURICompoent(mapObj.address) : val;        
+      
         mapObj.size = mapObj.size || "200x200";
         mapObj.scale =  mapObj.scale || 2;
         mapObj.key =  mapObj.key || "AIzaSyBxxi5-bG4cnbPDPwZw0LfgSNzpPFOHs5E";
