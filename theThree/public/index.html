@@ -1,11 +1,10 @@
 ﻿<html>
 	<head>
-
+    <title>My first Three.js app</title>
+    
     <link rel="stylesheet" type="text/css" href="./stylesheets/InitialStyles.css">
-    <link href="./jquery-ui.css" rel="stylesheet">
-	  <title>My first Three.js app</title>
-	  <!-- uncomment line blow for served file <script src="js/three.min.js"></script>-->
-
+    <link rel="stylesheet" type="text/css" href="./stylesheets/jquery-ui.css">
+	 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 
@@ -15,10 +14,10 @@
       <canvas id="palette" class="views off-screen"> </canvas>
       <div id="map" class="views off-screen"></div>
       <div id="three-view" class="views"></div>
-      <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.js"></script> -->
+      <div id="interface"></div>
       <script src="./javascripts/threejs.min.js"></script>
       
-      
+      <script src="./javascripts/widgetUI.js"></script>
       <script src="./javascripts/OrbitControls.js"></script>
       <script src="./javascripts/ThreeControls.js"></script>
       <script src="./javascripts/ThreeWidget.js"></script>

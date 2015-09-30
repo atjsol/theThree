@@ -26,3 +26,13 @@ canvas {
   height : 500px;
   width : 500px;
 }
+
+.float {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+
+
+
+}
