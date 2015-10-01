@@ -145,7 +145,7 @@ window.addEventListener("keyup", function (event){
   }
 
   if (event.which ===32 ) {//spacebar 
-      console.log(intersects);
+      // console.log(intersects);
   }
 
   if (event.which === 13 ){ // enter key

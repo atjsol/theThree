@@ -55,14 +55,14 @@ function axisZ(spacing, rows){
 	var offsetCenter = spacing * rows/2;
 	for (var i = 0; i <= rows; i ++){
 		var vert = new THREE.Geometry();
-		vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, 0, -100));
-		vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, 0, 100));
+		vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, 0, -rows*spacing/2));
+		vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, 0, rows*spacing/2));
 		var lineV = new THREE.Line( vert, material );
 		group.add( lineV );
 
 		var horiz = new THREE.Geometry();
-		horiz.vertices.push(new THREE.Vector3(-100, 0 , spacing * i - offsetCenter));
-		horiz.vertices.push(new THREE.Vector3(+100, 0 , spacing * i - offsetCenter));
+		horiz.vertices.push(new THREE.Vector3( -rows*spacing/2, 0 , spacing * i - offsetCenter));
+		horiz.vertices.push(new THREE.Vector3( rows*spacing/2, 0 , spacing * i - offsetCenter));
 		var lineH = new THREE.Line(horiz, material);
 		group.add( lineH );
 	}

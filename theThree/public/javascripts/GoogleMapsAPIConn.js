@@ -6,10 +6,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
 function loadMap(mapObj) {
     //A promise is used because encodeURIComponent is not synchronous.
     mapObj = mapObj || {};
-    mapObj.center = mapObj.hasOwnProperty('center') ? encodeURICompoent(mapObj.address) : val;        
+    mapObj.center = mapObj.center || "444 De Haro, San Francisco, Ca";        
 
+    //set defaults based on what is inputted
+    //initialize map object if none exists
 
-    "500 Vernon St, oakland, ca"
+    mapObj.size = mapObj.size || "200x200";
+    mapObj.scale =  mapObj.scale || 2;
+    mapObj.key =  mapObj.key || "AIzaSyBxxi5-bG4cnbPDPwZw0LfgSNzpPFOHs5E";
+    mapObj.maptype =  mapObj.maptype || "satellite";
+    mapObj.format = mapObj.format || 'png';
+    mapObj.urll = mapObj.urll || "https://maps.googleapis.com/maps/api/staticmap";
+    mapObj.zoom =  mapObj.zoom || 18;
+
+    
     var promise = new Promise(function (resolve, reject) {
         resolve(encodeURIComponent(mapObj.center));
         reject(function(){
@@ -19,16 +29,6 @@ function loadMap(mapObj) {
 
     promise.then(function (val) {
         
-        //set defaults based on what is inputted
-        //initialize map object if none exists
-      
-        mapObj.size = mapObj.size || "200x200";
-        mapObj.scale =  mapObj.scale || 2;
-        mapObj.key =  mapObj.key || "AIzaSyBxxi5-bG4cnbPDPwZw0LfgSNzpPFOHs5E";
-        mapObj.maptype =  mapObj.maptype || "satellite";
-        mapObj.format = mapObj.format || 'png';
-        mapObj.urll = mapObj.urll || "https://maps.googleapis.com/maps/api/staticmap";
-        mapObj.zoom =  mapObj.zoom || 18;
         
         //build the query
         var urlQuery = Object.getOwnPropertyNames(mapObj).reduce(function (queryString, property) {

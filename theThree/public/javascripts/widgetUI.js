@@ -1,7 +1,7 @@
 
 //Create the google maps ui then append to the UI Contianer
 function appendInterface (){
-  
+  document.getElementById("myP").style.cursor = "crosshair";
 
   var tabs = 
     '<div id="tabs" class="float">'+
@@ -31,6 +31,7 @@ function appendMapInterface (){
           '<option value="300x300">300x300</option>'+
           '<option value="400x400">400x400</option>'+
           '<option value="500x500">500x500</option>'+
+          '<option value="500x500">2000x2000</option>'+
         '</select>'+
 
         '<select name ="zoom">'+
@@ -43,11 +44,11 @@ function appendMapInterface (){
 
       
       '</form>'+
-      '<input id="updateMap" type="button" name="submit" value="Submit">'+
+      //'<input id="updateMap" type="button" name="submit" value="Submit">'+
     '</div>';
 
   $('ul.ui-tabs-nav').after(mapTab);
-  $('#updateMap').click(function (){
+  $('#mapData').change(function (){
     var mapObj = {};
 
     $('#mapData').children().each(function (val){
