@@ -50,6 +50,7 @@ function nameObj (object){
 
 window.addEventListener("mousedown", function (event){
   var intersects = getIntersects();
+  intersects.forEach(function (val){console.log(val.object.name)})
 });
 
 function getIntersects(){
@@ -97,8 +98,18 @@ function makeLine (fromPoint, toPoint){
   //can immediately be added to scene or group
   return cylinder;
 };
+window.addEventListener("keydown", function (event){
+  if (event.which === 65){
 
+
+
+  }
+
+
+
+});
 window.addEventListener("keyup", function (event){
+  event.preventDefault();
   if (event.which === 65 ){ // a key
     var group = new THREE.Group();
     var x;
@@ -129,7 +140,7 @@ window.addEventListener("keyup", function (event){
         }
 
         //Add each point to our shapeQue - from which we wull eventually make a shape via extrusion
-        shapeQue.push(new THREE.Vector3(intersect.point.x, 20, intersect.point.z));
+        shapeQue.push(new THREE.Vector3(intersect.point.x,0,  intersect.point.z));
 
         //Add the sphere to the scene to be visible representation of what we have in our queue
         var geometry = new THREE.SphereGeometry( .5, 32, 32 );
@@ -147,9 +158,7 @@ window.addEventListener("keyup", function (event){
   if (event.which ===32 ) {//spacebar 
       // console.log(intersects);
   }
-
-  if (event.which === 13 ){ // enter key
-    
+  if (event.which === 83 ){ // s key
     var newOutline =  new THREE.Shape();
     shapeQue.forEach(function (point, i , array){
       if (array.length > 2){
@@ -160,18 +169,20 @@ window.addEventListener("keyup", function (event){
         }
       }
     });
+
     var group = new THREE.Group();
-    group.add( addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, toRad(90), 0, 0, 1 ) );
+    var shape = addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, toRad(90), 0, 0, 1 );
+    shape.name = "mounting plane shape";
+    group.add( shape );
+    
     //transfer any objects put into the scene back into the group
-    shapeQue.forEach(function (val){
-      group.add(scene.children.pop());
-    });
-
-    scene.children.forEach(function (child){
-      if (child.name === "sphere" || child.name === "cylinder" ){
-
+    for(var i=scene.children.length-1; i > 0; i--){
+      if (scene.children[i].name === "sphere" || scene.children[i].name === "cylinder"){
+        group.add(scene.children.splice(i,1)[0])
       }
-    });
+    }
+
+   
 
     //reset the shapeQue
     shapeQue = [];

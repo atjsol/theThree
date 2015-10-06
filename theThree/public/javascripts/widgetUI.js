@@ -1,7 +1,7 @@
 
 //Create the google maps ui then append to the UI Contianer
 function appendInterface (){
-  document.getElementById("myP").style.cursor = "crosshair";
+  // document.getElementById("myP").style.cursor = "crosshair";
 
   var tabs = 
     '<div id="tabs" class="float">'+
@@ -21,12 +21,10 @@ function appendInterface (){
 
 function appendMapInterface (){
   var mapTab =
-    '<div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-hidden="true" style="display: none;">'+
-      '<form id="mapData">'+
-        
-        '<input type="text" name = "center">Address</input>'+
-        
-        '<select name="size">'+
+    '<div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom white-background" role="tabpanel" aria-hidden="true" style="display: none;">'+
+      '<form class="white-background" id="mapData">'+
+        '<input type="text" class="padding5" name="center"> Address </input>'+
+        '<select class="padding5" name="size">'+
           '<option value="200x200">200x200</option>'+
           '<option value="300x300">300x300</option>'+
           '<option value="400x400">400x400</option>'+
@@ -34,7 +32,7 @@ function appendMapInterface (){
           '<option value="500x500">2000x2000</option>'+
         '</select>'+
 
-        '<select name ="zoom">'+
+        '<select class="padding5" name ="zoom">'+
           '<option>17</option>'+
           '<option>18</option>'+
           '<option>19</option>'+
@@ -42,21 +40,18 @@ function appendMapInterface (){
           '<option>21</option>'+
         '</select>'+
 
-      
       '</form>'+
+      
       //'<input id="updateMap" type="button" name="submit" value="Submit">'+
     '</div>';
 
   $('ul.ui-tabs-nav').after(mapTab);
-  $('#mapData').change(function (){
+  $('#mapData').change(function (val){
     var mapObj = {};
-
     $('#mapData').children().each(function (val){
-
-      mapObj[this.name]=this.value
+      mapObj[this.name]=this.value;
     });
     loadMap(mapObj);
-    console.dir(mapObj);
   // $( "form" ).submit(function( event ) {
   //   console.log(event);
   //   $( this ).serializeArray();

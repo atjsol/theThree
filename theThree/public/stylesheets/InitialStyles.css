@@ -39,3 +39,18 @@ canvas {
   border:0;
   padding:0;
 }
+
+.white-background {
+  background-color:white;
+  height:100%;
+
+
+};
+
+.padding5 {
+  padding:5px;
+};
+
+.list-style-none {
+  list-style-type : none;
+};
