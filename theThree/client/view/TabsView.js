@@ -1,0 +1,3 @@
+TabsView = module.export = function() {
+	
+}
