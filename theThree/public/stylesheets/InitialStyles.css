@@ -29,7 +29,6 @@ canvas {
   z-index: 1;
   top: 0;
   left: 0;
-  width:100%;
   
 
 }
@@ -40,7 +39,7 @@ canvas {
   padding:0;
 }
 
-.white-background {
+.ui-tabs .ui-tabs-panel {
   background-color:white;
   height:100%;
 
@@ -54,3 +53,52 @@ canvas {
 .list-style-none {
   list-style-type : none;
 };
+
+
+.right-tab {
+  position:absolute;
+  float:right;
+  width: 488px;
+  background-color: #7ad;
+}
+#right-tab {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    height: 52px;
+    -webkit-transform-origin: 0 0;
+       -moz-transform-origin: 0 0;
+         -o-transform-origin: 0 0;
+            transform-origin: 0 0;
+    -webkit-transform: rotate(-90deg) translate(-488px, 0px);
+       -moz-transform: rotate(-90deg) translate(-488px, 0px);
+         -o-transform: rotate(-90deg) translate(-488px, 0px);
+            transform: rotate(-90deg) translate(-488px, 0px);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+#right-tab li {
+    float: right;
+    width: 120px;
+    height: 50px;
+    border: 1px solid #000;
+}
+#right-tab li a {
+    display: block;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000;
+    background-color: #ddd;
+}
+#right-tab li a:hover {
+    background-color: #bbb;
+}
+
+.compass {
+  height : 8%;
+
+
+}

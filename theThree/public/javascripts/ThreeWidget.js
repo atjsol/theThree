@@ -175,7 +175,17 @@ function addShape( shape, extrudeSettings, color, x, y, z, rx, ry, rz, s ) {
 var raycaster = new THREE.Raycaster();
 var intersects = []; 
 
+//the reqAniFrameArray will allow us to easily add functions to be executed during each frame
+var reqAniFrameArray = [];
+
 function animate (){
+  if (reqAniFrameArray.length > 0 ){
+    reqAniFrameArray.forEach(function (executable){
+      executable.call(null);
+    });
+  }
+
+
   intersects = getIntersects();
 
   intersects.forEach(function (object){

@@ -3,26 +3,40 @@
 function appendInterface (){
   // document.getElementById("myP").style.cursor = "crosshair";
 
-  var tabs = 
-    '<div id="tabs" class="float">'+
+  var controlTabs = 
+    '<div id="" class="float">'+
       '<ul>'+
         '<li><a href="#tabs-1">Map Options</a></li>'+
         '<li><a href="#tabs-2">Draw Options</a></li>'+
         '<li><a href="#tabs-3">Third</a></li>'+
       '</ul>'+
-      
       '<div id="tabs-2">Fusce sed lorem in enim dictum bibendum.</div>'+
       '<div id="tabs-3">equat vestibulum, lacus. Mauris porttitor ullamcorper augue.</div>'+
+    '</div>';
 
-    '</div>'
-    ;
-  $("#interface").prepend(tabs).tabs({collapsible:true});
+  $("#interface").prepend(controlTabs).tabs({collapsible:true});
+
+  // var objectTabs =
+  //  '<div class="right-Tab">'+
+  //   '<ul id="right-tab">'+
+  //     '<li><a href="groupsTab">Group</a>'+
+  //     '<li><a href="pointsTab">Points</a></li>'+
+  //     '<li><a href="linesTab">Lines</a></li>'+
+  //     '<li><a href="planesTab">Planes</a></li>'+
+  //     '</li>'+
+  //   '</ul>'+
+  // '</div>';
+
+  // $('#interface').prepend(objectTabs).tabs({collapsible:true});
+
+
+
 }
 
 function appendMapInterface (){
   var mapTab =
-    '<div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom white-background" role="tabpanel" aria-hidden="true" style="display: none;">'+
-      '<form class="white-background" id="mapData">'+
+    '<div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-hidden="true" style="display: none;">'+
+      '<form id="mapData">'+
         '<input type="text" class="padding5" name="center"> Address </input>'+
         '<select class="padding5" name="size">'+
           '<option value="200x200">200x200</option>'+
@@ -32,7 +46,7 @@ function appendMapInterface (){
           '<option value="500x500">2000x2000</option>'+
         '</select>'+
 
-        '<select class="padding5" name ="zoom">'+
+        '<select class="padding5" name="zoom">'+
           '<option>17</option>'+
           '<option>18</option>'+
           '<option>19</option>'+
@@ -41,34 +55,33 @@ function appendMapInterface (){
         '</select>'+
 
       '</form>'+
-      
+      '<img src="../images/compass.jpg" class="compass" />'+
       //'<input id="updateMap" type="button" name="submit" value="Submit">'+
-    '</div>';
+    '</div>'+
+    '<input id="slider" type="range" min="0" max="359" step="1" val="0">';
 
   $('ul.ui-tabs-nav').after(mapTab);
+  $('.compass').mousedown(function (event){
+    console.log(event);
+  });
+ 
   $('#mapData').change(function (val){
     var mapObj = {};
     $('#mapData').children().each(function (val){
       mapObj[this.name]=this.value;
     });
-    loadMap(mapObj);
-  // $( "form" ).submit(function( event ) {
-  //   console.log(event);
-  //   $( this ).serializeArray();
-   
 
-  //   event.preventDefault();
-  
-  // });
+    loadMap(mapObj);
 
   });
   
 }
 
 
+
 $().ready(function (){
   appendInterface();
-  appendMapInterface();  
+  appendMapInterface(); 
 })
 
 
