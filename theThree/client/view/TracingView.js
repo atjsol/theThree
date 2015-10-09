@@ -10,19 +10,27 @@ var TracingView = module.exports = function($el) {
   this.$el = $el;
   this.width = window.innerWidth;
   this.height = window.innerHeight;
+  this.animationArray = [];
   this.init();
+
 
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
+
+
+
 };
 
 TracingView.prototype = Object.create({
+
+
   init: function() {
     this.setupScene();
     this.drawGrid();
     this.drawOrigin();
-    
+
+
   },
 
   setupScene: function() {
@@ -116,16 +124,37 @@ TracingView.prototype = Object.create({
 
 
   getIntersects: function() {
-    return this.raycaster.intersectObjects(this.scene.children);
+    return this.raycaster.intersectObjects(this.scene.children, true);
   },
 
   getMouse: function() {
     return this.controls.mouse;
   },
 
-  animate: function() {
-    var intersects = this.getIntersects();
+  addToAnimationArray: function(func) {
+    this.animationArray.push(func);
+  },
 
+  resetAnimationArray: function() {
+    this.animationArray = [];
+  },
+
+  removeChildren: function(name) {
+    this.scene.children = _.filter(this.scene.children, function(child) {
+      return child.name !== name;
+    });
+  },
+
+
+
+  animate: function() {
+    if (this.animationArray.length > 0) {
+      this.animationArray.forEach(function(executable) {
+        executable.call(null);
+      });
+    }
+
+    var intersects = this.getIntersects();
     intersects.forEach(function(object) {
       if (object.object.name === "map") {
         intersects.map = new THREE.Vector3(object.point.x, 20, object.point.z);
@@ -156,6 +185,7 @@ TracingView.prototype = Object.create({
 
 
     var img = new Image();
+
     //this cross origin thing is huge, needs to be set before the img.src is set- if this is not set the canvas will be dirty and webGL will give us a bunch of errors
     img.crossOrigin = '';
     img.src = path;
