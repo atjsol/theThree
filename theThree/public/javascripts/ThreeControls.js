@@ -175,17 +175,13 @@ function snapOrth (start, fulcrum, end){
   //get vector from start fulcrum
   var line1 = start.clone().sub(fulcrum);
 
-  
   //get vector from fulcrum and end
   var line2 = end.clone().sub(fulcrum); 
 
+  // use cross product to get clockwise or ccw direction to modify angle calculation
   var cross = line1.clone();
-
   cross.cross(line2);
-  console.log(cross);
 
-
-  var theta = Math.atan2(end.z, end.x)-Math.atan2(fulcrum.z, fulcrum.x); 
   // compare the two vectors 
   var angle = line1.angleTo(line2);
   
@@ -197,42 +193,21 @@ function snapOrth (start, fulcrum, end){
     if (compAngle > i-45/2 && compAngle < i+45/2 ){
       if (cross.y < 0){
         modAngle = toRad(compAngle)-toRad(i); 
-        
       } else {
         modAngle = toRad(i)-toRad(compAngle);
       }
-
     }
   }
-  // console.log("comp angle", compAngle, "modAngle", modAngle);
+
   // axis - normalized vector3
   // angle - angle in radians
   //set the axis to rotate about
-
   var axis = new THREE.Vector3(0,1,0);
   line2.applyAxisAngle(axis, modAngle)
+  //add the fulcrum back in 
   line2.add(fulcrum)
-  //add back in the fulcrum 
   return line2;
 }
-
-
-// function animateSomething (){
-//   removeMouseline("orth");
-
-//   var a = new THREE.Vector3(20,20,0);
-//   var b = new THREE.Vector3(0,20,0);
-//   var c = new THREE.Vector3(20,20,20);
-
-//   var orth = snapOrth(a, b, c );
-//   var newLine = makeLine(orth, b);
-//   newLine.name = "orth";
-//   scene.add(newLine);
-//   if (counter ===90) { counter = 0}
-
-// }
-// var counter =0;
-
 
 
 Array.prototype.backwards = function (func){
@@ -247,7 +222,7 @@ window.addEventListener("keyup", function (event){
   if (event.which === 65 ){ // a key
     var group = new THREE.Group();
     var x, y, z;
-
+    
     // get the top layer of intersect
     shapeQue = shapeQue || [];
     // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
