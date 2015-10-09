@@ -53,7 +53,8 @@ window.addEventListener("mousedown", function (event){
 });
 
 function getIntersects(){
-  var intersects = raycaster.intersectObjects(scene.children);
+  // the Raycaster will check if it hits anything in the array (scene.children) and recurisvely check the childrens children (true)
+  var intersects = raycaster.intersectObjects(scene.children, true);
   return intersects;
 };
 function lookAtMouse (){
@@ -85,28 +86,6 @@ function thetaCalc (mouse, beginPoint, endPoint){
 
 } 
 
-function perp (mouse, beginPoint, endPoint) {
-
-  // var vector.x =  endPoint.x - beginPoint.x;
-  // var vector.y =  endPoint.y - beginPoint.y;
-
-  // slope = vector.y/vector.x;
-  // inverseSlope = -1/slope;
-
-
-  // var theta = Math.atan2(vector.y, vector.x);
-  // var perpendicularAngle = theta + Math.PI/4;
-
-
-  // return {x:mouse.x, y:}
-
-  //calc angle to x axis
-  //add PI/2 to get the new angle 
-  //
-
-
-
-}
 
 
 
@@ -160,12 +139,11 @@ window.addEventListener("keydown", function (event){
   }
 });
 
-function removeMouseline (){
-
+function removeMouseline (name ){
   var children = scene.children;
-  
+  name = name || "mouseline";
   children.backwards(function (value, i){
-    if (children[i].name === "mouseline"){
+    if (children[i].name === name){
       children.splice(i,1);
     }
   });
@@ -173,13 +151,88 @@ function removeMouseline (){
 };
 
 //add a cylinder to the scene to indicate where the line would go with the origin point being the last point in the shape queue and the current mouse position
-function mouseline (){
-  removeMouseline();
+function mouseline (start, end, name){
+  removeMouseline();  // remove the old line before we add a new line
   shapeQue[shapeQue.length-1].y=20;  //set to the inital height of outline
-  var mouseline = makeLine(shapeQue[shapeQue.length-1], new THREE.Vector3(mouse3D.x, 20, mouse3D.z));
-  mouseline.name = "mouseline";  
+  start = start || shapeQue[shapeQue.length-1];
+  end =  end || new THREE.Vector3(mouse3D.x, 20, mouse3D.z);
+  if (shapeQue.length > 1){
+    end = snapOrth(shapeQue[shapeQue.length-2], shapeQue[shapeQue.length-1],end);
+  }
+  var mouseline = makeLine(start, end);
+  mouseline.name = name || "mouseline";  
   scene.add(mouseline);
 };
+
+
+
+function toDeg (val){
+  return val * 180 / Math.PI;
+}
+
+//this function will take in 3 points, start, fulcrum, end and return a vector that is either + 90, 180 or 270 from the vector produced from start and fulcrum  
+function snapOrth (start, fulcrum, end){
+  //get vector from start fulcrum
+  var line1 = start.clone().sub(fulcrum);
+
+  
+  //get vector from fulcrum and end
+  var line2 = end.clone().sub(fulcrum); 
+
+  var cross = line1.clone();
+
+  cross.cross(line2);
+  console.log(cross);
+
+
+  var theta = Math.atan2(end.z, end.x)-Math.atan2(fulcrum.z, fulcrum.x); 
+  // compare the two vectors 
+  var angle = line1.angleTo(line2);
+  
+  var modAngle;
+  var compAngle = toDeg(angle);
+  
+  //create a ruleset for which angle to use
+  for (var i =0; i < 181; i+=45){
+    if (compAngle > i-45/2 && compAngle < i+45/2 ){
+      if (cross.y < 0){
+        modAngle = toRad(compAngle)-toRad(i); 
+        
+      } else {
+        modAngle = toRad(i)-toRad(compAngle);
+      }
+
+    }
+  }
+  // console.log("comp angle", compAngle, "modAngle", modAngle);
+  // axis - normalized vector3
+  // angle - angle in radians
+  //set the axis to rotate about
+
+  var axis = new THREE.Vector3(0,1,0);
+  line2.applyAxisAngle(axis, modAngle)
+  line2.add(fulcrum)
+  //add back in the fulcrum 
+  return line2;
+}
+
+
+// function animateSomething (){
+//   removeMouseline("orth");
+
+//   var a = new THREE.Vector3(20,20,0);
+//   var b = new THREE.Vector3(0,20,0);
+//   var c = new THREE.Vector3(20,20,20);
+
+//   var orth = snapOrth(a, b, c );
+//   var newLine = makeLine(orth, b);
+//   newLine.name = "orth";
+//   scene.add(newLine);
+//   if (counter ===90) { counter = 0}
+
+// }
+// var counter =0;
+
 
 
 Array.prototype.backwards = function (func){
@@ -187,6 +240,7 @@ Array.prototype.backwards = function (func){
     func.call(null, this[i], i, this )
   }
 };
+
 
 window.addEventListener("keyup", function (event){
   event.preventDefault();
@@ -205,11 +259,7 @@ window.addEventListener("keyup", function (event){
         z = intersect.point.z;
       }
     });
-    if (shapeQue.length === 1){
-      //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
-      reqAniFrameArray.push(mouseline);
-    }
-
+   
     //add cylinder tubes to show vectors to next point
     if ( shapeQue.length > 0){
 
@@ -228,7 +278,17 @@ window.addEventListener("keyup", function (event){
     }
 
     //Add each point to our shapeQue - from which we wull eventually make a shape via extrusion
-    shapeQue.push(new THREE.Vector3(x, 0, z));
+    shapeQue.push(new THREE.Vector3(x, 20, z));
+
+    if (shapeQue.length===2){
+      // reqAniFrameArray.push(animateSomething);
+     
+    }
+
+    if (shapeQue.length === 1){
+      //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
+      reqAniFrameArray.push(mouseline);
+    }
 
     //Add the sphere to the scene to be visible representation of what we have in our queue
     var geometry = new THREE.SphereGeometry( .5, 32, 32 );
@@ -239,9 +299,7 @@ window.addEventListener("keyup", function (event){
     sphere.position.y = 20;
     sphere.position.z = z;
     scene.add( sphere );
-  
   }
-
 
   if (event.which ===13) {//enter key 
       // console.log(intersects);
@@ -252,11 +310,12 @@ window.addEventListener("keyup", function (event){
   }
   if (event.which === 83 ){ // s key
     //remove the mouseline animation when calculating the total shape
-    for (var i = reqAniFrameArray.length-1; i >= 0 ; i--){
-      if (reqAniFrameArray[i] === mouseline){
+    reqAniFrameArray.backwards(function (func){
         reqAniFrameArray.splice(i,1);
-      }
-    }
+    });
+
+    // remove any existing mouseline
+    removeMouseline();
 
     var newOutline =  new THREE.Shape();
     shapeQue.forEach(function (point, i , array){
@@ -269,13 +328,15 @@ window.addEventListener("keyup", function (event){
       }
     });
 
-    // remove any existing mouseline
-    removeMouseline();
+    //add final line between the first and last points in the shape
+    scene.add(makeLine(shapeQue[0], shapeQue[shapeQue.length-1]));
+
+
+
     var group = new THREE.Group();
     var shape = addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, toRad(90), 0, 0, 1 );
     shape.name = "mounting plane shape";
     group.add( shape );
-    
     
     //transfer any objects put into the scene back into the group
     for(var i=scene.children.length-1; i > 0; i--){
@@ -283,8 +344,6 @@ window.addEventListener("keyup", function (event){
         group.add(scene.children.splice(i,1)[0])
       }
     }
-
-   
 
     //reset the shapeQue
     shapeQue = [];
