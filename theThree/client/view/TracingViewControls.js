@@ -1,13 +1,24 @@
 var THREE = require("three.js");
+THREE.OrbitControls = require('three-orbit-controls')(THREE);
 var TracingViewControls = module.exports = function(tracingView) {
   this.tracingView = tracingView;
   this.$el = tracingView.$el;
   this.trackMouse();
+  this.setUpOrbitalControls();
 
 
 };
 
 TracingViewControls.prototype = Object.create({
+  setUpOrbitalControls : function (){
+    controls = new THREE.OrbitControls( this.tracingView.camera, this.tracingView.renderer.domElement );
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    controls.enableZoom = true;
+
+
+
+  },
   trackMouse: function() {
     var self = this;
     if (!this.mouse) {

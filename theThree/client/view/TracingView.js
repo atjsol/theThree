@@ -10,8 +10,11 @@ var TracingView = module.exports = function($el) {
   this.$el = $el;
   this.width = window.innerWidth;
   this.height = window.innerHeight;
+  this.init();
+
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
+  this.animate();
 };
 
 TracingView.prototype = Object.create({
@@ -19,7 +22,7 @@ TracingView.prototype = Object.create({
     this.setupScene();
     this.drawGrid();
     this.drawOrigin();
-    this.animate();
+    
   },
 
   setupScene: function() {
