@@ -217,6 +217,7 @@ Array.prototype.backwards = function (func){
 };
 
 
+
 window.addEventListener("keyup", function (event){
   event.preventDefault();
   if (event.which === 65 ){ // a key

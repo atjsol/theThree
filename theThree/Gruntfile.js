@@ -48,7 +48,14 @@ module.exports = function(grunt) {
                 "!bower_components/**",
                 "!dist/**"
             ],
-            options: {}
+            options: {
+                js: {
+                    indentSize:2
+                },
+                html: {
+                    indentSize:2
+                }
+            }
         }
     });
 
