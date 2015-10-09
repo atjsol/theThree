@@ -141,7 +141,7 @@ TracingView.prototype = Object.create({
     this.loadImage(mapUrl);
   },
 
-  loadImage: function loadImage(path) {
+  loadImage: function(path) {
     var self = this;
     var canvas = document.createElement('canvas');
 

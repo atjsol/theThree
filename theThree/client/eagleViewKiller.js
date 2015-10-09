@@ -8,4 +8,6 @@ $(function() {
 
   var mapControlsView = new MapControlsView($("#mapData"));
   var tracingView = new TracingView($("#three-view"));
+
+  mapControlsView.handleFormChange();
 });
