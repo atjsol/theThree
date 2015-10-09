@@ -1,3 +1,0 @@
-TabsView = module.export = function() {
-	
-}

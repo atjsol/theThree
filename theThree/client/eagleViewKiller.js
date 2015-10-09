@@ -1,21 +1,12 @@
 var $ = require("jquery");
 require("jquery-ui");
-var tabView = require("./view/tabView.html");
-var mapTab = require("./view/mapTab.html");
+var MapControlsView = require("./view/MapControlsView");
+var TracingView = require("./view/TracingView");
 
 $(function() {
-	console.log("Hello world");
-
-
-	var interface = $("#interface");
-    interface.prepend(tabView).tabs({collapsible:true});
-
-    $('ul.ui-tabs-nav').after(mapTab);
-    $('#mapData').change(function (val){
-    	var mapObj = {};
-    	$('#mapData').children().each(function (val){
-    		mapObj[this.name]=this.value;
-    	});
-    });
-    //loadMap(mapObj);
+	$("#tabs").tabs();
+	
+    var mapControlsView = new MapControlsView($("#mapData"));
+    var tracingView = new TracingView($("#three-view"));
+    tracingView.init();
 });
