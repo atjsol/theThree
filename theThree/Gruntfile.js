@@ -1,0 +1,61 @@
+module.exports = function(grunt) {
+    grunt.initConfig({
+        jshint: {
+            options: {
+                bitwise: true,
+                curly: true,
+                eqeqeq: true,
+                funcscope: true,
+                latedef: "nofunc",
+                maxcomplexity: 10,
+                maxdepth: 3,
+                maxparams: 7,
+                maxstatements: 20,
+                nonbsp: true,
+                shadow: true,
+                undef: true
+            },
+            client: {
+                src: ["client/**/*.js"],
+                options: {
+                    browserify: true,
+
+                    globals: {
+                        App: true,
+                        fetch: true,
+                        Promise: true
+                    }
+                }
+            },
+            server: {
+                src: [
+                    "**/*.js",
+                    "!node_modules/**",
+                    "!bower_components/**",
+                    "!client/**",
+                    "!public/**",
+                    "!dist/**"
+                ],
+                options: {
+                    node: true
+                }
+            }
+        },
+        jsbeautifier: {
+            files: [
+                "client/**/*.js",
+                "!node_modules/**",
+                "!bower_components/**",
+                "!dist/**"
+            ],
+            options: {}
+        }
+    });
+
+    grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("grunt-jsbeautifier");
+
+    grunt.registerTask("default", ["jshint"]);
+
+    grunt.registerTask("format", ["jshint:client", "jsbeautifier"]);
+};

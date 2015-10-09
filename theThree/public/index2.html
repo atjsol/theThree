@@ -1,0 +1,50 @@
+<html>
+	<head>
+    <title>Eagle View Killer</title>
+    
+    <link rel="stylesheet" type="text/css" href="/stylesheets/InitialStyles.css"/>
+    <link rel="stylesheet" type= "text/css" href="/jquery-ui/themes/base/jquery-ui.css"/>
+
+  </head>
+  <body>
+
+      <!-- <canvas id="palette" class="views off-screen"> </canvas> -->
+      <div id="map" class="views off-screen"></div>
+      <div id="three-view" class="views"></div>
+      <div id="interface">
+        <div id="tabs" class="float">
+          <ul>
+            <li><a href="#tabs-1">Map Options</a></li>
+            <li><a href="#tabs-2">Draw Options</a></li>
+            <li><a href="#tabs-3">Third</a></li>
+          </ul>
+          <div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom white-background" role="tabpanel" aria-hidden="true" style="display: none;">
+            <form class="white-background" id="mapData">
+              <input type="text" class="padding5" name="center"> Address </input>
+              <select class="padding5" name="size">
+                <option value="200x200">200x200</option>
+                <option value="300x300">300x300</option>
+                <option value="400x400">400x400</option>
+                <option value="500x500">500x500</option>
+                <option value="500x500">2000x2000</option>
+              </select>
+
+              <select class="padding5" name ="zoom">
+                <option>17</option>
+                <option>18</option>
+                <option>19</option>
+                <option>20</option>
+                <option>21</option>
+              </select>
+
+            </form>
+          </div>;
+          <div id="tabs-2">Fusce sed lorem in enim dictum bibendum.</div>
+          <div id="tabs-3">equat vestibulum, lacus. Mauris porttitor ullamcorper augue.</div>
+        </div>
+      </div>
+
+      <script src="/js/eagleViewKiller.js"></script>
+     
+  </body>
+</html>
