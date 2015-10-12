@@ -7,6 +7,13 @@ var MapControlsView = module.exports = function($el) {
   this.$el = $el;
 
   $el.change(this.handleFormChange);
+  $el.on("keyup keydown", function(event) {
+    event.stopPropagation();
+  });
+  $el.on("submit", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  })
 };
 
 MapControlsView.prototype = Object.create({
