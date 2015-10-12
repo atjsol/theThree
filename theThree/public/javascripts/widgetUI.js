@@ -72,16 +72,39 @@ function appendMapInterface (){
     });
 
     loadMap(mapObj);
+  });
+};
 
+function toggleOrth (val){
+    if (val.value==="false"){
+      val.innerHTML = "<u>O</u>rthogonal";
+      val.value="true";
+    } else {
+      val.value="false";
+      val.innerHTML = "N<u>o</u>rmal";
+    }
+
+}
+
+function appendDrawInterface (){
+  var drawTab =
+    '<div id="tabs-2" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-hidden="true" style="display: none;">'+
+        '<button id="ortho" value="true"><u>O</u>rthogonal</button>'+
+    '</div>';
+  $('ul.ui-tabs-nav').after(drawTab);
+
+  $('#ortho').click(function(val){
+    toggleOrth(val.currentTarget);
   });
   
-}
+};
 
 
 
 $().ready(function (){
   appendInterface();
-  appendMapInterface(); 
+  appendMapInterface();
+  appendDrawInterface(); 
 })
 
 
