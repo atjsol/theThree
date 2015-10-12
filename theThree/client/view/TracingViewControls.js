@@ -39,7 +39,6 @@ TracingViewControls.prototype = Object.create({
     }
     var mouse = this.mouse;
 
-    debugger;
     this.$el.on("mousemove", function($event) {
       var event = $event.originalEvent;
       mouse.deltaX = mouse.x - event.x;
@@ -64,7 +63,6 @@ TracingViewControls.prototype = Object.create({
     var self = this;
     var scene = this.tracingView.scene;
     var shapeQue = this.shapeQue;
-    var mouse3D = this.mouse3D;
     if (event.which === 65) { // a key
       var intersects = self.tracingView.getIntersects();
       var group = new THREE.Group();
@@ -111,7 +109,7 @@ TracingViewControls.prototype = Object.create({
           self.tracingView.removeChildren("mouseline"); // remove the old line before we add a new line
           shapeQue[shapeQue.length - 1].y = 20; //set to the inital height of outline
           start = start || shapeQue[shapeQue.length - 1];
-          end = end || new THREE.Vector3(mouse3D.x, 20, mouse3D.z);
+          end = end || new THREE.Vector3(self.mouse3D.x, 20, self.mouse3D.z);
           if (shapeQue.length > 1) {
             end = lineMaker.snapOrth(shapeQue[shapeQue.length - 2], shapeQue[shapeQue.length - 1], end);
           }
