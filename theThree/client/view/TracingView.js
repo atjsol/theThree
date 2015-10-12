@@ -78,10 +78,11 @@ TracingView.prototype = Object.create({
     }, false);
   },
 
-  drawGrid: function(spacing, rows) {
+  drawGrid: function(spacing, rows, gridOffset) {
     // This function draws a grid
     spacing = spacing ? spacing : 20;
     rows = rows ? rows : 10;
+    gridOffset = gridOffset || 1;
     var group = new THREE.Group();
     var material = new THREE.LineBasicMaterial({
       color: 0xff00ff
@@ -89,14 +90,14 @@ TracingView.prototype = Object.create({
     var offsetCenter = spacing * rows / 2;
     for (var i = 0; i <= rows; i++) {
       var vert = new THREE.Geometry();
-      vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, 0, -rows * spacing / 2));
-      vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, 0, rows * spacing / 2));
+      vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, -rows * spacing / 2));
+      vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, rows * spacing / 2));
       var lineV = new THREE.Line(vert, material);
       group.add(lineV);
 
       var horiz = new THREE.Geometry();
-      horiz.vertices.push(new THREE.Vector3(-rows * spacing / 2, 0, spacing * i - offsetCenter));
-      horiz.vertices.push(new THREE.Vector3(rows * spacing / 2, 0, spacing * i - offsetCenter));
+      horiz.vertices.push(new THREE.Vector3(-rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
+      horiz.vertices.push(new THREE.Vector3(rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
       var lineH = new THREE.Line(horiz, material);
       group.add(lineH);
     }
