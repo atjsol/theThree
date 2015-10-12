@@ -124,7 +124,13 @@ TracingView.prototype = Object.create({
 
 
   getIntersects: function() {
-    return this.raycaster.intersectObjects(this.scene.children, true);
+    var intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    intersects.forEach(function(intersect) {
+      if (intersect.object.name === "map") {
+        intersects.map = new THREE.Vector3(intersect.point.x, 20, intersect.point.z);
+      }
+    });
+    return intersects;
   },
 
   getMouse: function() {
@@ -155,11 +161,6 @@ TracingView.prototype = Object.create({
     }
 
     var intersects = this.getIntersects();
-    intersects.forEach(function(object) {
-      if (object.object.name === "map") {
-        intersects.map = new THREE.Vector3(object.point.x, 20, object.point.z);
-      }
-    });
     this.raycaster.setFromCamera(this.getMouse(), this.camera);
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.animate);
