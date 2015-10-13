@@ -13,7 +13,7 @@ var MapControlsView = module.exports = function($el) {
   $el.on("submit", function(event) {
     event.preventDefault();
     event.stopPropagation();
-  })
+  });
 };
 
 MapControlsView.prototype = Object.create({

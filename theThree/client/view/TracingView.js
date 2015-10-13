@@ -200,7 +200,7 @@ TracingView.prototype = Object.create({
 
 
       context.translate(width / 2, height / 2);
-      context.rotate(util.toRad(45));
+      // context.rotate(util.toRad(45));
       context.drawImage(img, -width / 2, -height / 2);
 
 
