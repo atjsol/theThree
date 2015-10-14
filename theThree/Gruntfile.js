@@ -17,12 +17,14 @@ module.exports = function(grunt) {
             client: {
                 src: ["client/**/*.js"],
                 options: {
+                    browser: true,
                     browserify: true,
+                    devel: true,
                     
                     globals: {
-                        App: true,
-                        fetch: true,
-                        Promise: true
+                        Promise: true,
+                        Response: true,
+                        Map: true
                     }
                 }
             },

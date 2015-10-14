@@ -4,6 +4,7 @@ var _ = require("lodash");
 var lineMaker = require("../lib/lineMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
 var util = require("../lib/util");
+var eventBus = require("../lib/eventBus");
 
 var TracingViewControls = module.exports = function(tracingView) {
   var self = this;
@@ -173,6 +174,7 @@ TracingViewControls.prototype = Object.create({
       group.name = name;
       scene.add(group);
 
+      eventBus.trigger("create:mountingPlane", group);
     }
 
   },
