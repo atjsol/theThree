@@ -12,6 +12,5 @@ $(function() {
   // var tracingView = new TracingView($("#three-view"));
   window.tracingView = new TracingView($("#three-view"));
 
-
   mapControlsView.handleFormChange();
 });
