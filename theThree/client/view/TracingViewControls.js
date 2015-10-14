@@ -4,6 +4,9 @@ var _ = require("lodash");
 var lineMaker = require("../lib/lineMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
 var util = require("../lib/util");
+var $ = require("jquery");
+var eventBus = require("../lib/eventBus");
+var orthogonalStatus = require("../orthogonalStatus");
 
 var TracingViewControls = module.exports = function(tracingView) {
   var self = this;
@@ -59,7 +62,9 @@ TracingViewControls.prototype = Object.create({
     });
   },
 
+
   handleKeyUp: function(event) {
+    // console.log(event);
     var self = this;
     var scene = this.tracingView.scene;
     var shapeQue = this.shapeQue;
@@ -110,7 +115,7 @@ TracingViewControls.prototype = Object.create({
           shapeQue[shapeQue.length - 1].y = 20; //set to the inital height of outline
           start = start || shapeQue[shapeQue.length - 1];
           end = end || new THREE.Vector3(self.mouse3D.x, 20, self.mouse3D.z);
-          if (shapeQue.length > 1) {
+          if (shapeQue.length > 1 && orthogonalStatus.getStatus()) {
             end = lineMaker.snapOrth(shapeQue[shapeQue.length - 2], shapeQue[shapeQue.length - 1], end);
           }
           var mouseline = lineMaker.makeLine(start, end);
@@ -150,6 +155,7 @@ TracingViewControls.prototype = Object.create({
         }
       });
 
+
       //add final line between the first and last points in the shape
       scene.add(lineMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
 
@@ -173,6 +179,10 @@ TracingViewControls.prototype = Object.create({
       group.name = name;
       scene.add(group);
 
+    }
+    
+    if (event.which ===79 ){ // o key
+      orthogonalStatus.invertStatus();
     }
 
   },

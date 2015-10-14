@@ -26,7 +26,7 @@ app.use(express['static'](path.join(__dirname, 'public')));
 app.use(express['static'](path.join(__dirname, "node_modules")));
 app.use("/js", browserify(path.join(__dirname, "client"), {
     transform: [ "stringify" ]
-}))
+}));
 //app.use('/', routes);
 //app.use('/users', users);
 
