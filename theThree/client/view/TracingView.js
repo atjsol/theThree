@@ -23,6 +23,7 @@ var TracingView = module.exports = function($el, job) {
   eventBus.bind("create:mountingPlane", function(group) {
     var structure = job.getStructure(0);
     var mountingPlane = MountingPlane.fromThreeGroup(group);
+    structure.addMountingPlane(mountingPlane);
   });
 };
 

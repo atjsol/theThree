@@ -1,15 +1,13 @@
-var Polygon = require("./Polygon");
+var Model = require("./Model");
+var _ = require("lodash");
 
 var Structure = module.exports = function() {
-  this.polygons = [];
+  this.mountingPlanes = [];
 };
 
-Structure.prototype = Object.create({
-  getPolygon: function(polygonId) {
-
-  },
-
-  addPolygon: function(points) {
-    this.polygons.push(new Polygon(points));
+Model.extend(Structure, {
+  addMountingPlane: function(mountingPlane) {
+    this.mountingPlanes.push(mountingPlane);
+    this.trigger("change");
   }
 });

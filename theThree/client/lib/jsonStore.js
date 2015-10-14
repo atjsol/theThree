@@ -17,7 +17,7 @@ module.exports = {
     });
   },
 
-  set: function(key, model) {
+  put: function(key, model) {
     return Promise.resolve(JSON.stringify(model)).then(function(item) {
       localStorage.setItem(key, item);
       return model;

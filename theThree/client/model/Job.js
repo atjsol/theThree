@@ -1,4 +1,6 @@
+var Model = require("./Model");
 var Structure = require("./Structure");
+var _ = require("lodash");
 
 var Job = module.exports = function(id, name, claimId, reportId) {
   this.id = id;
@@ -9,13 +11,14 @@ var Job = module.exports = function(id, name, claimId, reportId) {
   this.structures = [];
 };
 
-Job.prototype = Object.create({
+Model.extend(Job, {
   setLocation: function(location) {
     this.location = location;
   },
 
   addStructure: function() {
     var structure = new Structure();
+    structure.bind("change", this.trigger.bind(this, "change"));
     return structure;
   },
 

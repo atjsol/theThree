@@ -5,6 +5,7 @@ var TracingView = require("./view/TracingView");
 var Job = require("./model/Job");
 var jsonStore = require("./lib/jsonStore");
 var uid = require("./lib/uid");
+var _ = require("lodash");
 
 $(function() {
   $("#tabs").tabs();
@@ -12,16 +13,15 @@ $(function() {
   var jobId = jobId || uid.random();
 
   jsonStore.get(jobId).then(function(jobJson) {
-    console.debug(jobJson);
-
     return Job.fromJSON(jobJson);
   }).catch(function(error) {
-    console.error(error);
-
+    // Could not load job with that id, create a new one.
     return new Job(jobId);
-
   }).then(function(job) {
-    console.log("SUCCESS", job);
+
+    job.bind("change", _.debounce(function() {
+      jsonStore.put(jobId, job);
+    }, 250));
 
     var mapControlsView = new MapControlsView($("#mapData"));
     // var tracingView = new TracingView($("#three-view"));
