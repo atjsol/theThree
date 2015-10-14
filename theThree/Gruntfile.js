@@ -9,8 +9,7 @@ module.exports = function(grunt) {
                 latedef: "nofunc",
                 maxcomplexity: 10,
                 maxdepth: 3,
-                maxparams: 7,
-                maxstatements: 20,
+                maxparams: 10,
                 nonbsp: true,
                 shadow: true,
                 undef: true
@@ -19,7 +18,7 @@ module.exports = function(grunt) {
                 src: ["client/**/*.js"],
                 options: {
                     browserify: true,
-
+                    
                     globals: {
                         App: true,
                         fetch: true,
@@ -48,7 +47,14 @@ module.exports = function(grunt) {
                 "!bower_components/**",
                 "!dist/**"
             ],
-            options: {}
+            options: {
+                js: {
+                    indentSize:2
+                },
+                html: {
+                    indentSize:2
+                }
+            }
         }
     });
 

@@ -34,25 +34,23 @@ canvas {
 }
 
 #interface{
-  height :0;
   border:0;
   padding:0;
+  max-width: 480px;
 }
 
 .ui-tabs .ui-tabs-panel {
   background-color:white;
   height:100%;
-
-
-};
+}
 
 .padding5 {
   padding:5px;
-};
+}
 
 .list-style-none {
   list-style-type : none;
-};
+}
 
 
 .right-tab {

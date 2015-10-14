@@ -179,11 +179,7 @@ var intersects = [];
 var reqAniFrameArray = [];
 
 function animate (){
-  if (reqAniFrameArray.length > 0 ){
-    reqAniFrameArray.forEach(function (executable){
-      executable.call(null);
-    });
-  }
+
 
 
   intersects = getIntersects();

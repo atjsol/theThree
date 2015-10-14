@@ -4,9 +4,11 @@ var MapControlsView = require("./view/MapControlsView");
 var TracingView = require("./view/TracingView");
 
 $(function() {
-	$("#tabs").tabs();
-	
-    var mapControlsView = new MapControlsView($("#mapData"));
-    var tracingView = new TracingView($("#three-view"));
-    tracingView.init();
+  $("#tabs").tabs();
+
+  var mapControlsView = new MapControlsView($("#mapData"));
+  // var tracingView = new TracingView($("#three-view"));
+  window.tracingView = new TracingView($("#three-view"));
+
+  mapControlsView.handleFormChange();
 });
