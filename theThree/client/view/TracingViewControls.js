@@ -15,7 +15,7 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.$el = tracingView.$el;
   this.trackMouse();
   this.setUpOrbitalControls();
-  this.tracingView.orthEnd =false;
+  this.tracingView.orthEnd = false;
   this.shapeQue = [];
 
   //this.$el.on("keyup", this.handleKeyUp);
@@ -80,10 +80,18 @@ TracingViewControls.prototype = Object.create({
   },
 
   handleKeyUp: function(event) {
-    // console.log(event);
     var self = this;
     var scene = this.tracingView.scene;
     var shapeQue = self.shapeQue;
+
+    if (event.which == 16){ // shift key
+       var intersects = self.tracingView.getIntersects();
+       intersects.forEach(function(val){
+       });
+
+       
+
+    }
 
     if (event.which === 65) { // a key
       var intersects = self.tracingView.getIntersects();
@@ -99,8 +107,6 @@ TracingViewControls.prototype = Object.create({
           z = intersect.point.z;
         }
       });
-
-      
 
       //Add each point to our shapeQue - from which we wull eventually make a shape via extrusion
       if (orthogonalStatus.getStatus() && shapeQue.length >= 2){
@@ -137,8 +143,6 @@ TracingViewControls.prototype = Object.create({
       sphere.position.x = pos.x;
       sphere.position.y = pos.y;
       sphere.position.z = pos.z;
-      
-      // debugger  
       scene.add(sphere);
     }
 
