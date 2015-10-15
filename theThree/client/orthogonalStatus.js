@@ -1,5 +1,5 @@
 var microevent = require('microevent');
-var _ = require('lodash')
+var _ = require('lodash');
 module.exports = {
   status : true,
   getStatus : function (){
@@ -12,7 +12,7 @@ module.exports = {
   invertStatus : function () {
     this.setStatus(!this.status);
   }
-}
+};
 
 _.extend(module.exports, microevent.prototype);
 

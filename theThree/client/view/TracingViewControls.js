@@ -84,7 +84,7 @@ TracingViewControls.prototype = Object.create({
     var scene = this.tracingView.scene;
     var shapeQue = self.shapeQue;
 
-    if (event.which == 16){ // shift key
+    if (event.which === 16){ // shift key
        var intersects = self.tracingView.getIntersects();
        intersects.forEach(function(val){
        });
@@ -190,7 +190,7 @@ TracingViewControls.prototype = Object.create({
 
     }
     
-    if (event.which ===79 ){ // o key
+    if (event.which === 79 ){ // o key
       orthogonalStatus.invertStatus();
     }
 
