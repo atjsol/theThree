@@ -78,13 +78,23 @@ window.addEventListener("keydown", function (event){
 });
 
 
+
+function orthographical (){
+  if ($('#ortho')[0].value === "true"){
+    return true;
+  } else {
+    return false;
+  }
+}
+
 //add a cylinder to the scene to indicate where the line would go with the origin point being the last point in the shape queue and the current mouse position
 function mouseline (start, end, name){
   removeMouseline();  // remove the old line before we add a new line
   shapeQue[shapeQue.length-1].y=20;  //set to the inital height of outline
   start = start || shapeQue[shapeQue.length-1];
   end =  end || new THREE.Vector3(mouse3D.x, 20, mouse3D.z);
-  if (shapeQue.length > 1){
+  
+  if (shapeQue.length > 1 && orthographical()){
     end = snapOrth(shapeQue[shapeQue.length-2], shapeQue[shapeQue.length-1],end);
   }
   var mouseline = makeLine(start, end);
@@ -100,7 +110,14 @@ function mouseline (start, end, name){
 
 
 window.addEventListener("keyup", function (event){
-  event.preventDefault();
+  // console.log(event);
+  if (event.which ===79 ){ // o key
+    var ortho = $('#ortho')[0];
+    console.log(ortho); 
+    toggleOrth(ortho);
+    event.preventDefault();
+  }
+
   if (event.which === 65 ){ // a key
     var group = new THREE.Group();
     var x, y, z;

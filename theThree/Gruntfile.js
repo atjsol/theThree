@@ -7,7 +7,7 @@ module.exports = function(grunt) {
                 eqeqeq: true,
                 funcscope: true,
                 latedef: "nofunc",
-                maxcomplexity: 10,
+                maxcomplexity: 13,
                 maxdepth: 3,
                 maxparams: 10,
                 nonbsp: true,

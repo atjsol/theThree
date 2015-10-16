@@ -1,3 +1,4 @@
+var $ = require("jquery");
 var THREE = require("three.js");
 THREE.OrbitControls = require('three-orbit-controls')(THREE);
 var _ = require("lodash");
@@ -5,6 +6,7 @@ var lineMaker = require("../lib/lineMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
 var util = require("../lib/util");
 var eventBus = require("../lib/eventBus");
+var orthogonalStatus = require("../orthogonalStatus");
 
 var TracingViewControls = module.exports = function(tracingView) {
   var self = this;
@@ -13,11 +15,13 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.$el = tracingView.$el;
   this.trackMouse();
   this.setUpOrbitalControls();
+  this.tracingView.orthEnd = false;
+  this.shapeQue = [];
+
   //this.$el.on("keyup", this.handleKeyUp);
   window.addEventListener("keyup", function(event) {
     self.handleKeyUp(event); // TODO: FIX ME
   });
-  this.shapeQue = [];
 
 };
 
@@ -60,15 +64,38 @@ TracingViewControls.prototype = Object.create({
     });
   },
 
+  animateLine: function(start, end, name) {
+    this.tracingView.removeChildren("mouseline"); // remove the old line before we add a new line
+    this.shapeQue[this.shapeQue.length - 1].y = 20; //set to the inital height of outline
+    start = start || this.shapeQue[this.shapeQue.length - 1];
+    end = end || new THREE.Vector3(this.mouse3D.x, 20, this.mouse3D.z);
+    if (this.shapeQue.length > 1 && orthogonalStatus.getStatus()) {
+      end = lineMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
+      this.tracingView.orthEnd = end.clone();
+    }
+    var mouseline = lineMaker.makeLine(start, end);
+    mouseline.name = name || "mouseline";
+
+    this.tracingView.scene.add(mouseline);
+  },
+
   handleKeyUp: function(event) {
     var self = this;
     var scene = this.tracingView.scene;
-    var shapeQue = this.shapeQue;
+    var shapeQue = self.shapeQue;
+
+    if (event.which === 16) { // shift key
+      var intersects = self.tracingView.getIntersects();
+      intersects.forEach(function(val) {});
+
+
+
+    }
+
     if (event.which === 65) { // a key
       var intersects = self.tracingView.getIntersects();
       var group = new THREE.Group();
       var x, y, z;
-
       // get the top layer of intersect
       // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
       intersects.forEach(function(intersect) {
@@ -80,44 +107,28 @@ TracingViewControls.prototype = Object.create({
         }
       });
 
-      //add cylinder tubes to show vectors to next point
-      if (shapeQue.length > 0) {
-
-        //get the most recently added sphere position - should be the last item added to the scene - added to scene to make it visible
-        //# of children in the scene
-        var lastChildPos;
-        util.backwards(scene.children, function(object, i) {
-          if (!lastChildPos && object.name === "sphere") {
-            lastChildPos = object.position;
-          }
-        });
-
-        //offset the y so that all the xz points will be on the same plane
-        var cylinder = lineMaker.makeLine(lastChildPos, intersects.map);
-        scene.add(cylinder);
-      }
-
       //Add each point to our shapeQue - from which we wull eventually make a shape via extrusion
-      shapeQue.push(new THREE.Vector3(x, 20, z));
+      if (orthogonalStatus.getStatus() && shapeQue.length >= 2) {
+        shapeQue.push(new THREE.Vector3(self.tracingView.orthEnd.x, 20, self.tracingView.orthEnd.z));
+      } else {
+        shapeQue.push(new THREE.Vector3(x, 20, z));
+      }
 
       if (shapeQue.length === 2) {
         // reqAniFrameArray.push(animateSomething);
       }
 
+      //add cylinder tubes to show vectors to next point
+      if (shapeQue.length > 1) {
+
+        //get the most recently added sphere position
+        var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length - 1].clone(), shapeQue[shapeQue.length - 2].clone());
+        scene.add(cylinder);
+      }
+
       if (shapeQue.length === 1) {
         //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
-        this.tracingView.addToAnimationArray(function(start, end, name) {
-          self.tracingView.removeChildren("mouseline"); // remove the old line before we add a new line
-          shapeQue[shapeQue.length - 1].y = 20; //set to the inital height of outline
-          start = start || shapeQue[shapeQue.length - 1];
-          end = end || new THREE.Vector3(self.mouse3D.x, 20, self.mouse3D.z);
-          if (shapeQue.length > 1) {
-            end = lineMaker.snapOrth(shapeQue[shapeQue.length - 2], shapeQue[shapeQue.length - 1], end);
-          }
-          var mouseline = lineMaker.makeLine(start, end);
-          mouseline.name = name || "mouseline";
-          scene.add(mouseline);
-        });
+        this.tracingView.addToAnimationArray(self.animateLine);
       }
 
       //Add the sphere to the scene to be visible representation of what we have in our queue
@@ -127,9 +138,10 @@ TracingViewControls.prototype = Object.create({
       });
       var sphere = new THREE.Mesh(geometry, material);
       sphere.name = "sphere";
-      sphere.position.x = x;
-      sphere.position.y = 20;
-      sphere.position.z = z;
+      var pos = shapeQue[shapeQue.length - 1].clone();
+      sphere.position.x = pos.x;
+      sphere.position.y = pos.y;
+      sphere.position.z = pos.z;
       scene.add(sphere);
     }
 
@@ -150,6 +162,7 @@ TracingViewControls.prototype = Object.create({
           }
         }
       });
+
 
       //add final line between the first and last points in the shape
       scene.add(lineMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
@@ -175,6 +188,10 @@ TracingViewControls.prototype = Object.create({
       scene.add(group);
 
       eventBus.trigger("create:mountingPlane", group);
+    }
+
+    if (event.which === 79) { // o key
+      orthogonalStatus.invertStatus();
     }
 
   },
