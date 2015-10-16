@@ -1,12 +1,13 @@
 var THREE = require("three.js");
 THREE.OrbitControls = require('three-orbit-controls')(THREE);
 var _ = require("lodash");
-var lineMaker = require("../lib/lineMaker");
-var extrudeSettings = require("../lib/extrudeSettings");
-var util = require("../lib/util");
 var $ = require("jquery");
+var util = require("../lib/util");
 var eventBus = require("../lib/eventBus");
+var lineMaker = require("../lib/lineMaker");
 var orthogonalStatus = require("../orthogonalStatus");
+var extrudeSettings = require("../lib/extrudeSettings");
+var ObjectAttributeView = require("./ObjectAttributeView");
 
 var TracingViewControls = module.exports = function(tracingView) {
   var self = this;
@@ -17,7 +18,7 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.setUpOrbitalControls();
   this.tracingView.orthEnd = false;
   this.shapeQue = [];
-
+  this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"));
   //this.$el.on("keyup", this.handleKeyUp);
   window.addEventListener("keyup", function(event) {
     self.handleKeyUp(event); // TODO: FIX ME
@@ -85,10 +86,10 @@ TracingViewControls.prototype = Object.create({
     var shapeQue = self.shapeQue;
 
     if (event.which === 16){ // shift key
-       var intersects = self.tracingView.getIntersects();
-       intersects.forEach(function(val){
-       });
+      var intersects = self.tracingView.getIntersects();
+      this.objectAttributeView.addToInterface(intersects);
 
+       
        
 
     }
@@ -123,7 +124,7 @@ TracingViewControls.prototype = Object.create({
       if (shapeQue.length > 1) {
 
         //get the most recently added sphere position
-        var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length-1].clone(), shapeQue[shapeQue.length-2].clone());
+        var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length-1], shapeQue[shapeQue.length-2]);
         scene.add(cylinder);
       }
 
@@ -139,10 +140,14 @@ TracingViewControls.prototype = Object.create({
       });
       var sphere = new THREE.Mesh(geometry, material);
       sphere.name = "sphere";
-      var pos = shapeQue[shapeQue.length-1].clone();
-      sphere.position.x = pos.x;
-      sphere.position.y = pos.y;
-      sphere.position.z = pos.z;
+      
+      var pos = shapeQue[shapeQue.length-1];
+      sphere.position.set(pos.x, pos.y, pos.z);
+      // sphere.position.y = pos.y;
+      // sphere.position.z = pos.z;
+      // sphere.position = pos;
+      sphere.constructionData=[];
+      sphere.constructionData.concat(pos);
       scene.add(sphere);
     }
 

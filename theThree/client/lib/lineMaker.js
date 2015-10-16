@@ -28,7 +28,8 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
   //Set the cylinder to look from one point to the next point
   //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
   cylinder.lookAt(new THREE.Vector3(fromPoint.x, 10000000000, fromPoint.z));
-
+  cylinder.constructionData=[];
+  cylinder.constructionData.concat(util.convArgs(arguments));
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
   return cylinder;

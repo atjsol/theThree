@@ -13,7 +13,6 @@ var TracingView = module.exports = function($el) {
   this.animationArray = [];
   this.init();
 
-
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
