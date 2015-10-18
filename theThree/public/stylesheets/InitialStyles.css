@@ -30,9 +30,9 @@ canvas {
 #interface:first-child{
 
 }
-#interface:last-child{
+/*#interface:last-child{
   justify-content:flex-end;
-}
+}*/
 #object-attribute-view{
   float : right;
   color : white !important;

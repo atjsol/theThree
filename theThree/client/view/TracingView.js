@@ -126,9 +126,9 @@ TracingView.prototype = Object.create({
   getIntersects: function() {
     var intersects = this.raycaster.intersectObjects(this.scene.children, true);
     intersects.forEach(function(intersect) {
-      if (intersect.object.name === "map") {
-        intersects.map = new THREE.Vector3(intersect.point.x, 20, intersect.point.z);
-      }
+      // if (intersect.object.name === "map") {
+      //   intersects.satellite = new THREE.Vector3(intersect.point.x, 20, intersect.point.z);
+      // }
     });
     return intersects;
   },

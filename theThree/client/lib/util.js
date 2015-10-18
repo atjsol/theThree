@@ -15,4 +15,6 @@ exports.backwards = function backwards(array, func, that) {
 exports.convArgs = function convArgs(args){
   var argsArray = Array.prototype.slice.call(args);
   return argsArray;
-}
+};
+
+
