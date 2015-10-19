@@ -3,12 +3,9 @@ require("jquery-ui");
 var _ = require("lodash");
 var eventBus = require("../lib/eventBus");
 
-
 var ObjectAttributeView = module.exports = function($el) {
   _.bindAll(this);
   this.$el = $el;
-
-  
 
 };
 
@@ -27,13 +24,19 @@ ObjectAttributeView.prototype = Object.create({
 
     //only choose the first item
     if (objArray.length === 0) return;
-    
     var someObj = objArray[0].object;
     
     //expecting an array of objects to dynamically add to the interface
     var total ="";
     //create header by object name
+    if (someObj.name === "cylinder"){   
+      var length = someObj.constructionData[0].distanceTo(someObj.constructionData[1]);
+      console.log(length); 
 
+
+
+
+    }
     var header = _.template('<h3 class="attribute-list"> <%= name %> </h3>');
     var compiledHeader = header(someObj)
     var position = _.template(

@@ -29,7 +29,7 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
   //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
   cylinder.lookAt(new THREE.Vector3(fromPoint.x, 10000000000, fromPoint.z));
   cylinder.constructionData=[];
-  cylinder.constructionData.concat(util.convArgs(arguments));
+  cylinder.constructionData.push(fromPoint, toPoint);
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
   return cylinder;
@@ -115,7 +115,7 @@ module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y,
   mesh.rotation.set(rx, ry, rz);
   mesh.scale.set(s, s, s);
   mesh.planeRotation=0;
-  
+
   // group.add(mesh);
 
   //   console.log(group);

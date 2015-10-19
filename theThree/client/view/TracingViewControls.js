@@ -147,6 +147,8 @@ TracingViewControls.prototype = Object.create({
     }
 
     if (event.which === 83) { // s key
+
+      if (shapeQue.length < 3) return
       //remove the mouseline animation when calculating the total shape
       this.tracingView.resetAnimationArray();
 
@@ -171,15 +173,14 @@ TracingViewControls.prototype = Object.create({
       var shape = lineMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
       shape.name = "mounting plane shape";
       shape.construction = {
-        points: this.shapeQue.slice(0),
-        rotationAxis : "", //set by selecting eave or ridge attributes
-        rotationDegrees : 0,
-
+        points: this.shapeQue.slice(0),  // copy all the points to make this shape 
+        rotationAxis : undefined, //set by selecting eave or ridge attributes
+        
+        rotationDegrees : undefined,
+        calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
+        calculatedRatioMetric : undefined,
       } 
       group.add(shape);
-      console.log(shape);
-
-
 
       shape.construction.points.forEach(function(point, i, array){
         //for each point add a sphere
@@ -194,9 +195,6 @@ TracingViewControls.prototype = Object.create({
         sphere.position.set(pos.x, pos.y, pos.z);
         group.add(sphere);
 
-
-
-
         //for each subsequent points add a line and add a line 
         var nextPoint = array[i+1] || array[0];
         var cylinder = lineMaker.makeLine(point, nextPoint);
@@ -205,13 +203,10 @@ TracingViewControls.prototype = Object.create({
 
       //create the group based on points and construction data
 
-      //transfer any objects put into the scene back into the group
+      //delete any objects put into the scene to indicate how the group will be constructed
       for (var i = scene.children.length - 1; i > 0; i--) {
         if (scene.children[i].name === "sphere" || scene.children[i].name === "cylinder") {
-          
-          // group.add(
-            scene.children.splice(i, 1)
-          // [0]);
+          scene.children.splice(i, 1)
         }
       }
 
@@ -222,7 +217,6 @@ TracingViewControls.prototype = Object.create({
       var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
       group.name = name;
       scene.add(group);
-      console.log(scene);
 
     }   
     
