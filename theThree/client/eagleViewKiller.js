@@ -2,6 +2,7 @@ var $ = require("jquery");
 require("jquery-ui");
 var MapControlsView = require("./view/MapControlsView");
 var TracingView = require("./view/TracingView");
+var ExportView = require("./view/ExportView");
 var Job = require("./model/Job");
 var jsonStore = require("./lib/jsonStore");
 var uid = require("./lib/uid");
@@ -26,7 +27,9 @@ $(function() {
     var mapControlsView = new MapControlsView($("#mapData"));
     // var tracingView = new TracingView($("#three-view"));
     window.tracingView = new TracingView($("#three-view"), job);
+    var exportView = new ExportView($("#export-view"), job);
 
     mapControlsView.handleFormChange();
+
   });
 });
