@@ -4,10 +4,12 @@ var urlBuilder = require("../lib/urlBuilder");
 var THREE = require("three.js");
 var util = require("../lib/util");
 var TracingViewControls = require("./TracingViewControls");
+var MountingPlane = require("../model/MountingPlane");
 
-var TracingView = module.exports = function($el) {
+var TracingView = module.exports = function($el, job) {
   _.bindAll(this);
   this.$el = $el;
+  this.job = job;
   this.width = window.innerWidth;
   this.height = window.innerHeight;
   this.animationArray = [];
@@ -16,6 +18,12 @@ var TracingView = module.exports = function($el) {
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
+
+  eventBus.bind("create:mountingPlane", function(group) {
+    var structure = job.getStructure(0);
+    var mountingPlane = MountingPlane.fromThreeGroup(group);
+    structure.addMountingPlane(mountingPlane);
+  });
 };
 
 TracingView.prototype = Object.create({

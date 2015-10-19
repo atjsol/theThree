@@ -3,22 +3,37 @@ require("jquery-ui");
 var MapControlsView = require("./view/MapControlsView");
 var TracingView = require("./view/TracingView");
 var DrawingControlsView = require("./view/DrawingControlsView");
-var ObjectAttributeView = require("./view/ObjectAttributeView");
+
+var ExportView = require("./view/ExportView");
+var Job = require("./model/Job");
+var jsonStore = require("./lib/jsonStore");
+var uid = require("./lib/uid");
+var _ = require("lodash");
 
 
 $(function() {
-  // .tabs() and .accordion() are part of the jquery-ui library- used to activate their functionality
-  $("#tabs").tabs({collapsible:true});
-  // $("#object-attribute-view").accordion({
-  //   collapsible:true,
-  //   heightstyle:"content",
-    
-  // });
-  var mapControlsView = new MapControlsView($("#mapData"));
+  $("#tabs").tabs();
 
-  var drawingControlsView = new DrawingControlsView($("#drawing-controls"));
-  // var tracingView = new TracingView($("#three-view"));
-  window.tracingView = new TracingView($("#three-view"));
+  var jobId = jobId || uid.random();
 
-  mapControlsView.handleFormChange();
+  jsonStore.get(jobId).then(function(jobJson) {
+    return Job.fromJSON(jobJson);
+  }).catch(function(error) {
+    // Could not load job with that id, create a new one.
+    return new Job(jobId);
+  }).then(function(job) {
+
+    job.bind("change", _.debounce(function() {
+      jsonStore.put(jobId, job);
+    }, 250));
+
+    var mapControlsView = new MapControlsView($("#mapData"));
+    var drawingControlsView = new DrawingControlsView($("#drawing-controls"));
+    // var tracingView = new TracingView($("#three-view"));
+    window.tracingView = new TracingView($("#three-view"), job);
+    var exportView = new ExportView($("#export-view"), job);
+
+    mapControlsView.handleFormChange();
+
+  });
 });

@@ -7,7 +7,7 @@ var orthogonalStatus = require("../orthogonalStatus");
 var DrawingControlsView = module.exports = function($el) {
   _.bindAll(this);
   this.$el = $el;
-  
+
   //Listen for a button click
   this.$el.find("#ortho").click(this.toggleOrth);
   //If orthogonal statuch changes, update the button text
@@ -16,13 +16,13 @@ var DrawingControlsView = module.exports = function($el) {
 };
 
 DrawingControlsView.prototype = Object.create({
-  toggleOrth : function (val){
+  toggleOrth: function(val) {
     orthogonalStatus.invertStatus();
   },
 
-  updateButton : function (){
+  updateButton: function() {
     var button = this.$el.find("#ortho");
-    if (orthogonalStatus.getStatus()){
+    if (orthogonalStatus.getStatus()) {
       button.html("<u>O</u>rthogonal");
     } else {
       button.html("N<u>o</u>rmal");
@@ -30,4 +30,3 @@ DrawingControlsView.prototype = Object.create({
   },
 
 });
-
