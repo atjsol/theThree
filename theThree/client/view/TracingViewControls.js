@@ -87,20 +87,10 @@ TracingViewControls.prototype = Object.create({
     var scene = this.tracingView.scene;
     var shapeQue = self.shapeQue;
 
-<<<<<<< HEAD
     if (event.which === 16){ // shift key
       var intersects = self.tracingView.getIntersects();
       this.objectAttributeView.addToInterface(intersects);
 
-       
-       
-=======
-    if (event.which === 16) { // shift key
-      var intersects = self.tracingView.getIntersects();
-      intersects.forEach(function(val) {});
-
-
->>>>>>> cc290ad6644628c27738f7a0a382d97bc9d1e7ea
 
     }
 
@@ -134,11 +124,8 @@ TracingViewControls.prototype = Object.create({
       if (shapeQue.length > 1) {
 
         //get the most recently added sphere position
-<<<<<<< HEAD
         var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length-1], shapeQue[shapeQue.length-2]);
-=======
-        var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length - 1].clone(), shapeQue[shapeQue.length - 2].clone());
->>>>>>> cc290ad6644628c27738f7a0a382d97bc9d1e7ea
+
         scene.add(cylinder);
       }
 
@@ -154,16 +141,10 @@ TracingViewControls.prototype = Object.create({
       });
       var sphere = new THREE.Mesh(geometry, material);
       sphere.name = "sphere";
-<<<<<<< HEAD
       
       var pos = shapeQue[shapeQue.length-1];
       sphere.position.set(pos.x, pos.y, pos.z);
-=======
-      var pos = shapeQue[shapeQue.length - 1].clone();
-      sphere.position.x = pos.x;
-      sphere.position.y = pos.y;
-      sphere.position.z = pos.z;
->>>>>>> cc290ad6644628c27738f7a0a382d97bc9d1e7ea
+
       scene.add(sphere);
     }
 
@@ -239,16 +220,13 @@ TracingViewControls.prototype = Object.create({
       group.name = name;
       scene.add(group);
 
-<<<<<<< HEAD
     }   
     
     if (event.which === 79 ){ // o key
-=======
       eventBus.trigger("create:mountingPlane", group);
     }
 
-    if (event.which === 79) { // o key
->>>>>>> cc290ad6644628c27738f7a0a382d97bc9d1e7ea
+    if (event.which === 80) { // o key
       orthogonalStatus.invertStatus();
     }
 
