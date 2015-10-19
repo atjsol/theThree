@@ -2,31 +2,10 @@ module.exports = function(grunt) {
     grunt.initConfig({
         jshint: {
             options: {
-                bitwise: true,
-                curly: true,
-                eqeqeq: true,
-                funcscope: true,
-                latedef: "nofunc",
-                maxcomplexity: 13,
-                maxdepth: 3,
-                maxparams: 10,
-                nonbsp: true,
-                shadow: true,
-                undef: true
+                jshintrc: true
             },
             client: {
-                src: ["client/**/*.js"],
-                options: {
-                    browser: true,
-                    browserify: true,
-                    devel: true,
-                    
-                    globals: {
-                        Promise: true,
-                        Response: true,
-                        Map: true
-                    }
-                }
+                src: ["client/**/*.js"]
             },
             server: {
                 src: [
