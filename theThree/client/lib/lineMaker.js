@@ -35,6 +35,21 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
   return cylinder;
 };
 
+module.exports.sphere = function sphere(point){
+ //Add the sphere to the scene to be visible representation of what we have in our queue
+  var geometry = new THREE.SphereGeometry(0.5, 32, 32);
+  var material = new THREE.MeshBasicMaterial({
+    color: 0xffff00
+  });
+  var sphere = new THREE.Mesh(geometry, material);
+  sphere.name = "sphere";
+  
+  
+  sphere.position.set(point.x, point.y, point.z);
+  return sphere;
+
+}
+
 //this function will take in 3 points, start, fulcrum, end and return a vector that is either + 90, 180 or 270 from the vector produced from start and fulcrum  
 module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
   //get vector from start fulcrum

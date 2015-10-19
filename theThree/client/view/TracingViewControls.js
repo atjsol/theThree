@@ -134,17 +134,7 @@ TracingViewControls.prototype = Object.create({
         this.tracingView.addToAnimationArray(self.animateLine);
       }
 
-      //Add the sphere to the scene to be visible representation of what we have in our queue
-      var geometry = new THREE.SphereGeometry(0.5, 32, 32);
-      var material = new THREE.MeshBasicMaterial({
-        color: 0xffff00
-      });
-      var sphere = new THREE.Mesh(geometry, material);
-      sphere.name = "sphere";
-      
-      var pos = shapeQue[shapeQue.length-1];
-      sphere.position.set(pos.x, pos.y, pos.z);
-
+      var sphere = lineMaker.sphere(shapeQue[shapeQue.length-1]);
       scene.add(sphere);
     }
 
@@ -168,9 +158,9 @@ TracingViewControls.prototype = Object.create({
         }
       });
 
-
       //add final line between the first and last points in the shape
       scene.add(lineMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
+      
       var group = new THREE.Group();
       var shape = lineMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
       shape.name = "mounting plane shape";
@@ -187,14 +177,7 @@ TracingViewControls.prototype = Object.create({
       shape.construction.points.forEach(function(point, i, array){
         //for each point add a sphere
           //Add the sphere to the scene to be visible representation of what we have in our queue
-        var geometry = new THREE.SphereGeometry(0.5, 32, 32);
-        var material = new THREE.MeshBasicMaterial({
-          color: 0xffff00
-        });
-        var sphere = new THREE.Mesh(geometry, material);
-        sphere.name = "sphere";
-        var pos = point;
-        sphere.position.set(pos.x, pos.y, pos.z);
+        var sphere = lineMaker.sphere(point);
         group.add(sphere);
 
         //for each subsequent points add a line and add a line 
@@ -221,13 +204,13 @@ TracingViewControls.prototype = Object.create({
       scene.add(group);
 
     }   
-    
-    if (event.which === 79 ){ // o key
-      eventBus.trigger("create:mountingPlane", group);
-    }
 
-    if (event.which === 80) { // o key
+    if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();
+    }
+    
+    if (event.which === 80 ){ // o key
+      eventBus.trigger("create:mountingPlane", group);
     }
 
   },
