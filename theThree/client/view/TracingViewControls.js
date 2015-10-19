@@ -143,11 +143,6 @@ TracingViewControls.prototype = Object.create({
       
       var pos = shapeQue[shapeQue.length-1];
       sphere.position.set(pos.x, pos.y, pos.z);
-      // sphere.position.y = pos.y;
-      // sphere.position.z = pos.z;
-      // sphere.position = pos;
-      sphere.constructionData=[];
-      sphere.constructionData.concat(pos);
       scene.add(sphere);
     }
 
@@ -172,16 +167,51 @@ TracingViewControls.prototype = Object.create({
 
       //add final line between the first and last points in the shape
       scene.add(lineMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
-
       var group = new THREE.Group();
       var shape = lineMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
       shape.name = "mounting plane shape";
+      shape.construction = {
+        points: this.shapeQue.slice(0),
+        rotationAxis : "", //set by selecting eave or ridge attributes
+        rotationDegrees : 0,
+
+      } 
       group.add(shape);
+      console.log(shape);
+
+
+
+      shape.construction.points.forEach(function(point, i, array){
+        //for each point add a sphere
+          //Add the sphere to the scene to be visible representation of what we have in our queue
+        var geometry = new THREE.SphereGeometry(0.5, 32, 32);
+        var material = new THREE.MeshBasicMaterial({
+          color: 0xffff00
+        });
+        var sphere = new THREE.Mesh(geometry, material);
+        sphere.name = "sphere";
+        var pos = point;
+        sphere.position.set(pos.x, pos.y, pos.z);
+        group.add(sphere);
+
+
+
+
+        //for each subsequent points add a line and add a line 
+        var nextPoint = array[i+1] || array[0];
+        var cylinder = lineMaker.makeLine(point, nextPoint);
+        group.add(cylinder);
+      }); 
+
+      //create the group based on points and construction data
 
       //transfer any objects put into the scene back into the group
       for (var i = scene.children.length - 1; i > 0; i--) {
         if (scene.children[i].name === "sphere" || scene.children[i].name === "cylinder") {
-          group.add(scene.children.splice(i, 1)[0]);
+          
+          // group.add(
+            scene.children.splice(i, 1)
+          // [0]);
         }
       }
 
@@ -192,8 +222,9 @@ TracingViewControls.prototype = Object.create({
       var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
       group.name = name;
       scene.add(group);
+      console.log(scene);
 
-    }
+    }   
     
     if (event.which === 79 ){ // o key
       orthogonalStatus.invertStatus();

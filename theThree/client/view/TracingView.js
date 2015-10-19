@@ -16,20 +16,14 @@ var TracingView = module.exports = function($el) {
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
-
-
-
 };
 
 TracingView.prototype = Object.create({
-
 
   init: function() {
     this.setupScene();
     this.drawGrid();
     this.drawOrigin();
-
-
   },
 
   setupScene: function() {
@@ -104,12 +98,12 @@ TracingView.prototype = Object.create({
     this.scene.add(group);
   },
 
-  //zTrack will create a cursor that tracks on the xz plane at y=0
+  //drawOrigin will create a cursor that tracks on the xz plane at y=0
   drawOrigin: function() {
     var cursorShape = new THREE.Geometry();
-    cursorShape.vertices.push(new THREE.Vector3(-5, 0, 5));
-    cursorShape.vertices.push(new THREE.Vector3(0, 0, 0));
-    cursorShape.vertices.push(new THREE.Vector3(5, 0, 5));
+    cursorShape.vertices.push(new THREE.Vector3(-5, 1, 5));
+    cursorShape.vertices.push(new THREE.Vector3(0, 1, 0));
+    cursorShape.vertices.push(new THREE.Vector3(5, 1, 5));
 
     var material = new THREE.LineBasicMaterial({
       color: 0xff9999,
@@ -150,8 +144,6 @@ TracingView.prototype = Object.create({
       return child.name !== name;
     });
   },
-
-
 
   animate: function() {
     if (this.animationArray.length > 0) {

@@ -16,8 +16,9 @@ canvas {
   width : 200px !important;
   height : 200px !important;
 }
-.ui-accordion-content {
-  color:white;
+.ui-accordion .ui-accordion-content {
+  padding:1em 1em;
+  margin-top:5px;
 }
 #interface{
   border:0;
@@ -55,4 +56,11 @@ canvas {
 .compass {
   height : 8%;
 }
+
+.attribute-list{
+  padding-left:3px;
+  border:0px;
+  margin:10;
+}
+
 

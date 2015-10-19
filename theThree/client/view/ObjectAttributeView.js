@@ -13,65 +13,59 @@ var ObjectAttributeView = module.exports = function($el) {
 };
 
 ObjectAttributeView.prototype = Object.create({
-  toHtml : function (val, tag){
+  toHtml : function (val, tag, clas){
     function brackets (val){
       return "<"+val+">";
     }
     tag = tag || "div";
-    return brackets(tag)+val+brackets("/"+tag);
+    clas = clas || "" 
+    return brackets(tag + ' class='+ clas )+val+brackets("/"+tag);
   }, 
 
   addToInterface:function (objArray){
     var self = this;
+
+    //only choose the first item
+    if (objArray.length === 0) return;
+    
+    var someObj = objArray[0].object;
+    
     //expecting an array of objects to dynamically add to the interface
-    console.log(objArray);
-    var total = objArray.map(function(object){
-      var head = "";
-      var body = ""; 
-      var object = object.object;
-      //create header by object name
-      head+="<h3>"+object.name+"</h3>";
-      var position = "Position"+'<ul><li> x : <input type="number" val=object.position.x></li>'+'<li> y : <input type="number" val=object.position.y></li>'+'<li> z : <input type="number" val=object.position.z></li></ul>';
-      var rotation = "Rotation along eave axis"+"<input val=0>";
-      var attributes = "Attributes";
-      
-      body += self.addDivs(position);
-      body += self.addDivs(rotation);
-      body += self.addDivs(attributes);
+    var total ="";
+    //create header by object name
 
-      // create object data properties - get all the properties
-      // for (var prop in object){
-      //   total+="<div>"+prop+" : "+object[prop]+"</div>";
-      // }
+    var header = _.template('<h3 class="attribute-list"> <%= name %> </h3>');
+    var compiledHeader = header(someObj)
+    var position = _.template(
+       '<h5>Position</h5>'
+      +'<ul class="attribute-list">'
+        +'<li> x : <input name="x" type="number" step="0.01" value="<%= x %>"</li>'
+        +'<li> y (up) : <input name="y" type="number" step="0.01" value="<%= y %>"</li>'
+        +'<li> z : <input name="z" type="number" step="0.01" value="<%= z %>"</li>'
+      +'</ul>');
+    var compiledPosition = position(someObj.position);
+    
+    if (someObj.hasOwnProperty("planeRotation")){
+      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input val=0></li></ul>');
+      var compiledRotation = rotation(someObj.planeRotation); 
+    } 
 
+    var attributes = 'Attributes';
+    
+    body = self.toHtml(compiledPosition + compiledRotation + attributes);
 
-
-
-      // add the final set of divs
-      body+= self.addDivs(body);
-      
-      return head + body;
-
-
-    }).join("");
-
-
+    total = compiledHeader + body;
 
     if (this.$el.hasClass("ui-accordion")){
       this.$el.accordion("destroy"); 
     }
     this.$el.empty();
+
     this.$el.append(total);
-    console.log(this.$el)
     this.$el.accordion({
       collapsible:true,
       heightstyle:"content",
-      
     });
-
   }
-
- 
-
 });
 

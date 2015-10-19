@@ -1,5 +1,5 @@
 module.exports = {
-  amount: 20,
+  amount: .5,
   bevelEnabled: false,
   bevelSegments: 2,
   steps: 2,
