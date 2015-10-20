@@ -41,11 +41,8 @@ ObjectAttributeView.prototype = Object.create({
         +'<ul class="attribute-list"><li>Computed Length : <%= length %>px</li>'
         +'<li>Real World Length :<input type="number"> </li></ul>'
       );
-
       var length = someObj.constructionData[0].distanceTo(someObj.constructionData[1]);
-
-      compiledDistance = distance({length:length}); 
-
+      var compiledDistance = distance({length:length}); 
       body+=compiledDistance;
 
       var attributes = _.template('<h5>Attributes</h5>'
@@ -54,26 +51,26 @@ ObjectAttributeView.prototype = Object.create({
         +'<input type="radio" name="attribute" value="Valley">Valley'
         +'<input type="radio" name="attribute" value="Hip">Hip'
       );
-      body+= attributes({});
+      var compiledAttributes = attributes({})
+      body+= compiledAttributes;
 
     }
+
     var position = _.template(
        '<h5>Position</h5>'
       +'<ul class="attribute-list">'
-        +'<li> x : <input name="x" type="number" step="0.01" value="<%= x %>"</li>'
-        +'<li> y (up) : <input name="y" type="number" step="0.01" value="<%= y %>"</li>'
-        +'<li> z : <input name="z" type="number" step="0.01" value="<%= z %>"</li>'
+        +'<li> x : <input name="position setX" type="number" step="0.01" value="<%= x %>"</li>'
+        +'<li> y (up) : <input name="position setY" type="number" step="0.01" value="<%= y %>"</li>'
+        +'<li> z : <input name="position setZ" type="number" step="0.01" value="<%= z %>"</li>'
       +'</ul>');
     var compiledPosition = position(someObj.position);
     body += compiledPosition;
     
     if (someObj.hasOwnProperty("planeRotation")){
-      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input val=0></li></ul>');
+      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" val=0></li></ul>');
       var compiledRotation = rotation(someObj.planeRotation); 
       body+=compiledRotation;
     } 
-
-    
 
     body=this.toHtml(body);
     
@@ -82,13 +79,43 @@ ObjectAttributeView.prototype = Object.create({
     if (this.$el.hasClass("ui-accordion")){
       this.$el.accordion("destroy"); 
     }
+    this.$el.off("change", "**"); // remove all previous event handlers
     this.$el.empty();
 
     this.$el.append(total);
+    
+
+
+
+
+    this.$el.on('change', someObj, updateModel);
     this.$el.accordion({
       collapsible:true,
       heightstyle:"content",
     });
   }
+
+  function updateModel (event){
+    // event.data is where our passed in data resides
+    // event.target is where the change has occurred
+    var name = event.target.name.split(" ");
+    console.log(name);  //event.data.position.set(x,y,z)
+    console.log(event.data);
+    console.log(event);
+  }
+  function setEaveVector (vector, geometry){
+    vector1 = geometry.constructionData[0].clone();
+    vector2 = geometry.constructionData[1].clone();
+    normalized = vector1.sub(vector2).normalize();
+    geometry.parent.rotationVector = normalized;
+  }
+  function updateRotation (rotation, axis, geometry){
+    //apply rotation to group to possibly get rotation for everything
+
+
+
+  }
+
+
 });
 
