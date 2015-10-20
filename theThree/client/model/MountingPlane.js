@@ -9,7 +9,12 @@ var MountingPlane = module.exports = function(name, points) {
 };
 
 Model.extend(MountingPlane, {
+  getLines: function() {
+    var lines = [];
+    for (var i = 0; i < this.points.length; i++) {
 
+    }
+  }
 });
 
 MountingPlane.fromThreeGroup = function(group) {
@@ -17,18 +22,11 @@ MountingPlane.fromThreeGroup = function(group) {
   var points = [];
   _.each(group.children, function(child) {
     switch (child.name) {
-      case "mounting plane shape":
-        break;
-      case "cylinder":
-        lines.push(child);
-        break;
       case "sphere":
         points.push(child.position);
         break;
     }
   });
-
-  console.table(points);
 
   var mountingPlane = new MountingPlane(group.name, points);
   return mountingPlane;

@@ -15,7 +15,7 @@ ExportView.prototype = Object.create({
     var job = this.job;
     var jobId = job.id;
 
-    var xml = eagleViewXml.toXml2(job);
+    var xml = eagleViewXml.toXml(job);
     var blob = new Blob([xml], {
       type: "text/xml"
     });

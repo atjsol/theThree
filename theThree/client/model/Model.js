@@ -14,6 +14,5 @@ Model.prototype = Object.create({
 MicroEvent.mixin(Model);
 
 Model.extend = function(clazz, stuff) {
-  clazz.prototype = Object.create(Model.prototype);
-  _.extend(clazz.prototype, stuff);
+  clazz.prototype = _.create(Model.prototype, stuff);
 };
