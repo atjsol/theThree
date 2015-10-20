@@ -102,10 +102,18 @@ TracingViewControls.prototype = Object.create({
       // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
       intersects.forEach(function(intersect) {
 
-        if (intersect.object.name === "map") {
+        if (intersect.object.name === "map" && !x ) {
           x = intersect.point.x;
           y = intersect.point.y;
           z = intersect.point.z;
+        }
+
+        //if we happen to hit a sphere- we would like to use the sphere coordinates instead
+        if (intersect.object.name === "sphere") {
+          x = intersect.object.position.x;
+          y = intersect.object.position.y;
+          z = intersect.object.position.z;
+
         }
       });
 
@@ -176,11 +184,11 @@ TracingViewControls.prototype = Object.create({
 
       shape.construction.points.forEach(function(point, i, array){
         //for each point add a sphere
-          //Add the sphere to the scene to be visible representation of what we have in our queue
+        //Add the sphere to the scene to represent a point
         var sphere = lineMaker.sphere(point);
         group.add(sphere);
 
-        //for each subsequent points add a line and add a line 
+        //for each subsequent points add a line 
         var nextPoint = array[i+1] || array[0];
         var cylinder = lineMaker.makeLine(point, nextPoint);
         group.add(cylinder);
@@ -202,7 +210,6 @@ TracingViewControls.prototype = Object.create({
       var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
       group.name = name;
       scene.add(group);
-
     }   
 
     if (event.which === 79) { // o key

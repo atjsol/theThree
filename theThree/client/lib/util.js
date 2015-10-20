@@ -17,4 +17,18 @@ exports.convArgs = function convArgs(args){
   return argsArray;
 };
 
+exports.arrToObj = function arrToObj (array, useIndex){
+  var newObj = {};
+  if (useIndex){
+    array.forEach(function (value, index, arr){
+      newObj[index]=value;
+    });
+  } else {
+    array.forEach(function (value, index, arr){
+      newObj[value] = value;
+    })
+  }
+  return newObj;
+}
+
 

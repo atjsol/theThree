@@ -94,12 +94,14 @@ TracingView.prototype = Object.create({
       vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, -rows * spacing / 2));
       vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, rows * spacing / 2));
       var lineV = new THREE.Line(vert, material);
+      lineV.name="lineV";
       group.add(lineV);
 
       var horiz = new THREE.Geometry();
       horiz.vertices.push(new THREE.Vector3(-rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
       horiz.vertices.push(new THREE.Vector3(rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
       var lineH = new THREE.Line(horiz, material);
+      lineH.name="lineH";
       group.add(lineH);
     }
     group.name = "grid";

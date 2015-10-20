@@ -2,11 +2,11 @@ var $ = require("jquery");
 require("jquery-ui");
 var _ = require("lodash");
 var eventBus = require("../lib/eventBus");
+var util = require("../lib/util");
 
 var ObjectAttributeView = module.exports = function($el) {
   _.bindAll(this);
   this.$el = $el;
-
 };
 
 ObjectAttributeView.prototype = Object.create({
@@ -21,24 +21,42 @@ ObjectAttributeView.prototype = Object.create({
 
   addToInterface:function (objArray){
     var self = this;
-
+    //ignore things we do not care about - things we created
+    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
+    var ignoreObj = util.arrToObj(ignore);
+    if (objArray.length === 0 || ignoreObj[objArray[0].object.name]) return;
+    //expecting an array of objects
     //only choose the first item
-    if (objArray.length === 0) return;
     var someObj = objArray[0].object;
     
-    //expecting an array of objects to dynamically add to the interface
-    var total ="";
+    var total = "";
+    var body = "";
     //create header by object name
+    var header = _.template('<h3 class="attribute-list"> <%= name %> </h3>');
+    var compiledHeader = header(someObj);
+    
+
     if (someObj.name === "cylinder"){   
+      var distance = _.template('<h5>Length</h5>'
+        +'<ul class="attribute-list"><li>Computed Length : <%= length %>px</li>'
+        +'<li>Real World Length :<input type="number"> </li></ul>'
+      );
+
       var length = someObj.constructionData[0].distanceTo(someObj.constructionData[1]);
-      console.log(length); 
 
+      compiledDistance = distance({length:length}); 
 
+      body+=compiledDistance;
 
+      var attributes = _.template('<h5>Attributes</h5>'
+        +'<input type="radio" name="attribute" value="Eave">Eave'
+        +'<input type="radio" name="attribute" value="Ridge">Ridge'
+        +'<input type="radio" name="attribute" value="Valley">Valley'
+        +'<input type="radio" name="attribute" value="Hip">Hip'
+      );
+      body+= attributes({});
 
     }
-    var header = _.template('<h3 class="attribute-list"> <%= name %> </h3>');
-    var compiledHeader = header(someObj)
     var position = _.template(
        '<h5>Position</h5>'
       +'<ul class="attribute-list">'
@@ -47,16 +65,18 @@ ObjectAttributeView.prototype = Object.create({
         +'<li> z : <input name="z" type="number" step="0.01" value="<%= z %>"</li>'
       +'</ul>');
     var compiledPosition = position(someObj.position);
+    body += compiledPosition;
     
     if (someObj.hasOwnProperty("planeRotation")){
       var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input val=0></li></ul>');
       var compiledRotation = rotation(someObj.planeRotation); 
+      body+=compiledRotation;
     } 
 
-    var attributes = 'Attributes';
     
-    body = self.toHtml(compiledPosition + compiledRotation + attributes);
 
+    body=this.toHtml(body);
+    
     total = compiledHeader + body;
 
     if (this.$el.hasClass("ui-accordion")){
