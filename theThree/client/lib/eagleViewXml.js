@@ -83,6 +83,15 @@ function buildFaces(xw, structure) {
 
 function buildLines(xw, structure) {
   xw.startElement("LINES");
+  _.each(structure.mountingPlanes, function(mountingPlane) {
+    var lines = structure.getLines();
+    _.each(lines, function(line) {
+      xw.startElement("POINT");
+      xw.writeAttribute("id", "C" + pointCounter++);
+      xw.writeAttribute("data", pointToString(point));
+      xw.endElement();
+    });
+  });
   xw.endElement();
 }
 
