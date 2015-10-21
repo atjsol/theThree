@@ -4,20 +4,22 @@ var _ = require("lodash");
 var Line = require("./Line");
 var Point = require("./Point");
 
-var MountingPlane = module.exports = function(name, points) {
+var MountingPlane = function(name, points) {
   this.id = uid.random();
   this.name = name;
   this.points = points;
 };
+module.exports = MountingPlane;
 
 Model.extend(MountingPlane, {
   getLines: function() {
     var lines = [];
     for (var i = 0; i < this.points.length; i++) {
       var from = this.points[i];
-      var to = i < this.points.length - 1 ? this.points[i] : this.points[i + 1];
-      lines.push();
+      var to = i < this.points.length - 1 ? this.points[i] : this.points[0];
+      lines.push(new Line(from, to));
     }
+    return lines;
   }
 });
 

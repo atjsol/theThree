@@ -1,10 +1,13 @@
 var Model = require("./Model");
+var uid = require("../lib/uid");
 
-var Point = module.export = function(x, y, z) {
+var Point = function(x, y, z) {
+  this.id = uid.random();
   this.x = x;
   this.y = y;
   this.z = z;
 };
+module.exports = Point;
 
 Model.extend(Point, {
   toString: function() {

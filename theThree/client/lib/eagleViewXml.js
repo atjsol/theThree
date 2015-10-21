@@ -7,7 +7,7 @@ module.exports = {
     var xw = new XMLWriter();
     xw.startDocument();
     xw.startElement("EAGLEVIEW_EXPORT");
-    xw.writeAttribute("xmlns:xsi", "ttp://www.w3.org/2001/XMLSchaaaaaema-instance");
+    xw.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
     // <REPORT claimId="South San Francisco  JB-9412729-00" reportId="11723597" />
     xw.startElement("REPORT");
@@ -48,7 +48,7 @@ module.exports = {
     _.each(job.structures, buildRoofElement(xw));
 
     xw.endDocument();
-    return xw.toString();
+    return xw.toString().replace(/>/g, ">\n");
   }
 };
 
@@ -84,9 +84,11 @@ function buildFaces(xw, structure) {
 function buildLines(xw, structure) {
   xw.startElement("LINES");
   _.each(structure.mountingPlanes, function(mountingPlane) {
-    var lines = structure.getLines();
+    var lines = mountingPlane.getLines();
     _.each(lines, function(line) {
       xw.startElement("LINE");
+      xw.writeAttribute("id", line.id);
+      xw.writeAttribute("path", line.from.id + "," + line.to.id);
       xw.endElement();
     });
   });
@@ -99,7 +101,8 @@ function buildPoints(xw, structure) {
   _.each(structure.mountingPlanes, function(mountingPlane) {
     _.each(mountingPlane.points, function(point) {
       xw.startElement("POINT");
-      xw.writeAttribute("id", "C" + pointCounter++);
+      // xw.writeAttribute("id", "C" + pointCounter++);
+      xw.writeAttribute("id", point.id);
       xw.writeAttribute("data", pointToString(point));
       xw.endElement();
     });
