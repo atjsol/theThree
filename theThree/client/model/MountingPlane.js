@@ -16,7 +16,7 @@ Model.extend(MountingPlane, {
     var lines = [];
     for (var i = 0; i < this.points.length; i++) {
       var from = this.points[i];
-      var to = i < this.points.length - 1 ? this.points[i] : this.points[0];
+      var to = i < this.points.length - 1 ? this.points[i + 1] : this.points[0];
       lines.push(new Line(from, to));
     }
     return lines;

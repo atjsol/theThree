@@ -13,7 +13,7 @@ var _ = require("lodash");
 $(function() {
   $("#tabs").tabs();
 
-  var jobId = jobId || uid.random();
+  var jobId = jobId || "1234567";
 
   jsonStore.get(jobId).then(function(jobJson) {
     return Job.fromJSON(jobJson);
