@@ -8,11 +8,12 @@ var MountingPlane = function(name, points) {
   this.id = uid.random();
   this.name = name;
   this.points = points;
+  this.lines = this.generateLines();
 };
 module.exports = MountingPlane;
 
 Model.extend(MountingPlane, {
-  getLines: function() {
+  generateLines: function() {
     var lines = [];
     for (var i = 0; i < this.points.length; i++) {
       var from = this.points[i];
@@ -20,6 +21,10 @@ Model.extend(MountingPlane, {
       lines.push(new Line(from, to));
     }
     return lines;
+  },
+
+  getLines: function() {
+    return this.lines;
   }
 });
 

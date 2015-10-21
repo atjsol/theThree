@@ -44,11 +44,11 @@ module.exports = {
               <POLYGON id="P1" orientation="180.5" path="L3,L4,L5,L1" pitch="2" size="363" unroundedsize="363.473486768" />
     */
     xw.startElement("STRUCTURES");
-    xw.writeAttribute("northorientation", job.northOrientationDegrees);
+    xw.writeAttribute("northorientation", 180); //job.northOrientationDegrees);
     _.each(job.structures, buildRoofElement(xw));
 
     xw.endDocument();
-    return xw.toString().replace(/>/g, ">\n");
+    return xw.toString().replace(/></g, ">\n<");
   }
 };
 
@@ -57,8 +57,13 @@ function buildRoofElement(xw) {
     xw.startElement("ROOF");
     xw.writeAttribute("id", structure.id);
 
+    var lines = [];
+    _.each(structure.mountingPlanes, function(mountingPlane) {
+      lines = lines.concat(mountingPlane.getLines());
+    });
+
     buildFaces(xw, structure);
-    buildLines(xw, structure);
+    buildLines(xw, lines);
     buildPoints(xw, structure);
   };
 }
@@ -70,10 +75,13 @@ function buildFaces(xw, structure) {
     xw.startElement("FACE");
     xw.writeAttribute("designator", "?");
     xw.writeAttribute("id", mountingPlane.id);
-    xw.writeAttribute("type", "ROOF");
+    xw.writeAttribute("type", "???");
     xw.writeAttribute("children", "???");
 
-    xw.writeAttribute("path", "???");
+    xw.startElement("POLYGON");
+    xw.writeAttribute("id", mountingPlane.id);
+    xw.writeAttribute("path", _(mountingPlane.getLines()).pluck("id").join(","));
+    xw.endElement();
 
     xw.endElement();
   });
@@ -81,16 +89,13 @@ function buildFaces(xw, structure) {
 }
 
 
-function buildLines(xw, structure) {
+function buildLines(xw, lines) {
   xw.startElement("LINES");
-  _.each(structure.mountingPlanes, function(mountingPlane) {
-    var lines = mountingPlane.getLines();
-    _.each(lines, function(line) {
-      xw.startElement("LINE");
-      xw.writeAttribute("id", line.id);
-      xw.writeAttribute("path", line.from.id + "," + line.to.id);
-      xw.endElement();
-    });
+  _.each(lines, function(line) {
+    xw.startElement("LINE");
+    xw.writeAttribute("id", line.id);
+    xw.writeAttribute("path", line.from.id + "," + line.to.id);
+    xw.endElement();
   });
   xw.endElement();
 }
@@ -112,5 +117,5 @@ function buildPoints(xw, structure) {
 
 function pointToString(point) {
   var p = 9;
-  return point.x.toFixed(p) + "," + point.y.toFixed(p) + "," + point.z.toFixed(p);
+  return point.x.toFixed(p) + "," + point.z.toFixed(p) + "," + point.y.toFixed(p);
 }
