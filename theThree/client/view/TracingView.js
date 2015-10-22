@@ -15,7 +15,6 @@ var TracingView = module.exports = function($el, job) {
   this.animationArray = [];
   this.init();
 
-
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
@@ -29,13 +28,10 @@ var TracingView = module.exports = function($el, job) {
 
 TracingView.prototype = Object.create({
 
-
   init: function() {
     this.setupScene();
     this.drawGrid();
     this.drawOrigin();
-
-
   },
 
   setupScene: function() {
@@ -70,7 +66,7 @@ TracingView.prototype = Object.create({
     renderer.setSize(this.width, this.height);
     this.$el.html(renderer.domElement);
 
-    window.addEventListener('resize', function onWindowResize() {
+    window.addEventListener("resize", function onWindowResize() {
       var width = self.width = self.$el.width();
       var height = self.height = self.$el.height();
 
@@ -84,7 +80,7 @@ TracingView.prototype = Object.create({
       //if ( canvasRenderer ) {canvasRenderer.setSize( window.innerWidth, window.innerHeight );}
     }, false);
   },
-
+ 
   drawGrid: function(spacing, rows, gridOffset) {
     // This function draws a grid
     spacing = spacing ? spacing : 20;
@@ -100,24 +96,26 @@ TracingView.prototype = Object.create({
       vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, -rows * spacing / 2));
       vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, rows * spacing / 2));
       var lineV = new THREE.Line(vert, material);
+      lineV.name="lineV";
       group.add(lineV);
 
       var horiz = new THREE.Geometry();
       horiz.vertices.push(new THREE.Vector3(-rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
       horiz.vertices.push(new THREE.Vector3(rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
       var lineH = new THREE.Line(horiz, material);
+      lineH.name="lineH";
       group.add(lineH);
     }
     group.name = "grid";
     this.scene.add(group);
   },
 
-  //zTrack will create a cursor that tracks on the xz plane at y=0
+  //drawOrigin will create a cursor that tracks on the xz plane at y=0
   drawOrigin: function() {
     var cursorShape = new THREE.Geometry();
-    cursorShape.vertices.push(new THREE.Vector3(-5, 0, 5));
-    cursorShape.vertices.push(new THREE.Vector3(0, 0, 0));
-    cursorShape.vertices.push(new THREE.Vector3(5, 0, 5));
+    cursorShape.vertices.push(new THREE.Vector3(-5, 1, 5));
+    cursorShape.vertices.push(new THREE.Vector3(0, 1, 0));
+    cursorShape.vertices.push(new THREE.Vector3(5, 1, 5));
 
     var material = new THREE.LineBasicMaterial({
       color: 0xff9999,
@@ -134,9 +132,9 @@ TracingView.prototype = Object.create({
   getIntersects: function() {
     var intersects = this.raycaster.intersectObjects(this.scene.children, true);
     intersects.forEach(function(intersect) {
-      if (intersect.object.name === "map") {
-        intersects.map = new THREE.Vector3(intersect.point.x, 20, intersect.point.z);
-      }
+      // if (intersect.object.name === "map") {
+      //   intersects.satellite = new THREE.Vector3(intersect.point.x, 20, intersect.point.z);
+      // }
     });
     return intersects;
   },
@@ -159,15 +157,12 @@ TracingView.prototype = Object.create({
     });
   },
 
-
-
   animate: function() {
     if (this.animationArray.length > 0) {
       this.animationArray.forEach(function(executable) {
         executable.call(null);
       });
     }
-
     var intersects = this.getIntersects();
     this.raycaster.setFromCamera(this.getMouse(), this.camera);
     this.renderer.render(this.scene, this.camera);
@@ -181,9 +176,9 @@ TracingView.prototype = Object.create({
 
   loadImage: function(path) {
     var self = this;
-    var canvas = document.createElement('canvas');
+    var canvas = document.createElement("canvas");
 
-    var context = canvas.getContext('2d');
+    var context = canvas.getContext("2d");
     var planeXY = new THREE.PlaneGeometry(200, 200, 4);
 
     // $('body').on('input','#slider', function (event){
@@ -196,7 +191,7 @@ TracingView.prototype = Object.create({
     var img = new Image();
 
     //this cross origin thing is huge, needs to be set before the img.src is set- if this is not set the canvas will be dirty and webGL will give us a bunch of errors
-    img.crossOrigin = '';
+    img.crossOrigin = "";
     img.src = path;
     img.onload = function() {
       var height = img.height;

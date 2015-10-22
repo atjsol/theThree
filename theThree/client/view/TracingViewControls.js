@@ -1,12 +1,15 @@
 var $ = require("jquery");
 var THREE = require("three.js");
-THREE.OrbitControls = require('three-orbit-controls')(THREE);
+THREE.OrbitControls = require("three-orbit-controls")(THREE);
 var _ = require("lodash");
 var lineMaker = require("../lib/lineMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
 var util = require("../lib/util");
 var eventBus = require("../lib/eventBus");
+var lineMaker = require("../lib/lineMaker");
 var orthogonalStatus = require("../orthogonalStatus");
+var extrudeSettings = require("../lib/extrudeSettings");
+var ObjectAttributeView = require("./ObjectAttributeView");
 
 var TracingViewControls = module.exports = function(tracingView) {
   var self = this;
@@ -16,8 +19,9 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.trackMouse();
   this.setUpOrbitalControls();
   this.tracingView.orthEnd = false;
+  this.intialHeight = 20;
   this.shapeQue = [];
-
+  this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"));
   //this.$el.on("keyup", this.handleKeyUp);
   window.addEventListener("keyup", function(event) {
     self.handleKeyUp(event); // TODO: FIX ME
@@ -28,6 +32,7 @@ var TracingViewControls = module.exports = function(tracingView) {
 TracingViewControls.prototype = Object.create({
   setUpOrbitalControls: function() {
     var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
+    console.log(this.tracingView.camera)
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
@@ -57,7 +62,7 @@ TracingViewControls.prototype = Object.create({
       if (intersects[0]) {
         self.mouse3D = new THREE.Vector3(
           intersects[0].point.x,
-          20,
+          this.intialHeight,
           intersects[0].point.z
         );
       }
@@ -66,9 +71,9 @@ TracingViewControls.prototype = Object.create({
 
   animateLine: function(start, end, name) {
     this.tracingView.removeChildren("mouseline"); // remove the old line before we add a new line
-    this.shapeQue[this.shapeQue.length - 1].y = 20; //set to the inital height of outline
+    this.shapeQue[this.shapeQue.length - 1].y = this.intialHeight; //set to the inital height of outline
     start = start || this.shapeQue[this.shapeQue.length - 1];
-    end = end || new THREE.Vector3(this.mouse3D.x, 20, this.mouse3D.z);
+    end = end || new THREE.Vector3(this.mouse3D.x, this.intialHeight, this.mouse3D.z);
     if (this.shapeQue.length > 1 && orthogonalStatus.getStatus()) {
       end = lineMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
       this.tracingView.orthEnd = end.clone();
@@ -84,9 +89,9 @@ TracingViewControls.prototype = Object.create({
     var scene = this.tracingView.scene;
     var shapeQue = self.shapeQue;
 
-    if (event.which === 16) { // shift key
+    if (event.which === 16){ // shift key
       var intersects = self.tracingView.getIntersects();
-      intersects.forEach(function(val) {});
+      this.objectAttributeView.addToInterface(intersects);
     }
 
     if (event.which === 65) { // a key
@@ -97,10 +102,18 @@ TracingViewControls.prototype = Object.create({
       // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
       intersects.forEach(function(intersect) {
 
-        if (intersect.object.name === "map") {
+        if (intersect.object.name === "map" && !x ) {
           x = intersect.point.x;
           y = intersect.point.y;
           z = intersect.point.z;
+        }
+
+        //if we happen to hit a sphere- we would like to use the sphere coordinates instead
+        if (intersect.object.name === "sphere") {
+          x = intersect.object.position.x;
+          y = intersect.object.position.y;
+          z = intersect.object.position.z;
+
         }
       });
 
@@ -119,7 +132,8 @@ TracingViewControls.prototype = Object.create({
       if (shapeQue.length > 1) {
 
         //get the most recently added sphere position
-        var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length - 1].clone(), shapeQue[shapeQue.length - 2].clone());
+        var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length-1], shapeQue[shapeQue.length-2]);
+
         scene.add(cylinder);
       }
 
@@ -129,26 +143,24 @@ TracingViewControls.prototype = Object.create({
       }
 
       //Add the sphere to the scene to be visible representation of what we have in our queue
-      var geometry = new THREE.SphereGeometry(0.5, 32, 32);
-      var material = new THREE.MeshBasicMaterial({
-        color: 0xffff00
-      });
 
-      var sphere = new THREE.Mesh(geometry, material);
       var sphereSnap = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({ wireframe: true, opacity: 0.5 }))
-      sphere.name = "sphere";
       sphereSnap.name = "sphereSnap";
 
-      var pos = shapeQue[shapeQue.length - 1].clone();
-      sphere.position.x = sphereSnap.position.x = pos.x;
-      sphere.position.y = sphereSnap.position.y = pos.y;
-      sphere.position.z = sphereSnap.position.z = pos.z;
+      var pos = shapeQue[shapeQue.length - 1];
+      sphereSnap.position.x = pos.x;
+      sphereSnap.position.y = pos.y;
+      sphereSnap.position.z = pos.z;
+
+      var sphere = lineMaker.sphere(shapeQue[shapeQue.length-1]);
 
       scene.add(sphere);
       scene.add(sphereSnap);
     }
 
     if (event.which === 83) { // s key
+
+      if (shapeQue.length < 3) {return}
       //remove the mouseline animation when calculating the total shape
       this.tracingView.resetAnimationArray();
 
@@ -166,19 +178,40 @@ TracingViewControls.prototype = Object.create({
         }
       });
 
-
       //add final line between the first and last points in the shape
       scene.add(lineMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
-
+      
       var group = new THREE.Group();
       var shape = lineMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
       shape.name = "mounting plane shape";
+      shape.constructionData = {
+        points: this.shapeQue.slice(0),  // copy all the points to make this shape 
+        rotationAxis : undefined, //set by selecting eave or ridge attributes
+        
+        rotationDegrees : undefined,
+        calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
+        calculatedRatioMetric : undefined,
+      }; 
       group.add(shape);
 
-      //transfer any objects put into the scene back into the group
+      shape.constructionData.points.forEach(function(point, i, array){
+        //for each point add a sphere
+        //Add the sphere to the scene to represent a point
+        var sphere = lineMaker.sphere(point);
+        group.add(sphere);
+
+        //for each subsequent points add a line 
+        var nextPoint = array[i+1] || array[0];
+        var cylinder = lineMaker.makeLine(point, nextPoint);
+        group.add(cylinder);
+      }); 
+
+      //create the group based on points and construction data
+
+      //delete any objects put into the scene to indicate how the group will be constructed
       for (var i = scene.children.length - 1; i > 0; i--) {
         if (scene.children[i].name === "sphere" || scene.children[i].name === "cylinder") {
-          group.add(scene.children.splice(i, 1)[0]);
+          scene.children.splice(i, 1);
         }
       }
 
@@ -189,12 +222,14 @@ TracingViewControls.prototype = Object.create({
       var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
       group.name = name;
       scene.add(group);
-
-      eventBus.trigger("create:mountingPlane", group);
-    }
+    }   
 
     if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();
+    }
+    
+    if (event.which === 80 ){ // o key
+      eventBus.trigger("create:mountingPlane", group);
     }
 
     if (event.which === 49) // 1

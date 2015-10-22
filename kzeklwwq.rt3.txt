@@ -1,0 +1,41 @@
+﻿Merge branch 'develop' of https://github.com/atjsol/theThree into feature/ZPLUS-1462setRidgeAndEave
+
+Conflicts:
+	theThree/client/eagleViewKiller.js
+	theThree/client/view/TracingView.js
+	theThree/client/view/TracingViewControls.js
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please remove the file
+#	.git/MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch feature/ZPLUS-1462setRidgeAndEave
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	new file:   .jshintrc
+#	modified:   Gruntfile.js
+#	modified:   app.js
+#	new file:   client/.jshintrc
+#	modified:   client/eagleViewKiller.js
+#	new file:   client/lib/eagleViewXml.js
+#	new file:   client/lib/jsonStore.js
+#	new file:   client/lib/uid.js
+#	new file:   client/model/Job.js
+#	new file:   client/model/Location.js
+#	new file:   client/model/Model.js
+#	new file:   client/model/MountingPlane.js
+#	new file:   client/model/Structure.js
+#	modified:   client/orthogonalStatus.js
+#	modified:   client/view/DrawingControlsView.js
+#	new file:   client/view/ExportView.js
+#	modified:   client/view/TracingView.js
+#	modified:   client/view/TracingViewControls.js
+#	modified:   package.json
+#	modified:   public/index2.html
+#
+

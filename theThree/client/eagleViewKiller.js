@@ -3,6 +3,7 @@ require("jquery-ui");
 var MapControlsView = require("./view/MapControlsView");
 var TracingView = require("./view/TracingView");
 var DrawingControlsView = require("./view/DrawingControlsView");
+
 var ExportView = require("./view/ExportView");
 var Job = require("./model/Job");
 var jsonStore = require("./lib/jsonStore");
@@ -28,7 +29,6 @@ $(function() {
 
     var mapControlsView = new MapControlsView($("#mapData"));
     var drawingControlsView = new DrawingControlsView($("#drawing-controls"));
-    // var tracingView = new TracingView($("#three-view"));
     window.tracingView = new TracingView($("#three-view"), job);
     var exportView = new ExportView($("#export-view"), job);
 
