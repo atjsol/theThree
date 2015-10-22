@@ -44,20 +44,50 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
   return cylinder;
 };
 
-module.exports.sphere = function sphere(point){
- //Add the sphere to the scene to be visible representation of what we have in our queue
-  var geometry = new THREE.SphereGeometry(0.5, 32, 32);
+module.exports.makeSphere = function makeSphere(point, size, materialArgs)
+{
+  //Add the sphere to the scene to be visible representation of what we have in our queue
+  size = size || 0.5;
+  materialArgs = materialArgs || { color: 0xffff00 };
+
+  var geometry = new THREE.SphereGeometry(size, 32, 32);
   geometry.dynamic=true;
-  var material = new THREE.MeshBasicMaterial({
-    color: 0xffff00
-  });
+  var material = new THREE.MeshBasicMaterial(materialArgs);
+
   var sphere = new THREE.Mesh(geometry, material);
   sphere.name = "sphere";
-  
-  
-  sphere.position.set(point.x, point.y, point.z);
-  return sphere;
 
+  sphere.position.set(point.x, point.y, point.z);
+
+  return sphere;
+}
+
+// sphereArgs = [[size, materialArgs],[size, materialArgs]...] accepts any number of spheres
+module.exports.sphere = function sphere(point, sphereArgs) {
+    sphereArgs = sphereArgs || [[undefined, undefined], [5, { transparent: true, opacity: 0.25 }]];
+   var makeSphere = module.exports.makeSphere;
+   //var sphereArmada =  sphereArgs.reduce(function (accumulator, sphereArg, i){
+
+   //     if (i == 0){
+   //         accumulator = makeSphere(point, accumulator[0], accumulator[1]);
+            
+   //     } else {
+   //         debugger
+   //         var sphereSnap = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
+   //         accumulator.add(sphereSnap);
+   //     }
+   //     return accumulator;
+   //});
+
+   var tbr = makeSphere(point);
+   sphereArgs.forEach(function (sphereArg, i) {
+       if (i != 0) {
+           var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
+           tbr.add(newSphere);
+       }
+   });
+
+  return tbr;
 }
 
 //this function will take in 3 points, start, fulcrum, end and return a vector that is either + 90, 180 or 270 from the vector produced from start and fulcrum  
