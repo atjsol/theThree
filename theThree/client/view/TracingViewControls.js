@@ -87,9 +87,6 @@ TracingViewControls.prototype = Object.create({
     if (event.which === 16) { // shift key
       var intersects = self.tracingView.getIntersects();
       intersects.forEach(function(val) {});
-
-
-
     }
 
     if (event.which === 65) { // a key
@@ -136,13 +133,19 @@ TracingViewControls.prototype = Object.create({
       var material = new THREE.MeshBasicMaterial({
         color: 0xffff00
       });
+
       var sphere = new THREE.Mesh(geometry, material);
+      var sphereSnap = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({ wireframe: true, opacity: 0.5 }))
       sphere.name = "sphere";
+      sphereSnap.name = "sphereSnap";
+
       var pos = shapeQue[shapeQue.length - 1].clone();
-      sphere.position.x = pos.x;
-      sphere.position.y = pos.y;
-      sphere.position.z = pos.z;
+      sphere.position.x = sphereSnap.position.x = pos.x;
+      sphere.position.y = sphereSnap.position.y = pos.y;
+      sphere.position.z = sphereSnap.position.z = pos.z;
+
       scene.add(sphere);
+      scene.add(sphereSnap);
     }
 
     if (event.which === 83) { // s key
@@ -192,6 +195,66 @@ TracingViewControls.prototype = Object.create({
 
     if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();
+    }
+
+    if (event.which === 49) // 1
+    {
+      // Top View
+      this.tracingView.camera.rotation.x = - Math.PI / 2;
+      this.tracingView.camera.rotation.y = 0;
+      this.tracingView.camera.rotation.z = 0;
+
+      this.tracingView.camera.updateProjectionMatrix();
+
+      this.tracingView.camera.lookAt(this.tracingView.scene.position);
+      //this.tracingView.renderer.render(this.tracingView.scene, this.tracingView.camera);
+    }
+
+    if (event.which === 50) // 2
+    {
+      // Right View
+      this.tracingView.camera.rotation.x = 0;
+      this.tracingView.camera.rotation.y = Math.PI / 2;
+      this.tracingView.camera.rotation.z = 0;
+
+      //this.tracingView.camera.updateProjectionMatrix();
+    }
+
+    if (event.which === 51) // 3
+    {
+      // Left View
+      this.tracingView.camera.rotation.x = 0;
+      this.tracingView.camera.rotation.y = - Math.PI / 2;
+      this.tracingView.camera.rotation.z = 0;
+
+      //this.tracingView.camera.updateProjectionMatrix();
+    }
+
+    if (event.which === 52) // 4
+    {
+      // Back View
+      this.tracingView.camera.rotation.x = 0;
+      this.tracingView.camera.rotation.y = Math.PI;
+      this.tracingView.camera.rotation.z = 0;
+
+      //this.tracingView.camera.updateProjectionMatrix();
+    }
+
+    if (event.which === 53) // 5
+    {
+      // Front View
+      this.tracingView.camera.rotation.x = 0;
+      this.tracingView.camera.rotation.y = 0;
+      this.tracingView.camera.rotation.z = 0;
+
+      //this.tracingView.camera.updateProjectionMatrix();
+    }
+
+    if (event.which === 54) // 6
+    {
+      //this.tracingView.camera.position.set(0,30,0);
+      this.tracingView.camera.up = new THREE.Vector3(0,1,0);
+      this.tracingView.camera.lookAt(new THREE.Vector3(0,0,0));
     }
 
   },

@@ -46,16 +46,18 @@ TracingView.prototype = Object.create({
     //Set the camera Position
     //Add The camera to the Scene
     //Make a light and add it to the camera so light source is always from the camera;
-
     //Create a Renderer - Ideally check if there is a WebGL Renderer - Can use canvas renderer - but that will cause performance issues
 
     var scene = this.scene = new THREE.Scene();
+
     var raycaster = this.raycaster = new THREE.Raycaster();
+
     //Orthographic Camera Provides better control for design work
     // var camera = new THREE.PerspectiveCamera( 40, this.width / this.height, 1, 10000 );
     var camera = this.camera = new THREE.OrthographicCamera(this.width / -2, this.width / 2, this.height / 2, this.height / -2, 1, 1000);
     // camera.position.z = 1000;
-    camera.position.y = 340;
+    camera.position.y = 500;
+    camera.zoom = 4;
     camera.name = "Orthographic Camera";
     scene.add(camera);
 
