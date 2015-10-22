@@ -5,7 +5,8 @@ var Line = require("./Line");
 var Point = require("./Point");
 
 var MountingPlane = function(name, points) {
-  this.id = uid.random();
+  this.id = uid.incremental("P");
+  this.faceId = uid.incremental("F");
   this.name = name;
   this.points = points;
   this.lines = this.generateLines();
@@ -29,7 +30,6 @@ Model.extend(MountingPlane, {
 });
 
 MountingPlane.fromThreeGroup = function(group) {
-  var lines = [];
   var points = [];
   _.each(group.children, function(child) {
     switch (child.name) {

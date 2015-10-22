@@ -74,9 +74,9 @@ function buildFaces(xw, structure) {
   _.each(structure.mountingPlanes, function(mountingPlane) {
     xw.startElement("FACE");
     xw.writeAttribute("designator", "?");
-    xw.writeAttribute("id", mountingPlane.id);
-    xw.writeAttribute("type", "???");
-    xw.writeAttribute("children", "???");
+    xw.writeAttribute("id", mountingPlane.faceId);
+    xw.writeAttribute("type", "ROOF");
+    //xw.writeAttribute("children", "???");
 
     xw.startElement("POLYGON");
     xw.writeAttribute("id", mountingPlane.id);
@@ -102,11 +102,9 @@ function buildLines(xw, lines) {
 
 function buildPoints(xw, structure) {
   xw.startElement("POINTS");
-  var pointCounter = 0;
   _.each(structure.mountingPlanes, function(mountingPlane) {
     _.each(mountingPlane.points, function(point) {
       xw.startElement("POINT");
-      // xw.writeAttribute("id", "C" + pointCounter++);
       xw.writeAttribute("id", point.id);
       xw.writeAttribute("data", pointToString(point));
       xw.endElement();

@@ -7,12 +7,12 @@ module.exports = {
   },
 
   incremental: function(prefix) {
-    var id = 0;
+    var id = 1;
     if (ids.has(prefix)) {
       id = ids.get(prefix);
       id++;
     }
     ids.set(prefix, id);
-    return id;
+    return prefix + id;
   }
 };
