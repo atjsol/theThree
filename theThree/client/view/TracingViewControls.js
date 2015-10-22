@@ -2,11 +2,10 @@ var $ = require("jquery");
 var THREE = require("three.js");
 THREE.OrbitControls = require("three-orbit-controls")(THREE);
 var _ = require("lodash");
-var lineMaker = require("../lib/lineMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
 var util = require("../lib/util");
 var eventBus = require("../lib/eventBus");
-var lineMaker = require("../lib/lineMaker");
+var GeometryMaker = require("../lib/GeometryMaker");
 var orthogonalStatus = require("../orthogonalStatus");
 var extrudeSettings = require("../lib/extrudeSettings");
 var ObjectAttributeView = require("./ObjectAttributeView");
@@ -75,10 +74,10 @@ TracingViewControls.prototype = Object.create({
     start = start || this.shapeQue[this.shapeQue.length - 1];
     end = end || new THREE.Vector3(this.mouse3D.x, this.intialHeight, this.mouse3D.z);
     if (this.shapeQue.length > 1 && orthogonalStatus.getStatus()) {
-      end = lineMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
+      end = GeometryMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
       this.tracingView.orthEnd = end.clone();
     }
-    var mouseline = lineMaker.makeLine(start, end);
+    var mouseline = GeometryMaker.makeLine(start, end);
     mouseline.name = name || "mouseline";
 
     this.tracingView.scene.add(mouseline);
@@ -132,7 +131,7 @@ TracingViewControls.prototype = Object.create({
       if (shapeQue.length > 1) {
 
         //get the most recently added sphere position
-        var cylinder = lineMaker.makeLine(shapeQue[shapeQue.length-1], shapeQue[shapeQue.length-2]);
+        var cylinder = GeometryMaker.makeLine(shapeQue[shapeQue.length-1], shapeQue[shapeQue.length-2]);
 
         scene.add(cylinder);
       }
@@ -141,21 +140,11 @@ TracingViewControls.prototype = Object.create({
         //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
         this.tracingView.addToAnimationArray(self.animateLine);
       }
-
+      var position = shapeQue[shapeQue.length-1].clone();
       //Add the sphere to the scene to be visible representation of what we have in our queue
-
-      var sphereSnap = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({ wireframe: true, opacity: 0.5 }))
-      sphereSnap.name = "sphereSnap";
-
-      var pos = shapeQue[shapeQue.length - 1];
-      sphereSnap.position.x = pos.x;
-      sphereSnap.position.y = pos.y;
-      sphereSnap.position.z = pos.z;
-
-      var sphere = lineMaker.sphere(shapeQue[shapeQue.length-1]);
+      var sphere = GeometryMaker.sphere(position);
 
       scene.add(sphere);
-      scene.add(sphereSnap);
     }
 
     if (event.which === 83) { // s key
@@ -179,10 +168,10 @@ TracingViewControls.prototype = Object.create({
       });
 
       //add final line between the first and last points in the shape
-      scene.add(lineMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
+      scene.add(GeometryMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
       
       var group = new THREE.Group();
-      var shape = lineMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
+      var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
       shape.name = "mounting plane shape";
       shape.constructionData = {
         points: this.shapeQue.slice(0),  // copy all the points to make this shape 
@@ -197,12 +186,12 @@ TracingViewControls.prototype = Object.create({
       shape.constructionData.points.forEach(function(point, i, array){
         //for each point add a sphere
         //Add the sphere to the scene to represent a point
-        var sphere = lineMaker.sphere(point);
+        var sphere = GeometryMaker.sphere(point);
         group.add(sphere);
 
         //for each subsequent points add a line 
         var nextPoint = array[i+1] || array[0];
-        var cylinder = lineMaker.makeLine(point, nextPoint);
+        var cylinder = GeometryMaker.makeLine(point, nextPoint);
         group.add(cylinder);
       }); 
 
