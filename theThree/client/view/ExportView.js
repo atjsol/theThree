@@ -7,28 +7,43 @@ var ExportView = module.exports = function($el, job) {
   this.job = job;
 
   this.$el.on("click", "#download-link", this.handleDownloadLinkClick);
+  this.$el.on("click", "#view-link", this.handleViewLinkClick);
 };
 
 ExportView.prototype = Object.create({
-  handleDownloadLinkClick: function(event) {
-    var anchor = event.currentTarget;
-    var job = this.job;
-    var jobId = job.id;
-
+  getXml: function(job) {
     var xml;
     try {
       xml = eagleViewXml.toXml(job);
     } catch (e) {
       alert("Sorry, something went wrong");
-      console.error(e);
-      return false;
+      console.error(e.stack);
+      throw e;
     }
+    return xml;
+  },
+
+  getXmlUrl: function(job) {
+    var xml = this.getXml(job);
     var blob = new Blob([xml], {
       type: "text/xml"
     });
-    var url = URL.createObjectURL(blob);
-    // anchor.download = "eagleview-" + jobId;
-    // anchor.href = url;
+    return URL.createObjectURL(blob);
+  },
+
+  handleDownloadLinkClick: function(event) {
+    var anchor = event.currentTarget;
+    var jobId = this.job.id;
+    
+    var url = this.getXmlUrl(this.job);
+    anchor.download = "eagleview-" + jobId;
+    anchor.href = url;
+  },
+
+  handleViewLinkClick: function(event) {
+    event.preventDefault();
+
+    var url = this.getXmlUrl(this.job);
     window.open(url);
     return false;
   }
