@@ -44,7 +44,7 @@ module.exports = {
               <POLYGON id="P1" orientation="180.5" path="L3,L4,L5,L1" pitch="2" size="363" unroundedsize="363.473486768" />
     */
     xw.startElement("STRUCTURES");
-    xw.writeAttribute("northorientation", 180); //job.northOrientationDegrees);
+    xw.writeAttribute("northorientation", 0); //job.northOrientationDegrees);
     _.each(job.structures, buildRoofElement(xw));
 
     xw.endDocument();
@@ -117,5 +117,5 @@ function buildPoints(xw, structure) {
 
 function pointToString(point) {
   var p = 9;
-  return point.x.toFixed(p) + "," + point.z.toFixed(p) + "," + point.y.toFixed(p);
+  return point.x.toFixed(p) + "," + (-1 * point.z).toFixed(p) + "," + point.y.toFixed(p);
 }
