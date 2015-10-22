@@ -32,7 +32,6 @@ var TracingViewControls = module.exports = function(tracingView) {
 TracingViewControls.prototype = Object.create({
   setUpOrbitalControls: function() {
     var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
-    console.log(this.tracingView.camera)
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
@@ -150,7 +149,7 @@ TracingViewControls.prototype = Object.create({
 
     if (event.which === 83) { // s key
 
-      if (shapeQue.length < 3) {return}
+      if (shapeQue.length < 3) {return;}
       //remove the mouseline animation when calculating the total shape
       this.tracingView.resetAnimationArray();
 

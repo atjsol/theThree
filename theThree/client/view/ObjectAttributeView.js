@@ -101,7 +101,7 @@ ObjectAttributeView.prototype = Object.create({
   },
 
   updateGroupModel : function (e){
- 
+    
 
     // e.data is where our passed in data (from $('change", data, callback)) resides
     // e.target is where the change has occurred
@@ -111,6 +111,7 @@ ObjectAttributeView.prototype = Object.create({
     var action = e.target.dataset.action;
     this[action](e);
   },
+
   setEaveVector : function (e){
     console.log("setEaveActivated");
     //get the two points used to make the cylinder
@@ -126,22 +127,13 @@ ObjectAttributeView.prototype = Object.create({
     //TODO:  Ensure all other lines are not set as eave for this mounting plane
   },
 
-
-
-
-
   updateRotation : function (e){
     //apply rotation to group
     var group = e.data.parent;
-    group.parent.matrixWorldNeedsUpdate=true;
-    group.parent.matrixAutoUpdate=true;
-    
+
     group.translateOnAxis(group.vectorOffset, 1);
     group.setRotationFromAxisAngle(group.rotationVector,  util.toRad(e.target.value));
     group.translateOnAxis(group.vectorOffset, -1);
-
-    group.parent.matrixWorldNeedsUpdate=true;
-    group.parent.matrixAutoUpdate=true;
   },
 
 
