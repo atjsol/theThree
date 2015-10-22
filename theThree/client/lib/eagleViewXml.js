@@ -95,6 +95,7 @@ function buildLines(xw, lines) {
     xw.startElement("LINE");
     xw.writeAttribute("id", line.id);
     xw.writeAttribute("path", line.from.id + "," + line.to.id);
+    xw.writeAttribute("type", line.getTypeUpper());
     xw.endElement();
   });
   xw.endElement();

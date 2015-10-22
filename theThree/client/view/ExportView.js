@@ -34,7 +34,7 @@ ExportView.prototype = Object.create({
   handleDownloadLinkClick: function(event) {
     var anchor = event.currentTarget;
     var jobId = this.job.id;
-    
+
     var url = this.getXmlUrl(this.job);
     anchor.download = "eagleview-" + jobId;
     anchor.href = url;
