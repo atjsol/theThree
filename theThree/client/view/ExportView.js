@@ -27,7 +27,9 @@ ExportView.prototype = Object.create({
       type: "text/xml"
     });
     var url = URL.createObjectURL(blob);
-    anchor.download = "eagleview-" + jobId;
-    anchor.href = url;
+    // anchor.download = "eagleview-" + jobId;
+    // anchor.href = url;
+    window.open(url);
+    return false;
   }
 });
