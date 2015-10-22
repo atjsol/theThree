@@ -10,6 +10,7 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
 
   //create cylinder based onlength 
   var geometry = new THREE.CylinderGeometry(0.25, 0.25, distance, 32);
+  geometry.dynamic=true;
   var material = new THREE.MeshBasicMaterial({
     color: 0xff0022
   });
@@ -28,8 +29,16 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
   //Set the cylinder to look from one point to the next point
   //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
   cylinder.lookAt(new THREE.Vector3(fromPoint.x, 10000000000, fromPoint.z));
-  cylinder.constructionData=[];
-  cylinder.constructionData.push(fromPoint, toPoint);
+  
+  cylinder.constructionData={
+    points: [],  // copy all the points to make this shape 
+    rotationAxis : undefined, //set by selecting eave or ridge attributes
+    
+    rotationDegrees : undefined,
+    calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
+    calculatedRatioMetric : undefined,
+  };
+  cylinder.constructionData.points.push(fromPoint, toPoint);
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
   return cylinder;
@@ -38,6 +47,7 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
 module.exports.sphere = function sphere(point){
  //Add the sphere to the scene to be visible representation of what we have in our queue
   var geometry = new THREE.SphereGeometry(0.5, 32, 32);
+  geometry.dynamic=true;
   var material = new THREE.MeshBasicMaterial({
     color: 0xffff00
   });
@@ -109,27 +119,29 @@ module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y,
 
   // // flat shape
 
-  // var geometry = new THREE.ShapeGeometry( shape );
+  var geometry = new THREE.ShapeGeometry( shape );
+  geometry.dynamic=true;
 
-  // var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide } ) );
-  // mesh.position.set( x, y, z);
-  // mesh.rotation.set( rx, ry, rz );
-  // mesh.scale.set( s, s, s );
+  var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { wireframe:false, color: color, side: THREE.DoubleSide } ) );
+  mesh.position.set( x, y, z);
+  mesh.rotation.set( rx, ry, rz );
+  mesh.scale.set( s, s, s );
+  mesh.planeRotation=0;
 
-  //    var group = new THREE.Group();
-  //    group.add( mesh );
+  // var group = new THREE.Group();
+  // group.add( mesh );
 
   // 3d shape
 
-  var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  // var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
-  var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
-    color: color
-  }));
-  mesh.position.set(x, y, z);
-  mesh.rotation.set(rx, ry, rz);
-  mesh.scale.set(s, s, s);
-  mesh.planeRotation=0;
+  // var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+  //   color: color
+  // }));
+  // mesh.position.set(x, y, z);
+  // mesh.rotation.set(rx, ry, rz);
+  // mesh.scale.set(s, s, s);
+  // mesh.planeRotation=0;
 
   // group.add(mesh);
 

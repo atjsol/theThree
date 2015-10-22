@@ -64,7 +64,7 @@ TracingView.prototype = Object.create({
     renderer.setSize(this.width, this.height);
     this.$el.html(renderer.domElement);
 
-    window.addEventListener('resize', function onWindowResize() {
+    window.addEventListener("resize", function onWindowResize() {
       var width = self.width = self.$el.width();
       var height = self.height = self.$el.height();
 
@@ -78,7 +78,7 @@ TracingView.prototype = Object.create({
       //if ( canvasRenderer ) {canvasRenderer.setSize( window.innerWidth, window.innerHeight );}
     }, false);
   },
-
+ 
   drawGrid: function(spacing, rows, gridOffset) {
     // This function draws a grid
     spacing = spacing ? spacing : 20;
@@ -161,7 +161,6 @@ TracingView.prototype = Object.create({
         executable.call(null);
       });
     }
-
     var intersects = this.getIntersects();
     this.raycaster.setFromCamera(this.getMouse(), this.camera);
     this.renderer.render(this.scene, this.camera);
@@ -175,9 +174,9 @@ TracingView.prototype = Object.create({
 
   loadImage: function(path) {
     var self = this;
-    var canvas = document.createElement('canvas');
+    var canvas = document.createElement("canvas");
 
-    var context = canvas.getContext('2d');
+    var context = canvas.getContext("2d");
     var planeXY = new THREE.PlaneGeometry(200, 200, 4);
 
     // $('body').on('input','#slider', function (event){
@@ -190,7 +189,7 @@ TracingView.prototype = Object.create({
     var img = new Image();
 
     //this cross origin thing is huge, needs to be set before the img.src is set- if this is not set the canvas will be dirty and webGL will give us a bunch of errors
-    img.crossOrigin = '';
+    img.crossOrigin = "";
     img.src = path;
     img.onload = function() {
       var height = img.height;

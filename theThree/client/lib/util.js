@@ -1,3 +1,16 @@
+var THREE = require("three.js");
+exports.centroid = function centriod(mesh){
+  var geometry = mesh.geometry;
+  geometry.centroid = new THREE.Vector3();
+  for ( var i = 0, l = geometry.vertices.length; i < l; i ++ ) {
+      geometry.centroid.addSelf( geometry.vertices[ i ].position );
+  } 
+  return geometry.centroid.divideScalar( geometry.vertices.length );
+};
+
+
+
+
 exports.toDeg = function toDeg(val) {
   return val * 180 / Math.PI;
 };

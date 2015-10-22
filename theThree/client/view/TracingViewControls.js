@@ -1,6 +1,6 @@
 var $ = require("jquery");
 var THREE = require("three.js");
-THREE.OrbitControls = require('three-orbit-controls')(THREE);
+THREE.OrbitControls = require("three-orbit-controls")(THREE);
 var _ = require("lodash");
 var lineMaker = require("../lib/lineMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
@@ -19,6 +19,7 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.trackMouse();
   this.setUpOrbitalControls();
   this.tracingView.orthEnd = false;
+  this.intialHeight = 20;
   this.shapeQue = [];
   this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"));
   //this.$el.on("keyup", this.handleKeyUp);
@@ -31,6 +32,7 @@ var TracingViewControls = module.exports = function(tracingView) {
 TracingViewControls.prototype = Object.create({
   setUpOrbitalControls: function() {
     var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
+    console.log(this.tracingView.camera)
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
@@ -60,7 +62,7 @@ TracingViewControls.prototype = Object.create({
       if (intersects[0]) {
         self.mouse3D = new THREE.Vector3(
           intersects[0].point.x,
-          20,
+          this.intialHeight,
           intersects[0].point.z
         );
       }
@@ -69,9 +71,9 @@ TracingViewControls.prototype = Object.create({
 
   animateLine: function(start, end, name) {
     this.tracingView.removeChildren("mouseline"); // remove the old line before we add a new line
-    this.shapeQue[this.shapeQue.length - 1].y = 20; //set to the inital height of outline
+    this.shapeQue[this.shapeQue.length - 1].y = this.intialHeight; //set to the inital height of outline
     start = start || this.shapeQue[this.shapeQue.length - 1];
-    end = end || new THREE.Vector3(this.mouse3D.x, 20, this.mouse3D.z);
+    end = end || new THREE.Vector3(this.mouse3D.x, this.intialHeight, this.mouse3D.z);
     if (this.shapeQue.length > 1 && orthogonalStatus.getStatus()) {
       end = lineMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
       this.tracingView.orthEnd = end.clone();
@@ -148,7 +150,7 @@ TracingViewControls.prototype = Object.create({
 
     if (event.which === 83) { // s key
 
-      if (shapeQue.length < 3) return
+      if (shapeQue.length < 3) {return}
       //remove the mouseline animation when calculating the total shape
       this.tracingView.resetAnimationArray();
 
@@ -172,17 +174,17 @@ TracingViewControls.prototype = Object.create({
       var group = new THREE.Group();
       var shape = lineMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
       shape.name = "mounting plane shape";
-      shape.construction = {
+      shape.constructionData = {
         points: this.shapeQue.slice(0),  // copy all the points to make this shape 
         rotationAxis : undefined, //set by selecting eave or ridge attributes
         
         rotationDegrees : undefined,
         calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
         calculatedRatioMetric : undefined,
-      } 
+      }; 
       group.add(shape);
 
-      shape.construction.points.forEach(function(point, i, array){
+      shape.constructionData.points.forEach(function(point, i, array){
         //for each point add a sphere
         //Add the sphere to the scene to represent a point
         var sphere = lineMaker.sphere(point);
@@ -199,7 +201,7 @@ TracingViewControls.prototype = Object.create({
       //delete any objects put into the scene to indicate how the group will be constructed
       for (var i = scene.children.length - 1; i > 0; i--) {
         if (scene.children[i].name === "sphere" || scene.children[i].name === "cylinder") {
-          scene.children.splice(i, 1)
+          scene.children.splice(i, 1);
         }
       }
 
