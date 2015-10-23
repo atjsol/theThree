@@ -93,9 +93,9 @@ module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
   // compare the two vectors 
   var angle = line1.angleTo(line2);
 
-  var modAngle;
   var compAngle = util.toDeg(angle);
 
+  var modAngle;
   //create a ruleset for which angle to use
   for (var i = 0; i < 181; i += 45) {
     if (compAngle > i - 45 / 2 && compAngle < i + 45 / 2) {
