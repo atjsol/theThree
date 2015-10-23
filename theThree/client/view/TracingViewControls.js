@@ -76,7 +76,7 @@ TracingViewControls.prototype = Object.create({
       end = GeometryMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
       this.tracingView.orthEnd = end.clone();
     }
-    var mouseline = GeometryMaker.makeLine(start, end);
+    var mouseline = GeometryMaker.makeLine(start, end, 0.25);
     mouseline.name = name || "mouseline";
 
     this.tracingView.scene.add(mouseline);
@@ -139,7 +139,7 @@ TracingViewControls.prototype = Object.create({
         //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
         this.tracingView.addToAnimationArray(self.animateLine);
       }
-      var position = shapeQue[shapeQue.length-1].clone();
+      var position = shapeQue[shapeQue.length-1];
       //Add the sphere to the scene to be visible representation of what we have in our queue
       var sphere = GeometryMaker.sphere(position);
 
@@ -173,7 +173,7 @@ TracingViewControls.prototype = Object.create({
       var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
       shape.name = "mounting plane shape";
       shape.constructionData = {
-        points: this.shapeQue.slice(0),  // copy all the points to make this shape 
+        points: this.shapeQue,  // copy all the points to make this shape 
         rotationAxis : undefined, //set by selecting eave or ridge attributes
         
         rotationDegrees : undefined,

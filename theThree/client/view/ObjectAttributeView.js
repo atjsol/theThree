@@ -10,6 +10,7 @@ var ObjectAttributeView = module.exports = function($el) {
   this.$el = $el;
 };
 
+
 ObjectAttributeView.prototype = Object.create({
   toHtml : function (val, tag, clas){
     function brackets (val){
@@ -25,7 +26,10 @@ ObjectAttributeView.prototype = Object.create({
     //ignore things we do not care about - things we created
     var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
     var ignoreObj = util.arrToObj(ignore);
-    if (objArray.length === 0 || ignoreObj[objArray[0].object.name]) {return;}
+    if (objArray.length === 0 || ignoreObj[objArray[0].object.name]) {
+      this.closeAccordion();
+      return;
+    }
     //expecting an array of objects
     //only choose the first item
     var someObj = objArray[0].object;
@@ -68,8 +72,8 @@ ObjectAttributeView.prototype = Object.create({
     body += compiledPosition;
     
     if (someObj.hasOwnProperty("planeRotation")){
-      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-action="updateRotation" val=0></li></ul>');
-      var compiledRotation = rotation(someObj.planeRotation); 
+      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-action="updateRotation" val=<%= planeRotation %></li></ul>');
+      var compiledRotation = rotation(someObj); 
       body+=compiledRotation;
     } 
 
@@ -77,11 +81,7 @@ ObjectAttributeView.prototype = Object.create({
     
     total = compiledHeader + body;
 
-    if (this.$el.hasClass("ui-accordion")){
-      this.$el.accordion("destroy"); 
-    }
-    this.$el.off("change"); // remove all previous event handlers
-    this.$el.empty();
+    this.closeAccordion();
 
     this.$el.append(total);
     
@@ -98,6 +98,14 @@ ObjectAttributeView.prototype = Object.create({
       collapsible:true,
       heightstyle:"content",
     });
+  },
+  closeAccordion: function(e){
+    //remove any events
+    if (this.$el.hasClass("ui-accordion")){
+      this.$el.accordion("destroy"); 
+    }
+    this.$el.off("change"); // remove all previous event handlers
+    this.$el.empty();
   },
 
   updateGroupModel : function (e){
@@ -130,12 +138,77 @@ ObjectAttributeView.prototype = Object.create({
   updateRotation : function (e){
     //apply rotation to group
     var group = e.data.parent;
+    this.translatePointforRotation(e);
+    group.children.forEach(function(child){
+      if (child.name === "mounting plane shape") {
+        child.constructionData.rotationAxis = group.rotationVector;
+        child.constructionData.rotationDegress = e.target.value;
+      }
+    });
 
     group.translateOnAxis(group.vectorOffset, 1);
     group.setRotationFromAxisAngle(group.rotationVector,  util.toRad(e.target.value));
     group.translateOnAxis(group.vectorOffset, -1);
+    this.verifyUp(e);
+
+    if (!this.verifyUp(e)){
+      group.translateOnAxis(group.vectorOffset, 1);
+      group.setRotationFromAxisAngle(group.rotationVector.negate(),  util.toRad(e.target.value));
+      group.translateOnAxis(group.vectorOffset, -1);
+    }
+
+    
   },
 
+
+
+  translatePointforRotation : function (e){
+    var group = e.data.parent;
+    var newMountingPlanePath = [];
+    group.children.forEach(function(child){
+      if (child.name === "sphere"){
+          var point = child.position;
+          var point1 = child.getWorldPosition();
+        // child.constructionData.points.forEach(function (point){
+          //get the closest point which will provide a perpendicular vector and a start point when we make the new point at the is
+          var ray = new THREE.Ray(group.vectorOffset, group.rotationVector.normalize()); //create the ray to compare with
+
+          var rayDist = ray.distanceToPoint(point);
+          var rayClosest = ray.closestPointToPoint(point);
+          var rayDelta = point.distanceTo(rayClosest);
+          if (rayDist >= 1){
+            var addVector = new THREE.Vector3(0,0,0);
+            addVector.add(point);
+            addVector.sub(rayClosest);
+            addVector.normalize();
+            var newLength = rayDelta/Math.cos(util.toRad(e.target.value));
+            child.translateOnAxis(addVector, newLength-rayDelta);
+
+
+        
+          }
+
+      }
+
+    });
+
+
+
+
+  },
+
+  verifyUp : function (e){
+    var group = e.data.parent;
+ 
+    var result = _.any(group.children, function (child){
+      if (child.name === "sphere" && child.getWorldPosition().y > 20){
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return result;
+  }
 
 });
 

@@ -1,15 +1,15 @@
 var THREE = require("three.js");
 var util = require("./util");
 
-module.exports.makeLine = function makeLine(fromPoint, toPoint) {
-
+module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
+  radius = radius || 0.35;
   //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
 
   //calculate the distance
   var distance = fromPoint.distanceTo(toPoint);
 
   //create cylinder based onlength 
-  var geometry = new THREE.CylinderGeometry(0.25, 0.25, distance, 32);
+  var geometry = new THREE.CylinderGeometry(0.35, 0.35, distance, 32);
   geometry.dynamic=true;
   var material = new THREE.MeshBasicMaterial({
     color: 0xff0022
@@ -60,35 +60,23 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
   sphere.position.set(point.x, point.y, point.z);
 
   return sphere;
-}
+};
 
 // sphereArgs = [[size, materialArgs],[size, materialArgs]...] accepts any number of spheres
 module.exports.sphere = function sphere(point, sphereArgs) {
     sphereArgs = sphereArgs || [[undefined, undefined], [5, { transparent: true, opacity: 0.25 }]];
    var makeSphere = module.exports.makeSphere;
-   //var sphereArmada =  sphereArgs.reduce(function (accumulator, sphereArg, i){
-
-   //     if (i == 0){
-   //         accumulator = makeSphere(point, accumulator[0], accumulator[1]);
-            
-   //     } else {
-   //         debugger
-   //         var sphereSnap = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
-   //         accumulator.add(sphereSnap);
-   //     }
-   //     return accumulator;
-   //});
 
    var tbr = makeSphere(point);
    sphereArgs.forEach(function (sphereArg, i) {
-       if (i != 0) {
+       if (i !== 0) {
            var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
            tbr.add(newSphere);
        }
    });
 
   return tbr;
-}
+};
 
 //this function will take in 3 points, start, fulcrum, end and return a vector that is either + 90, 180 or 270 from the vector produced from start and fulcrum  
 module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
