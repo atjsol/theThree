@@ -1,45 +1,13 @@
-var $ = require("jquery");
 var XMLWriter = require("xml-writer");
 var _ = require("lodash");
-
-function doc() {
-  return $.parseXML('<?xml version="1.0" encoding="utf-8"?><EAGLEVIEW_EXPORT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />');
-}
-
-function el(name) {
-  return document.createElement(name);
-}
-
-function sub(parent, name) {
-  var subEl = el(name);
-  parent.appendChild(subEl);
-  return subEl;
-}
-
-function attr(node, attrs) {
-  for (var key in attrs) {
-    node.setAttribute(key, attrs[key]);
-  }
-}
+var util = require("util");
 
 module.exports = {
   toXml: function(job) {
-    var XML = doc();
-    var eagleViewExport = XML.documentElement;
-    attr(eagleViewExport, {
-      "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance"
-    });
-    var report = sub(eagleViewExport, "report");
-
-    return XML.outerHtml;
-  },
-
-
-  toXml2: function(job) {
     var xw = new XMLWriter();
     xw.startDocument();
     xw.startElement("EAGLEVIEW_EXPORT");
-    xw.writeAttribute("xmlns:xsi", "ttp://www.w3.org/2001/XMLSchema-instance");
+    xw.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
     // <REPORT claimId="South San Francisco  JB-9412729-00" reportId="11723597" />
     xw.startElement("REPORT");
@@ -76,26 +44,77 @@ module.exports = {
               <POLYGON id="P1" orientation="180.5" path="L3,L4,L5,L1" pitch="2" size="363" unroundedsize="363.473486768" />
     */
     xw.startElement("STRUCTURES");
-    xw.writeAttribute("northorientation", job.northOrientationDegrees);
-    _.each(job.structures, function(structure) {
-      xw.startElement("ROOF");
-      xw.writeAttribute("id", structure.id);
-      xw.startElement("FACES");
-      _.each(structure.mountingPlanes, function(mountingPlane) {
-        xw.startElement("FACE");
-        xw.writeAttribute("designator", "?");
-        xw.writeAttribute("id", mountingPlane.id);
-        xw.writeAttribute("type", "ROOF");
-        xw.writeAttribute("children", "???");
-
-        xw.writeAttribute("path", mountingPlane.points.toString());
-
-        xw.endElement();
-      });
-
-    });
+    xw.writeAttribute("northorientation", 0); //job.northOrientationDegrees);
+    _.each(job.structures, buildRoofElement(xw));
 
     xw.endDocument();
-    return xw.toString();
+    return xw.toString().replace(/></g, ">\n<");
   }
 };
+
+function buildRoofElement(xw) {
+  return function(structure) {
+    xw.startElement("ROOF");
+    xw.writeAttribute("id", structure.id);
+
+    var lines = [];
+    _.each(structure.mountingPlanes, function(mountingPlane) {
+      lines = lines.concat(mountingPlane.getLines());
+    });
+
+    buildFaces(xw, structure);
+    buildLines(xw, lines);
+    buildPoints(xw, structure);
+  };
+}
+
+
+function buildFaces(xw, structure) {
+  xw.startElement("FACES");
+  _.each(structure.mountingPlanes, function(mountingPlane) {
+    xw.startElement("FACE");
+    xw.writeAttribute("designator", "?");
+    xw.writeAttribute("id", mountingPlane.faceId);
+    xw.writeAttribute("type", "ROOF");
+    //xw.writeAttribute("children", "???");
+
+    xw.startElement("POLYGON");
+    xw.writeAttribute("id", mountingPlane.id);
+    xw.writeAttribute("path", _(mountingPlane.getLines()).pluck("id").join(","));
+    xw.endElement();
+
+    xw.endElement();
+  });
+  xw.endElement();
+}
+
+
+function buildLines(xw, lines) {
+  xw.startElement("LINES");
+  _.each(lines, function(line) {
+    xw.startElement("LINE");
+    xw.writeAttribute("id", line.id);
+    xw.writeAttribute("path", line.from.id + "," + line.to.id);
+    xw.writeAttribute("type", line.getTypeUpper());
+    xw.endElement();
+  });
+  xw.endElement();
+}
+
+function buildPoints(xw, structure) {
+  xw.startElement("POINTS");
+  _.each(structure.mountingPlanes, function(mountingPlane) {
+    _.each(mountingPlane.points, function(point) {
+      xw.startElement("POINT");
+      xw.writeAttribute("id", point.id);
+      xw.writeAttribute("data", pointToString(point));
+      xw.endElement();
+    });
+  });
+  xw.endElement();
+}
+
+function pointToString(point) {
+  var p = 9;
+  return point.x.toFixed(p) + "," + (-1 * point.z).toFixed(p) + "," + point.y.toFixed(p);
+}
