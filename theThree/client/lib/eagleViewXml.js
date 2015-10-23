@@ -11,29 +11,29 @@ module.exports = {
 
     // <REPORT claimId="South San Francisco  JB-9412729-00" reportId="11723597" />
     xw.startElement("REPORT");
-    xw.writeAttribute("claimId", job.clamId);
-    xw.writeAttribute("reportId", job.reportId);
+    // xw.writeAttribute("claimId", job.clamId);
+    // xw.writeAttribute("reportId", job.reportId);
     xw.endElement();
 
     // <VERSION coplanarity="" dormers="" precision="0" precisionUnits="" sourceVersion="1028" targetVersion="0" triangulation="" />
     xw.startElement("VERSION");
-    xw.writeAttribute("coplanarity", "");
+    /*xw.writeAttribute("coplanarity", "");
     xw.writeAttribute("dormers", "");
     xw.writeAttribute("precision", "0");
     xw.writeAttribute("precisionUnits", "");
     xw.writeAttribute("sourceVersion", "");
     xw.writeAttribute("targetVersion", "");
-    xw.writeAttribute("triangulation", "");
+    xw.writeAttribute("triangulation", "");*/
     xw.endElement();
 
     //<LOCATION address="142 Robinhood Dr" city="San Francisco" lat="37.7365346" long="-122.4557854" postal="94127" state="CA" />
     xw.startElement("LOCATION");
-    xw.writeAttribute("address", _.get("job.location.address"));
+    /*xw.writeAttribute("address", _.get("job.location.address"));
     xw.writeAttribute("city", _.get("job.location.city"));
     xw.writeAttribute("lat", _.get("job.location.latitude"));
     xw.writeAttribute("long", _.get("job.location.longitude"));
     xw.writeAttribute("postal", _.get("job.location.zip"));
-    xw.writeAttribute("state", _.get("job.location.state"));
+    xw.writeAttribute("state", _.get("job.location.state"));*/
     xw.endElement();
 
     /*
@@ -73,10 +73,9 @@ function buildFaces(xw, structure) {
   xw.startElement("FACES");
   _.each(structure.mountingPlanes, function(mountingPlane) {
     xw.startElement("FACE");
-    xw.writeAttribute("designator", "?");
     xw.writeAttribute("id", mountingPlane.faceId);
     xw.writeAttribute("type", "ROOF");
-    //xw.writeAttribute("children", "???");
+    xw.writeAttribute("orientation", mountingPlane.azimuth);
 
     xw.startElement("POLYGON");
     xw.writeAttribute("id", mountingPlane.id);
