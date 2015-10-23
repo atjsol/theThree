@@ -6,6 +6,7 @@ var Line = function(from, to, type) {
   this.from = from;
   this.to = to;
   this.type = type || "other"; // type can be rake, eave, ridge, etc.
+  this.points = [to, from];
 };
 module.exports = Line;
 

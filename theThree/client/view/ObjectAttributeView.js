@@ -8,6 +8,7 @@ var util = require("../lib/util");
 var ObjectAttributeView = module.exports = function($el) {
   _.bindAll(this);
   this.$el = $el;
+  this.currentObject = {};
 };
 
 
@@ -32,7 +33,9 @@ ObjectAttributeView.prototype = Object.create({
     }
     //expecting an array of objects
     //only choose the first item
-    var someObj = objArray[0].object;
+
+    var someObj = this.currentObject = objArray[0].object;
+  
     
     var total = "";
     var body = "";
@@ -51,13 +54,17 @@ ObjectAttributeView.prototype = Object.create({
       body+=compiledDistance;
 
       var attributes = _.template('<h5>Attributes</h5>'
-        +'<input type="radio" name="attribute" data-action="setEaveVector" value="setEaveVector">Eave'
-        +'<input type="radio" name="attribute" data-action="" value="Ridge">Ridge'
-        +'<input type="radio" name="attribute" data-action="" value="Valley">Valley'
-        +'<input type="radio" name="attribute" data-action="" value="Hip">Hip' 
-        +'<input type="radio" name="attribute" data-action="" value="Rake">Rake' 
+        +'<input type="radio" name="type" data-actions="setEaveVector assignType" value="EAVE">Eave'
+        +'<input type="radio" name="type" data-actions="assignType" value="RIDGE">Ridge'
+        +'<input type="radio" name="type" data-actions="assignType" value="VALLEY">Valley'
+        +'<input type="radio" name="type" data-actions="assignType" value="HIP">Hip' 
+        +'<input type="radio" name="type" data-actions="assignType" value="RAKE">Rake'
+        +'<input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash'
+        +'<input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing'
+
 
       );
+
       var compiledAttributes = attributes({});
       body+= compiledAttributes;
 
@@ -66,16 +73,16 @@ ObjectAttributeView.prototype = Object.create({
     var position = _.template(
        '<h5>Position</h5>'
       +'<ul class="attribute-list">'
-        +'<li> x : <input name="position setX" data-action="position setX" type="number" step="0.01" value="<%= x %>"</li>'
-        +'<li> y (up) : <input name="position setY" data-action="position setY" type="number" step="0.01" value="<%= y %>"</li>'
-        +'<li> z : <input name="position setZ" data-action="position setZ" type="number" step="0.01" value="<%= z %>"</li>'
+        +'<li> x : <input name="position setX" data-actions="position setX" type="number" step="0.01" value="<%= x %>"</li>'
+        +'<li> y (up) : <input name="position setY" data-actions="position setY" type="number" step="0.01" value="<%= y %>"</li>'
+        +'<li> z : <input name="position setZ" data-actions="position setZ" type="number" step="0.01" value="<%= z %>"</li>'
       +'</ul>');
     console.log(someObj.getWorldPosition());
     var compiledPosition = position(someObj.getWorldPosition());
     body += compiledPosition;
     
     if (someObj.hasOwnProperty("planeRotation")){
-      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-action="updateRotation" val=<%= planeRotation %></li></ul>');
+      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-actions="updateRotation" val=<%= planeRotation %></li></ul>');
       var compiledRotation = rotation(someObj); 
       body+=compiledRotation;
     } 
@@ -87,6 +94,9 @@ ObjectAttributeView.prototype = Object.create({
     this.closeAccordion();
 
     this.$el.append(total);
+
+    this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
+
     
     this.$el.on("change", someObj, function (e){ 
       // e.data is where our passed in data (from $('change", data, callback)) resides
@@ -101,6 +111,7 @@ ObjectAttributeView.prototype = Object.create({
       heightstyle:"content",
     });
   },
+
   closeAccordion: function(e){
     //remove any events
     if (this.$el.hasClass("ui-accordion")){
@@ -110,20 +121,32 @@ ObjectAttributeView.prototype = Object.create({
     this.$el.empty();
   },
 
-  updateGroupModel : function (e){
-    
+  assignType : function (e){
+    //search through the lines and find where the points match up
+    //set the linetype
+    // e.target.value is where our the type is located
+    // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
+    this.currentObject.constructionData.type=e.target.value;
 
+
+
+  },
+
+  updateGroupModel : function (e){
+    var self = this;
+    
     // e.data is where our passed in data (from $('change", data, callback)) resides
     // e.target is where the change has occurred
     // e.target.dataset.* can be used to add any additional info as needed (currently set at target.dataset.action="string")
     // var name = evnt.target.name.split(" ");
-    // console.log(e);
-    var action = e.target.dataset.action;
-    this[action](e);
+    var actions = e.target.dataset.actions;
+    var actionArray = actions.split(" ");
+    actionArray.forEach(function (action){
+      self[action](e);
+    });
   },
 
   setEaveVector : function (e){
-    console.log("setEaveActivated");
     //get the two points used to make the cylinder
     //subtract them from each other to get a resultant vector
     // normalize the vector because the set rotation is expecting normalized.
@@ -153,7 +176,7 @@ ObjectAttributeView.prototype = Object.create({
     console.log(this.verifyUp(e));
 
     if (!this.verifyUp(e)){
-      console.log('rotatio swit')
+      console.log("rotation swtich");
       group.translateOnAxis(group.vectorOffset, 1);
       group.setRotationFromAxisAngle(group.rotationVector.negate(),  util.toRad(e.target.value));
       group.translateOnAxis(group.vectorOffset, -1);
@@ -172,12 +195,9 @@ ObjectAttributeView.prototype = Object.create({
 
         var point = child.getWorldPosition();
 
-        
         // check reference
         var pointRef = point.clone();
         pointRef.y = 20;
-
-
 
       // child.constructionData.points.forEach(function (point){
         //get the closest point which will provide a perpendicular vector and a start point when we make the new point at the is
@@ -210,8 +230,6 @@ ObjectAttributeView.prototype = Object.create({
       }
     });
   },
-
-
 
   verifyUp : function (e){
     var group = e.data.parent;

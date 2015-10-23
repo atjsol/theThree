@@ -1,5 +1,6 @@
 var THREE = require("three.js");
 var util = require("./util");
+var Line = require("../model/Line");
 
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   radius = radius || 0.35;
@@ -30,15 +31,8 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
   cylinder.lookAt(new THREE.Vector3(fromPoint.x, 10000000000, fromPoint.z));
   
-  cylinder.constructionData={
-    points: [],  // copy all the points to make this shape 
-    rotationAxis : undefined, //set by selecting eave or ridge attributes
-    
-    rotationDegrees : undefined,
-    calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
-    calculatedRatioMetric : undefined,
-  };
-  cylinder.constructionData.points.push(fromPoint, toPoint);
+  cylinder.constructionData = new Line( fromPoint, toPoint );
+
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
   return cylinder;
