@@ -94,8 +94,9 @@ ObjectAttributeView.prototype = Object.create({
     this.closeAccordion();
 
     this.$el.append(total);
-
-    this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
+    if (this.currentObject.name === "cylinder"){
+      this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
+    }
 
     
     this.$el.on("change", someObj, function (e){ 
@@ -181,8 +182,6 @@ ObjectAttributeView.prototype = Object.create({
       group.setRotationFromAxisAngle(group.rotationVector.negate(),  util.toRad(e.target.value));
       group.translateOnAxis(group.vectorOffset, -1);
     }
-
-    
   },
 
 

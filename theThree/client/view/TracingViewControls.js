@@ -203,22 +203,22 @@ TracingViewControls.prototype = Object.create({
         }
       }
 
+      eventBus.trigger("create:mountingPlane", group);
+
       //reset the shapeQue
       this.shapeQue = [];
 
       //name the group
       var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
       group.name = name;
+     
       scene.add(group);
     }   
 
     if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();
     }
-    
-    if (event.which === 80 ){ // o key
-      eventBus.trigger("create:mountingPlane", group);
-    }
+
 
     if (event.which === 49) // 1
     {

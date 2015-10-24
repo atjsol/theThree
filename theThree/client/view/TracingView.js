@@ -19,11 +19,11 @@ var TracingView = module.exports = function($el, job) {
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
 
-  eventBus.bind("create:mountingPlane", function(group, callback) {
+  eventBus.bind("create:mountingPlane", function(group) {
     var structure = job.getStructure(0);
     var mountingPlane = MountingPlane.fromThreeGroup(group);
     structure.addMountingPlane(mountingPlane);
-    callback(mountingPlane);
+    group.mountingPlane = mountingPlane; // add reference to model
   });
 };
 

@@ -51,23 +51,32 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
   var sphere = new THREE.Mesh(geometry, material);
   sphere.name = "sphere";
 
-  sphere.position.set(point.x, point.y, point.z);
-
+  sphere.position = point;
+  sphere.updateMatrix();
+  sphere.updateMatrixWorld();
+  sphere.matrixWorldNeedsUpdate = true;
+  sphere.matrixWorldNeedsUpdate = true;
+  sphere.geometry.verticesNeedUpdate = true;
+  sphere.geometry.elementsNeedUpdate = true;
+  sphere.geometry.groupsNeedUpdate = true;
+  sphere.geometry.lineDistancesNeedUpdate = true;
+  sphere.geometry.normalsNeedUpdate = true;
+  console.log(sphere);
   return sphere;
 };
 
 // sphereArgs = [[size, materialArgs],[size, materialArgs]...] accepts any number of spheres
 module.exports.sphere = function sphere(point, sphereArgs) {
-    sphereArgs = sphereArgs || [[undefined, undefined], [5, { transparent: true, opacity: 0.25 }]];
-   var makeSphere = module.exports.makeSphere;
+  sphereArgs = sphereArgs || [[undefined, undefined], [5, { transparent: true, opacity: 0.25 }]];
+  var makeSphere = module.exports.makeSphere;
+  var tbr = makeSphere(point);
 
-   var tbr = makeSphere(point);
-   sphereArgs.forEach(function (sphereArg, i) {
-       if (i !== 0) {
-           var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
-           tbr.add(newSphere);
-       }
-   });
+  sphereArgs.forEach(function (sphereArg, i) {
+     if (i !== 0) {
+         var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
+         tbr.add(newSphere);
+     }
+  });
 
   return tbr;
 };
