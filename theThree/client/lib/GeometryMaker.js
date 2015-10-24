@@ -51,17 +51,8 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
   var sphere = new THREE.Mesh(geometry, material);
   sphere.name = "sphere";
 
-  sphere.position = point;
-  sphere.updateMatrix();
-  sphere.updateMatrixWorld();
-  sphere.matrixWorldNeedsUpdate = true;
-  sphere.matrixWorldNeedsUpdate = true;
-  sphere.geometry.verticesNeedUpdate = true;
-  sphere.geometry.elementsNeedUpdate = true;
-  sphere.geometry.groupsNeedUpdate = true;
-  sphere.geometry.lineDistancesNeedUpdate = true;
-  sphere.geometry.normalsNeedUpdate = true;
-  console.log(sphere);
+  sphere.position.set(point["x"], point["y"], point["z"]);
+
   return sphere;
 };
 

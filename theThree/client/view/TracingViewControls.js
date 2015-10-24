@@ -97,7 +97,6 @@ TracingViewControls.prototype = Object.create({
 
     if (event.which === 65) { // a key
         var intersects = self.tracingView.getIntersects();
-        console.log(intersects);
       var group = new THREE.Group();
       var x, y, z;
       // get the top layer of intersect

@@ -77,7 +77,6 @@ ObjectAttributeView.prototype = Object.create({
         +'<li> y (up) : <input name="position setY" data-actions="position setY" type="number" step="0.01" value="<%= y %>"</li>'
         +'<li> z : <input name="position setZ" data-actions="position setZ" type="number" step="0.01" value="<%= z %>"</li>'
       +'</ul>');
-    console.log(someObj.getWorldPosition());
     var compiledPosition = position(someObj.getWorldPosition());
     body += compiledPosition;
     
@@ -153,9 +152,14 @@ ObjectAttributeView.prototype = Object.create({
     // normalize the vector because the set rotation is expecting normalized.
     var vector1 = e.data.constructionData.points[0].clone();
     var vector2 = e.data.constructionData.points[1].clone();
-    var normalized = vector1.sub(vector2).normalize();
+    var normalized = vector1.sub(vector2);
+
+
     //sets the group level as holder of the rotation vector
-    e.data.parent.rotationVector = normalized;
+    e.data.parent.rotationVector = {};
+    e.data.parent.rotationVector.normal = normalized;
+    e.data.parent.rotationVector.start = vector1;
+    e.data.parent.rotationVector.end = vector2;
     e.data.parent.vectorOffset = e.data.constructionData.points[1].clone();
     //TODO:  Ensure all other lines are not set as eave for this mounting plane
   },
@@ -164,27 +168,18 @@ ObjectAttributeView.prototype = Object.create({
     //apply rotation to group
     var group = e.data.parent;
     this.translatePointforRotation(e);
-    group.children.forEach(function(child){
-      if (child.name === "mounting plane shape") {
-        child.constructionData.rotationAxis = group.rotationVector;
-        child.constructionData.rotationDegress = e.target.value;
-      }
-    });
+  
 
     group.translateOnAxis(group.vectorOffset, 1);
-    group.setRotationFromAxisAngle(group.rotationVector,  util.toRad(e.target.value));
+    group.setRotationFromAxisAngle(group.rotationVector.normal.normalize(),  util.toRad(e.target.value));
     group.translateOnAxis(group.vectorOffset, -1);
-    console.log(this.verifyUp(e));
 
     if (!this.verifyUp(e)){
-      console.log("rotation swtich");
       group.translateOnAxis(group.vectorOffset, 1);
-      group.setRotationFromAxisAngle(group.rotationVector.negate(),  util.toRad(e.target.value));
+      group.setRotationFromAxisAngle(group.rotationVector.normal.negate().normalize(),  util.toRad(e.target.value));
       group.translateOnAxis(group.vectorOffset, -1);
     }
   },
-
-
 
   translatePointforRotation : function (e){
     var group = e.data.parent;
@@ -193,38 +188,32 @@ ObjectAttributeView.prototype = Object.create({
       if (child.name === "sphere"){
 
         var point = child.getWorldPosition();
+        point.y = group.vectorOffset.y;
+        var line = new THREE.Line3(group.rotationVector.start, group.rotationVector.end);
 
-        // check reference
-        var pointRef = point.clone();
-        pointRef.y = 20;
+        var material = new THREE.LineBasicMaterial({
+          color: 0x0000ff
+        });
 
-      // child.constructionData.points.forEach(function (point){
-        //get the closest point which will provide a perpendicular vector and a start point when we make the new point at the is
-        var ray = new THREE.Ray(group.vectorOffset, group.rotationVector.normalize()); //create the ray to compare with
+        var lineGeo = new THREE.Geometry();
+        lineGeo.vertices.push(group.rotationVector.start, group.rotationVector.end);
+        var line3D = new THREE.Line(lineGeo, material);
+
+        // var ray = new THREE.Ray(group.vectorOffset, group.rotationVector.normalize()); //create the ray to compare with
         // get the distance of the closest point
-        var rayDist = ray.distanceToPoint(point);
-        //get the closest point
-        var rayClosest = ray.closestPointToPoint(point);
-        //calculate if there was already an angle applied
-        var currentAngle = util.getAngle(point, rayClosest, pointRef);
-
-        var rayDelta = point.distanceTo(rayClosest);
-        // because JS is bad at math
-        // TODO: Remove all unecessary Radian/Degree conversions
-        var offset=0;
-        if (currentAngle > 0.005){
-          offset = rayDelta - rayDelta*(Math.cos(util.toRad(currentAngle)));
-        }
-
-        if (rayDist >= 1){
-
-          var addVector = new THREE.Vector3(0,0,0);
-          addVector.add(point);
-          addVector.sub(rayClosest);
-          addVector.normalize();
-          var newLength = rayDelta/Math.cos(util.toRad(e.target.value));
-          child.translateOnAxis(addVector, newLength-rayDelta-offset);
-
+        var rayClosest = line.closestPointToPoint(point);
+        var rayDist = rayClosest.distanceTo(point);
+       
+        if (rayDist > 0.05){
+          //get the closest point
+          console.log(rayDist, rayClosest);
+          //calculate if there was already an angle applied
+          var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt( Math.pow( (point.x - rayClosest.x), 2) + Math.pow( (point.z - rayClosest.z), 2) );
+          // console.log(e.target.value, point.x, point.z, rayClosest.x, rayClosest.z);
+          // console.log(yDestination);
+          // because JS is bad at math
+          // TODO: Remove all unecessary Radian/Degree conversions
+          // child.translateOnAxis(new THREE.Vector3(0,1,0), yDestination);
         }
       }
     });
@@ -234,7 +223,6 @@ ObjectAttributeView.prototype = Object.create({
     var group = e.data.parent;
  
     var result = _.any(group.children, function (child){
-      console.log(child.getWorldPosition().y);
       if (child.name === "sphere" && child.getWorldPosition().y > 20){
         return true;
       } else {
