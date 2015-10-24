@@ -27,9 +27,9 @@ $(function() {
       jsonStore.put(jobId, job);
     }, 250));
 
-    var mapControlsView = new MapControlsView($("#mapData"));
-    var drawingControlsView = new DrawingControlsView($("#drawing-controls"));
     window.tracingView = new TracingView($("#three-view"), job);
+    var mapControlsView = new MapControlsView($("#mapData"));
+    window.drawingControlsView = new DrawingControlsView($("#drawing-controls"));
     var exportView = new ExportView($("#export-view"), job);
 
     mapControlsView.handleFormChange();

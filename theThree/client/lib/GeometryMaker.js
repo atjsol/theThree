@@ -64,25 +64,14 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
 
 // sphereArgs = [[size, materialArgs],[size, materialArgs]...] accepts any number of spheres
 module.exports.sphere = function sphere(point, sphereArgs) {
-    sphereArgs = sphereArgs || [[undefined, undefined], [5, { transparent: true, opacity: 0.25 }]];
+    sphereArgs = sphereArgs || [[undefined, undefined], [3, { transparent: true, opacity: 0.25 }]];
    var makeSphere = module.exports.makeSphere;
-   //var sphereArmada =  sphereArgs.reduce(function (accumulator, sphereArg, i){
-
-   //     if (i == 0){
-   //         accumulator = makeSphere(point, accumulator[0], accumulator[1]);
-            
-   //     } else {
-   //         debugger
-   //         var sphereSnap = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
-   //         accumulator.add(sphereSnap);
-   //     }
-   //     return accumulator;
-   //});
 
    var tbr = makeSphere(point);
    sphereArgs.forEach(function (sphereArg, i) {
        if (i != 0) {
            var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
+           newSphere.name = "sphereChild";
            tbr.add(newSphere);
        }
    });

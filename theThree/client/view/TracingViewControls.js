@@ -7,6 +7,7 @@ var util = require("../lib/util");
 var eventBus = require("../lib/eventBus");
 var GeometryMaker = require("../lib/GeometryMaker");
 var orthogonalStatus = require("../orthogonalStatus");
+var _2D3DStatus = require("../2D3DStatus");
 var extrudeSettings = require("../lib/extrudeSettings");
 var ObjectAttributeView = require("./ObjectAttributeView");
 
@@ -22,19 +23,21 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.shapeQue = [];
   this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"));
   //this.$el.on("keyup", this.handleKeyUp);
-  window.addEventListener("keyup", function(event) {
-    self.handleKeyUp(event); // TODO: FIX ME
+  window.addEventListener("keydown", function(event) {
+    self.handleKeyDown(event); // TODO: FIX ME
   });
 
 };
 
 TracingViewControls.prototype = Object.create({
-  setUpOrbitalControls: function() {
-    var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
+
+    setUpOrbitalControls: function () {
+        var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
+        this.controls = controls;
     console.log(this.tracingView.camera)
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-    controls.enableZoom = true;
+    controls.noRotate = true;
   },
 
   trackMouse: function() {
@@ -83,7 +86,7 @@ TracingViewControls.prototype = Object.create({
     this.tracingView.scene.add(mouseline);
   },
 
-  handleKeyUp: function(event) {
+  handleKeyDown: function(event) {
     var self = this;
     var scene = this.tracingView.scene;
     var shapeQue = self.shapeQue;
@@ -94,25 +97,30 @@ TracingViewControls.prototype = Object.create({
     }
 
     if (event.which === 65) { // a key
-      var intersects = self.tracingView.getIntersects();
+        var intersects = self.tracingView.getIntersects();
+        console.log(intersects);
       var group = new THREE.Group();
       var x, y, z;
       // get the top layer of intersect
       // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
-      intersects.forEach(function(intersect) {
-
-        if (intersect.object.name === "map" && !x ) {
-          x = intersect.point.x;
-          y = intersect.point.y;
-          z = intersect.point.z;
+      _.forEachRight(intersects, function(intersect) {
+          var object = intersect.object;
+        if (object.name === "map" && !x ) {
+            x = intersect.point.x;
+            y = intersect.point.y;
+            z = intersect.point.z;
         }
 
         //if we happen to hit a sphere- we would like to use the sphere coordinates instead
-        if (intersect.object.name === "sphere") {
-          x = intersect.object.position.x;
-          y = intersect.object.position.y;
-          z = intersect.object.position.z;
-
+        else if (object.name === "sphere") {
+            x = object.position.x;
+            y = object.position.y;
+            z = object.position.z;
+        }        
+        else if (object.name === "sphereChild") {
+            x = object.parent.position.x;
+            y = object.parent.position.y;
+            z = object.parent.position.z;
         }
       });
 
@@ -221,65 +229,57 @@ TracingViewControls.prototype = Object.create({
       eventBus.trigger("create:mountingPlane", group);
     }
 
-    if (event.which === 49) // 1
+    if (event.which === 49 && event.altKey) // 1
     {
-      // Top View
-      this.tracingView.camera.rotation.x = - Math.PI / 2;
-      this.tracingView.camera.rotation.y = 0;
-      this.tracingView.camera.rotation.z = 0;
-
-      this.tracingView.camera.updateProjectionMatrix();
-
-      this.tracingView.camera.lookAt(this.tracingView.scene.position);
-      //this.tracingView.renderer.render(this.tracingView.scene, this.tracingView.camera);
+        // Top View
+        this.tracingView.camera.position.set(0, 500, 0);
+        this.tracingView.camera.up = new THREE.Vector3(0, 0, -1);
+        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
-    if (event.which === 50) // 2
+    if (event.which === 50 && event.altKey) // 2
     {
-      // Right View
-      this.tracingView.camera.rotation.x = 0;
-      this.tracingView.camera.rotation.y = Math.PI / 2;
-      this.tracingView.camera.rotation.z = 0;
-
-      //this.tracingView.camera.updateProjectionMatrix();
+        // Right View
+        this.tracingView.camera.position.set(500, 0, 0);
+        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
-    if (event.which === 51) // 3
+    if (event.which === 51 && event.altKey) // 3
     {
-      // Left View
-      this.tracingView.camera.rotation.x = 0;
-      this.tracingView.camera.rotation.y = - Math.PI / 2;
-      this.tracingView.camera.rotation.z = 0;
-
-      //this.tracingView.camera.updateProjectionMatrix();
+        // Left View
+        this.tracingView.camera.position.set(-500, 0, 0);
+        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
-    if (event.which === 52) // 4
+    if (event.which === 52 && event.altKey) // 4
     {
-      // Back View
-      this.tracingView.camera.rotation.x = 0;
-      this.tracingView.camera.rotation.y = Math.PI;
-      this.tracingView.camera.rotation.z = 0;
-
-      //this.tracingView.camera.updateProjectionMatrix();
+        // Front View
+        this.tracingView.camera.position.set(0, 0, 500);
+        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));6
     }
 
-    if (event.which === 53) // 5
+    if (event.which === 53 && event.altKey) // 5
     {
-      // Front View
-      this.tracingView.camera.rotation.x = 0;
-      this.tracingView.camera.rotation.y = 0;
-      this.tracingView.camera.rotation.z = 0;
-
-      //this.tracingView.camera.updateProjectionMatrix();
+        // Back View
+        this.tracingView.camera.position.set(0, 0, -500);
+        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
-    if (event.which === 54) // 6
+    if (event.which === 54 && event.altKey) // 6
     {
-      //this.tracingView.camera.position.set(0,30,0);
-      this.tracingView.camera.up = new THREE.Vector3(0,1,0);
-      this.tracingView.camera.lookAt(new THREE.Vector3(0,0,0));
+        // Iso View
+        var rotation = 45;
+        var pitch = 35;
+        var x = 500 * Math.cos(30 * Math.PI / 180) * Math.sin((90 - rotation) * Math.PI / 180);
+        var y = 500 * Math.sin(30 * Math.PI / 180);
+        var z = 500 * Math.cos(30 * Math.PI / 180) * Math.sin(rotation * Math.PI / 180);
+        this.tracingView.camera.position.set(x, y, z);
+        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
-
   },
 });
