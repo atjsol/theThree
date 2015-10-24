@@ -2,10 +2,12 @@
 <html>
 	<head>
     <title>Eagle View Killer</title>
-    
+    <!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
     <link rel="stylesheet" type="text/css" href="/stylesheets/InitialStyles.css"/>
     <link rel="stylesheet" type= "text/css" href="/jquery-ui/themes/base/jquery-ui.css"/>
-
+    <!-- <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css"> -->
+    <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
   </head>
   <body>
 
@@ -13,14 +15,15 @@
       <div id="map" class="views off-screen"></div>
       <div id="three-view" class="views"></div>
       <div id="interface">
-        <div id="tabs" class="float">
+        <div id="tabs" class="">
           <ul>
             <li><a href="#tabs-1">Map Options</a></li>
             <li><a href="#tabs-2">Draw Options</a></li>
             <li><a href="#tabs-3">Export</a></li>
+            <li><a href="#tabs-4">Obstructions</a></li>
           </ul>
 
-          <div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom white-background" role="tabpanel" aria-hidden="true" style="display: none;">
+          <div id="tabs-1" aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom " role="tabpanel" aria-hidden="true" style="display: none;">
             <form class="white-background" id="mapData">
               <input type="text" class="padding5" name="center" value="444 De Haro, San Francisco, Ca" placeholder="address"/>
               <select class="padding5" name="size">
@@ -44,17 +47,26 @@
           <div id="tabs-2"  aria-labelledby="ui-id-2" class="ui-tabs-panel ui-widget-content ui-corner-bottom white-background" role="tabpanel" aria-hidden="true" style="display: none;">
             <div id="drawing-controls">
               <button id="ortho" value="true"><u>O</u>rthogonal</button>
+                <button id="2D3D" value="true"><b>2D/</b>3D</button>
             </div>
 
 
           </div>
-	  <div id="tabs-3">
+	        <div id="tabs-3">
             <div id="export-view">
               <a id="download-link" download="eagleview.xml" href="#">Export to EagleView XML</a> 
               <br/>
               <a id="view-link" href="#">View EagleView XML</a> 
             </div>
           </div>
+          <div id="tabs-4">
+            
+
+          </div>
+        </div>
+
+        <!-- These tabs will allow for an interface on the right side -->
+        <div id="object-attribute-view">
         </div>
       </div>
 

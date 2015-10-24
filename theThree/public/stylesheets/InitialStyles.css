@@ -1,6 +1,5 @@
 body {
     margin: 0;
-    background-color: #f0f0f0;
 }
 
 canvas {
@@ -8,35 +7,37 @@ canvas {
 
 }
 
-
 /* The map and palette are set off screen so they will not be rendered - performance*/ 
 /* Set the threejs canvas, google map and palette all the same height width*/
 .off-screen {
- position: absolute !important;
- top : -9999px !important;
- left : -9999px !important;
- width : 200px !important;
- height : 200px !important;
+  position: absolute !important;
+  top : -9999px !important;
+  left : -9999px !important;
+  width : 200px !important;
+  height : 200px !important;
 }
-
-/*.views { 
-  height : 500px;
-  width : 500px;
+.ui-accordion .ui-accordion-content {
+  padding:1em 1em;
+  margin-top:5px;
 }
-*/
-.float {
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  
-
-}
-
 #interface{
   border:0;
   padding:0;
-  max-width: 480px;
+  max-width: 100%;
+  display:block;
+  position:relative;
+}
+
+#interface:first-child{
+
+}
+/*#interface:last-child{
+  justify-content:flex-end;
+}*/
+#object-attribute-view{
+  float : right;
+  color : white !important;
+  width:300px;
 }
 
 .ui-tabs .ui-tabs-panel {
@@ -52,51 +53,24 @@ canvas {
   list-style-type : none;
 }
 
-
-.right-tab {
-  position:absolute;
-  float:right;
-  width: 488px;
-  background-color: #7ad;
-}
-#right-tab {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    height: 52px;
-    -webkit-transform-origin: 0 0;
-       -moz-transform-origin: 0 0;
-         -o-transform-origin: 0 0;
-            transform-origin: 0 0;
-    -webkit-transform: rotate(-90deg) translate(-488px, 0px);
-       -moz-transform: rotate(-90deg) translate(-488px, 0px);
-         -o-transform: rotate(-90deg) translate(-488px, 0px);
-            transform: rotate(-90deg) translate(-488px, 0px);
-    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
-}
-#right-tab li {
-    float: right;
-    width: 120px;
-    height: 50px;
-    border: 1px solid #000;
-}
-#right-tab li a {
-    display: block;
-    padding: 10px;
-    font-family: Arial, sans-serif;
-    font-size: 20px;
-    line-height: 30px;
-    font-weight: bold;
-    text-decoration: none;
-    color: #000;
-    background-color: #ddd;
-}
-#right-tab li a:hover {
-    background-color: #bbb;
-}
-
 .compass {
   height : 8%;
-
-
 }
+
+.attribute-list{
+  padding-left:3px;
+  border:0px;
+  margin:10;
+}
+
+button{
+    height:60px;
+    width:110px;
+    border:0px outset;
+}
+
+.button-outline{
+    border:4px solid;
+}
+
+
