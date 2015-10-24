@@ -67,15 +67,17 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
 
 // sphereArgs = [[size, materialArgs],[size, materialArgs]...] accepts any number of spheres
 module.exports.sphere = function sphere(point, sphereArgs) {
-  sphereArgs = sphereArgs || [[undefined, undefined], [5, { transparent: true, opacity: 0.25 }]];
-  var makeSphere = module.exports.makeSphere;
-  var tbr = makeSphere(point);
 
+  sphereArgs = sphereArgs || [[undefined, undefined], [3, { transparent: true, opacity: 0.25 }]];
+  var makeSphere = module.exports.makeSphere;
+
+  var tbr = makeSphere(point);
   sphereArgs.forEach(function (sphereArg, i) {
-     if (i !== 0) {
-         var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
-         tbr.add(newSphere);
-     }
+   if (i !== 0) {
+       var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
+       newSphere.name = "sphereChild";
+       tbr.add(newSphere);
+   }
   });
 
   return tbr;

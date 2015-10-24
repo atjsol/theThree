@@ -55,6 +55,7 @@ TracingView.prototype = Object.create({
     // camera.position.z = 1000;
     camera.position.y = 500;
     camera.zoom = 4;
+    camera.updateProjectionMatrix();
     camera.name = "Orthographic Camera";
     scene.add(camera);
 
