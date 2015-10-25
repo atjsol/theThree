@@ -4,6 +4,8 @@ var THREE = require("three.js");
 var _ = require("lodash");
 var eventBus = require("../lib/eventBus");
 var util = require("../lib/util");
+var GeometryMaker = require ("../lib/GeometryMaker");
+var extrudeSettings = require("../lib/extrudeSettings");
 
 var ObjectAttributeView = module.exports = function($el) {
   _.bindAll(this);
@@ -152,7 +154,7 @@ ObjectAttributeView.prototype = Object.create({
     // normalize the vector because the set rotation is expecting normalized.
     var vector1 = e.data.constructionData.points[0].clone();
     var vector2 = e.data.constructionData.points[1].clone();
-    var normalized = vector1.sub(vector2);
+    var normalized = vector1.clone().sub(vector2).normalize();
 
 
     //sets the group level as holder of the rotation vector
@@ -166,57 +168,105 @@ ObjectAttributeView.prototype = Object.create({
 
   updateRotation : function (e){
     //apply rotation to group
+    // rebuild the group based on sphere positions
+    // the plane will have to grow in proportion to the rotation i.e. create a new shape
+    // the spheres will only rise in proportion to the supplied angle
+
     var group = e.data.parent;
-    this.translatePointforRotation(e);
-  
+    var shapePath = this.translatePointforRotation(e);
 
-    group.translateOnAxis(group.vectorOffset, 1);
-    group.setRotationFromAxisAngle(group.rotationVector.normal.normalize(),  util.toRad(e.target.value));
-    group.translateOnAxis(group.vectorOffset, -1);
+    var newOutline = new THREE.Shape();
+    shapePath.forEach(function(point, i, array) {
+      if (array.length > 2) {
+        if (i === 0) {
+          newOutline.moveTo(point.x, point.z);
+        } else {
+          newOutline.lineTo(point.x, point.z);
+        }
+      }
+    });
+    console.log(shapePath);
+    var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90-e.target.value), 0, 0, 1);
+    shape.name = "mounting plane shape";
+    group.add(shape);
 
-    if (!this.verifyUp(e)){
-      group.translateOnAxis(group.vectorOffset, 1);
-      group.setRotationFromAxisAngle(group.rotationVector.normal.negate().normalize(),  util.toRad(e.target.value));
-      group.translateOnAxis(group.vectorOffset, -1);
-    }
+    // group.translateOnAxis(group.vectorOffset, 1);
+    // group.setRotationFromAxisAngle(group.rotationVector.normal.normalize(),  util.toRad(e.target.value));
+    // group.translateOnAxis(group.vectorOffset, -1);
+
+    // if (!this.verifyUp(e)){
+    //   group.translateOnAxis(group.vectorOffset, 1);
+    //   group.setRotationFromAxisAngle(group.rotationVector.normal.negate().normalize(),  util.toRad(e.target.value));
+    //   group.translateOnAxis(group.vectorOffset, -1);
+    // }
   },
 
+  rebuildGroup : function(group){
+    //extract all sphere positions
+
+
+
+
+
+
+  },
+
+
   translatePointforRotation : function (e){
+    var self = this;
     var group = e.data.parent;
     var newMountingPlanePath = [];
+    var newShapePath = [];
     group.children.forEach(function(child){
       if (child.name === "sphere"){
 
         var point = child.getWorldPosition();
         point.y = group.vectorOffset.y;
-        var line = new THREE.Line3(group.rotationVector.start, group.rotationVector.end);
 
-        var material = new THREE.LineBasicMaterial({
-          color: 0x0000ff
-        });
+        var offset = group.vectorOffset.clone();
+        var normal = group.rotationVector.normal.clone();
 
-        var lineGeo = new THREE.Geometry();
-        lineGeo.vertices.push(group.rotationVector.start, group.rotationVector.end);
-        var line3D = new THREE.Line(lineGeo, material);
+        offset.sub(normal.clone().setLength(2000));
+        var ray = new THREE.Ray(offset, normal);
 
-        // var ray = new THREE.Ray(group.vectorOffset, group.rotationVector.normalize()); //create the ray to compare with
+
+
+        // create the ray for comparisons
         // get the distance of the closest point
-        var rayClosest = line.closestPointToPoint(point);
+        var rayClosest = ray.closestPointToPoint(point);
         var rayDist = rayClosest.distanceTo(point);
-       
+        newShapePath.push(self.calcPathPoint(rayClosest, point, e.target.value));
+        
+        //allow for some error from calculations
         if (rayDist > 0.05){
           //get the closest point
-          console.log(rayDist, rayClosest);
           //calculate if there was already an angle applied
           var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt( Math.pow( (point.x - rayClosest.x), 2) + Math.pow( (point.z - rayClosest.z), 2) );
-          // console.log(e.target.value, point.x, point.z, rayClosest.x, rayClosest.z);
-          // console.log(yDestination);
-          // because JS is bad at math
+   
           // TODO: Remove all unecessary Radian/Degree conversions
-          // child.translateOnAxis(new THREE.Vector3(0,1,0), yDestination);
+          child.position.setY(yDestination+group.vectorOffset.y);
+
+          
         }
       }
     });
+    return newShapePath;
+  },
+  calcPathPoint : function (closestPoint, point, degree){
+    var vector1 = closestPoint.clone();
+    var vector2 = point.clone();
+    var originVector = vector1.clone().sub(vector2);
+    var distance = vector1.distanceTo(vector2);
+    if (distance < 0.005) {
+      return vector2;
+    }
+    debugger;
+    var updatedDist = distance / Math.cos(util.toRad(degree));
+
+    vector2.add(originVector.setLength(updatedDist));
+    return vector2;
+
+
   },
 
   verifyUp : function (e){
