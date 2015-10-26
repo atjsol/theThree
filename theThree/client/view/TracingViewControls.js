@@ -219,16 +219,12 @@ TracingViewControls.prototype = Object.create({
       var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
       group.name = name;
       scene.add(group);
+      eventBus.trigger("create:mountingPlane", group);
     }   
 
     if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();
     }
-    
-    if (event.which === 80 ){ // o key
-      eventBus.trigger("create:mountingPlane", group);
-    }
-
     if (event.which === 49 && event.altKey) // 1
     {
         // Top View
