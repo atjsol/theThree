@@ -31,20 +31,31 @@ var TracingViewControls = module.exports = function(tracingView) {
   });
   $("#three-view").mousedown(function(e) {
     var intersects = self.tracingView.getIntersects();
-    self.dragging = true;
+    if (intersects.length === 0) {
+      return;
+    }
+
     if (intersects[0].object.parent.name === "sphere"){
       self.dragTarget = intersects[0].object.parent;
+      self.dragging = true;
     } else if (intersects[0].object.name === "cylinder") {
       self.dragTarget = intersects[0].object;
+      self.dragging = true;
     }
   }).mouseup(function(e){
+    if (!self.dragging) {
+      return;
+    }
+
     self.dragging = false;
     self.dragTarget = undefined;
     self.dragTargetGrabVector = undefined;
     self.tracingView.scene.children.forEach(function (child){
       if (child.type === "Group" && child.name !== "grid"){
         var newChildren = GeometryMaker.buildGroup(child);
+        //newChildren.mountingPlane = child.mountingPlane;
         child.children = newChildren;
+        eventBus.trigger("update:mountingPlane", child);
       }
     });
   });

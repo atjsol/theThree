@@ -25,6 +25,11 @@ var TracingView = module.exports = function($el, job) {
     structure.addMountingPlane(mountingPlane);
     group.mountingPlane = mountingPlane; // add reference to model
   });
+
+  eventBus.bind("update:mountingPlane", function(group) {
+    var structure = job.getStructure(0);
+    group.mountingPlane.updateFromThreeGroup(group);
+  })
 };
 
 TracingView.prototype = Object.create({

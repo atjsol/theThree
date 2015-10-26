@@ -268,7 +268,6 @@ module.exports.buildGroup = function buildGroup(group, shapeQue){
   newChildren.push(shape);
 
   //create the group based on points and construction data
-  eventBus.trigger("create:mountingPlane", group);
   group.children = [];
   // group.children=[];
   return newChildren;

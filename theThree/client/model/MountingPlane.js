@@ -27,8 +27,15 @@ Model.extend(MountingPlane, {
   getLines: function() {
     return this.lines;
   },
+
   calculateAzimuth: function(){
 
+  },
+
+  updateFromThreeGroup: function(group) {
+    var temp = MountingPlane.fromThreeGroup(group);
+    this.points = temp.points;
+    this.lines = temp.lines;
   }
 
 });

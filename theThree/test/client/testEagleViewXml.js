@@ -40,7 +40,7 @@ exports.testBasicXml = function(test) {
     parser.parseString(xmlString, function(error, result) {
         test.ifError(error);
 
-        //console.log(JSON.stringify(result, null, "  "));
+        // console.log(JSON.stringify(result, null, "  "));
 
         test.ok(result);
         test.ok(result.EAGLEVIEW_EXPORT);
@@ -59,6 +59,7 @@ exports.testBasicXml = function(test) {
 
         test.ok(roof.LINES);
         test.equals(4, roof.LINES.LINE.length);
+        test.equals("C1,C2", roof.LINES.LINE[0].$.path);
 
         test.ok(roof.POINTS);
         test.equals(4, roof.POINTS.POINT.length);
