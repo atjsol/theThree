@@ -41,10 +41,10 @@ var TracingViewControls = module.exports = function(tracingView) {
     self.dragging = false;
     self.dragTarget = undefined;
     self.dragTargetGrabVector = undefined;
-    console.log(self.tracingView.scene);
     self.tracingView.scene.children.forEach(function (child){
       if (child.type === "Group" && child.name !== "grid"){
-        GeometryMaker.buildGroup(child);
+        var newChildren = GeometryMaker.buildGroup(child);
+        child.children = newChildren;
       }
     });
   });
@@ -225,10 +225,9 @@ TracingViewControls.prototype = Object.create({
       group.name = name;
         //reset the shapeQue
       this.shapeQue = [];
-      // newChildren.forEachRight(functon (child){ 
-      //   group.add(child);
-
-      // });
+      newChildren.forEach(function (child){ 
+        group.add(child);
+      });
       // group.children = newChildren;
       scene.add(group);
  

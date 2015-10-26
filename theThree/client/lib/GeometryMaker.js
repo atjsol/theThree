@@ -8,14 +8,7 @@ var eventBus = require("../lib/eventBus");
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   radius = radius || 0.35;
   //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
-
-  if (!fromPoint || !fromPoint.distanceTo){
-    // debugger
-  }
-
-
-
-
+  var lookatVector = fromPoint.clone().sub(toPoint);
   //calculate the distance
   var distance = fromPoint.distanceTo(toPoint);
 
@@ -212,47 +205,55 @@ module.exports.buildGroup = function buildGroup(group, shapeQue){
   group = group || new THREE.Group();
   var newChildren = [];
   var newOutline = new THREE.Shape();
-  function addToShapeQue(point, i, array) {
-    shapeQue.push(point);
+  function addToOutline(point, i, array) {
     if (i === 0) {
       newOutline.moveTo(point.x, point.z);
     } else {
       newOutline.lineTo(point.x, point.z);
     }
   }
-
   if (shapeQue.length > 2){
-    shapeQue.forEach(addToShapeQue);
+    shapeQue.forEach(function (point, i, array){
+      addToOutline(point, i);
+      newChildren.push(module.exports.sphere(point));
+      if (i+1 < array.length){
+        newChildren.push(module.exports.makeLine(point, array[i+1]));
+      } else {
+        newChildren.push(module.exports.makeLine(array[0], point));
+      }
+
+
+    });
+    
+
   } else {
-    var spheres = 0;
-    var previousSphere = undefined;
+    var spheres = [];
     
     group.children.forEach(function(child, i, array){
       if (child.name === "sphere"){
-        addToShapeQue(child.position, spheres);
-        newChildren.push(module.exports.sphere(child.position));
-        var nextPoint = array[spheres+1] || array[0];
-        module.exports.makeLine(point, nextPoint)
-        spheres++;
+        addToOutline(child.position, i);
+        spheres.push(child);
       }
+    });
+    spheres.forEach(function (sphere, i, spheres){
+      newChildren.push(module.exports.sphere(sphere.position));
+
+
+      if (spheres.length > 1 && i < spheres.length-1){
+        newChildren.push(module.exports.makeLine(sphere.position, spheres[i+1].position));
+      }
+      if (sphere === spheres[spheres.length-1]){
+        newChildren.push(module.exports.makeLine(sphere.position, spheres[0].position));
+      }
+
+
     });
   }
 
-  shape.constructionData.points.forEach(function(point, i, array){
-    //for each point add a sphere
-    //Add the sphere to the scene to represent a point
-    var sphere = 
-    group.add(sphere);
 
-    //for each subsequent points add a line 
-    
-    var cylinder = ;
-    group.add(cylinder);
-  }); 
 
-  group.add(shape);
   //add final line between the first and last points in the shape
-  newChildren.push(module.exports.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
+  // newChildren.push(module.exports.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
   
   var shape = module.exports.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
   shape.name = "mounting plane shape";
@@ -264,7 +265,11 @@ module.exports.buildGroup = function buildGroup(group, shapeQue){
     calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
     calculatedRatioMetric : undefined,
   }; 
+  newChildren.push(shape);
 
   //create the group based on points and construction data
   eventBus.trigger("create:mountingPlane", group);
+  group.children = [];
+  // group.children=[];
+  return newChildren;
 };
