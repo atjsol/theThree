@@ -63,8 +63,6 @@ ObjectAttributeView.prototype = Object.create({
         +'<input type="radio" name="type" data-actions="assignType" value="RAKE">Rake'
         +'<input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash'
         +'<input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing'
-
-
       );
 
       var compiledAttributes = attributes({});
@@ -75,9 +73,9 @@ ObjectAttributeView.prototype = Object.create({
     var position = _.template(
        '<h5>Position</h5>'
       +'<ul class="attribute-list">'
-        +'<li> x : <input name="position setX" data-actions="position setX" type="number" step="0.01" value="<%= x %>"</li>'
-        +'<li> y (up) : <input name="position setY" data-actions="position setY" type="number" step="0.01" value="<%= y %>"</li>'
-        +'<li> z : <input name="position setZ" data-actions="position setZ" type="number" step="0.01" value="<%= z %>"</li>'
+        +'<li> x : <input name="position setX" data-actions="setX" type="number" step="0.01" value="<%= x %>"</li>'
+        +'<li> y (up) : <input name="position setY" data-actions="setY" type="number" step="0.01" value="<%= y %>"</li>'
+        +'<li> z : <input name="position setZ" data-actions="setZ" type="number" step="0.01" value="<%= z %>"</li>'
       +'</ul>');
     var compiledPosition = position(someObj.getWorldPosition());
     body += compiledPosition;
@@ -99,7 +97,7 @@ ObjectAttributeView.prototype = Object.create({
       this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
     }
 
-    
+   
     this.$el.on("change", someObj, function (e){ 
       // e.data is where our passed in data (from $('change", data, callback)) resides
       // e.target is where the change has occurred
@@ -129,9 +127,6 @@ ObjectAttributeView.prototype = Object.create({
     // e.target.value is where our the type is located
     // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
     this.currentObject.constructionData.type=e.target.value;
-
-
-
   },
 
   updateGroupModel : function (e){
@@ -146,6 +141,15 @@ ObjectAttributeView.prototype = Object.create({
     actionArray.forEach(function (action){
       self[action](e);
     });
+  },
+  setX: function (e){
+    e.data.parent.position.setX(e.target.value);
+  },
+  setY: function (e){
+    e.data.parent.position.setY(e.target.value);
+  },
+  setZ: function (e){
+    e.data.parent.position.setZ(e.target.value);
   },
 
   setEaveVector : function (e){
@@ -186,31 +190,13 @@ ObjectAttributeView.prototype = Object.create({
       }
     });
     console.log(shapePath);
-    var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90-e.target.value), 0, 0, 1);
-    shape.name = "mounting plane shape";
+    var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(135), 0, 0, 1);
+    shape.name = "mounting plane tilted";
+    shape.position.add(group.getWorldPosition());
     group.add(shape);
-
-    // group.translateOnAxis(group.vectorOffset, 1);
-    // group.setRotationFromAxisAngle(group.rotationVector.normal.normalize(),  util.toRad(e.target.value));
-    // group.translateOnAxis(group.vectorOffset, -1);
-
-    // if (!this.verifyUp(e)){
-    //   group.translateOnAxis(group.vectorOffset, 1);
-    //   group.setRotationFromAxisAngle(group.rotationVector.normal.negate().normalize(),  util.toRad(e.target.value));
-    //   group.translateOnAxis(group.vectorOffset, -1);
-    // }
-  },
-
-  rebuildGroup : function(group){
-    //extract all sphere positions
-
-
-
-
-
+    console.log(group);
 
   },
-
 
   translatePointforRotation : function (e){
     var self = this;
@@ -235,18 +221,17 @@ ObjectAttributeView.prototype = Object.create({
         // get the distance of the closest point
         var rayClosest = ray.closestPointToPoint(point);
         var rayDist = rayClosest.distanceTo(point);
-        newShapePath.push(self.calcPathPoint(rayClosest, point, e.target.value));
-        
-        //allow for some error from calculations
-        if (rayDist > 0.05){
+        if (rayDist < 0.05 ){
+          newShapePath.push(point);
+        } else {
+          //allow for some error tolerence from calculations
+          newShapePath.push(self.calcPathPoint(rayClosest, point, e.target.value));
           //get the closest point
           //calculate if there was already an angle applied
           var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt( Math.pow( (point.x - rayClosest.x), 2) + Math.pow( (point.z - rayClosest.z), 2) );
    
           // TODO: Remove all unecessary Radian/Degree conversions
           child.position.setY(yDestination+group.vectorOffset.y);
-
-          
         }
       }
     });
@@ -255,15 +240,15 @@ ObjectAttributeView.prototype = Object.create({
   calcPathPoint : function (closestPoint, point, degree){
     var vector1 = closestPoint.clone();
     var vector2 = point.clone();
-    var originVector = vector1.clone().sub(vector2);
-    var distance = vector1.distanceTo(vector2);
+    var originVector = vector2.clone().sub(vector1);
+    var distance = vector2.distanceTo(vector1);
     if (distance < 0.005) {
       return vector2;
     }
-    debugger;
-    var updatedDist = distance / Math.cos(util.toRad(degree));
-
-    vector2.add(originVector.setLength(updatedDist));
+    var updatedDist = distance * Math.cos(util.toRad(degree));
+    originVector.setLength(updatedDist);
+    vector2.add(originVector);
+    console.log(point,vector1);
     return vector2;
 
 

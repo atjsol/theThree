@@ -1,10 +1,20 @@
 var THREE = require("three.js");
 var util = require("./util");
 var Line = require("../model/Line");
+var extrudeSettings = require("./extrudeSettings");
+var eventBus = require("../lib/eventBus");
+
 
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   radius = radius || 0.35;
   //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
+
+  if (!fromPoint || !fromPoint.distanceTo){
+    // debugger
+  }
+
+
+
 
   //calculate the distance
   var distance = fromPoint.distanceTo(toPoint);
@@ -195,4 +205,66 @@ module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y,
   // particles2.scale.set( s, s, s );
   // group.add( particles2 );
   return mesh;
+};
+
+module.exports.buildGroup = function buildGroup(group, shapeQue){
+  shapeQue = shapeQue || [];
+  group = group || new THREE.Group();
+  var newChildren = [];
+  var newOutline = new THREE.Shape();
+  function addToShapeQue(point, i, array) {
+    shapeQue.push(point);
+    if (i === 0) {
+      newOutline.moveTo(point.x, point.z);
+    } else {
+      newOutline.lineTo(point.x, point.z);
+    }
+  }
+
+  if (shapeQue.length > 2){
+    shapeQue.forEach(addToShapeQue);
+  } else {
+    var spheres = 0;
+    var previousSphere = undefined;
+    
+    group.children.forEach(function(child, i, array){
+      if (child.name === "sphere"){
+        addToShapeQue(child.position, spheres);
+        newChildren.push(module.exports.sphere(child.position));
+        var nextPoint = array[spheres+1] || array[0];
+        module.exports.makeLine(point, nextPoint)
+        spheres++;
+      }
+    });
+  }
+
+  shape.constructionData.points.forEach(function(point, i, array){
+    //for each point add a sphere
+    //Add the sphere to the scene to represent a point
+    var sphere = 
+    group.add(sphere);
+
+    //for each subsequent points add a line 
+    
+    var cylinder = ;
+    group.add(cylinder);
+  }); 
+
+  group.add(shape);
+  //add final line between the first and last points in the shape
+  newChildren.push(module.exports.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
+  
+  var shape = module.exports.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
+  shape.name = "mounting plane shape";
+  shape.constructionData = {
+    points: shapeQue,  // copy all the points to make this shape 
+    rotationAxis : undefined, //set by selecting eave or ridge attributes
+    
+    rotationDegrees : undefined,
+    calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
+    calculatedRatioMetric : undefined,
+  }; 
+
+  //create the group based on points and construction data
+  eventBus.trigger("create:mountingPlane", group);
 };
