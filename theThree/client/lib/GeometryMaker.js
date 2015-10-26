@@ -1,15 +1,19 @@
 var THREE = require("three.js");
 var util = require("./util");
+var Line = require("../model/Line");
+var extrudeSettings = require("./extrudeSettings");
+var eventBus = require("../lib/eventBus");
 
-module.exports.makeLine = function makeLine(fromPoint, toPoint) {
 
+module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
+  radius = radius || 0.35;
   //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
-
+  var lookatVector = fromPoint.clone().sub(toPoint);
   //calculate the distance
   var distance = fromPoint.distanceTo(toPoint);
 
   //create cylinder based onlength 
-  var geometry = new THREE.CylinderGeometry(0.25, 0.25, distance, 32);
+  var geometry = new THREE.CylinderGeometry(0.35, 0.35, distance, 32);
   geometry.dynamic=true;
   var material = new THREE.MeshBasicMaterial({
     color: 0xff0022
@@ -30,15 +34,8 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint) {
   //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
   cylinder.lookAt(new THREE.Vector3(fromPoint.x, 10000000000, fromPoint.z));
   
-  cylinder.constructionData={
-    points: [],  // copy all the points to make this shape 
-    rotationAxis : undefined, //set by selecting eave or ridge attributes
-    
-    rotationDegrees : undefined,
-    calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
-    calculatedRatioMetric : undefined,
-  };
-  cylinder.constructionData.points.push(fromPoint, toPoint);
+  cylinder.constructionData = new Line( fromPoint, toPoint );
+
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
   return cylinder;
@@ -57,27 +54,28 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
   var sphere = new THREE.Mesh(geometry, material);
   sphere.name = "sphere";
 
-  sphere.position.set(point.x, point.y, point.z);
+  sphere.position.set(point["x"], point["y"], point["z"]);
 
   return sphere;
-}
+};
 
 // sphereArgs = [[size, materialArgs],[size, materialArgs]...] accepts any number of spheres
 module.exports.sphere = function sphere(point, sphereArgs) {
-    sphereArgs = sphereArgs || [[undefined, undefined], [3, { transparent: true, opacity: 0.25 }]];
-   var makeSphere = module.exports.makeSphere;
 
-   var tbr = makeSphere(point);
-   sphereArgs.forEach(function (sphereArg, i) {
-       if (i != 0) {
-           var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
-           newSphere.name = "sphereChild";
-           tbr.add(newSphere);
-       }
-   });
+  sphereArgs = sphereArgs || [[undefined, undefined], [3, { transparent: true, opacity: 0.25 }]];
+  var makeSphere = module.exports.makeSphere;
+
+  var tbr = makeSphere(point);
+  sphereArgs.forEach(function (sphereArg, i) {
+   if (i !== 0) {
+       var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
+       newSphere.name = "sphereChild";
+       tbr.add(newSphere);
+   }
+  });
 
   return tbr;
-}
+};
 
 //this function will take in 3 points, start, fulcrum, end and return a vector that is either + 90, 180 or 270 from the vector produced from start and fulcrum  
 module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
@@ -94,9 +92,9 @@ module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
   // compare the two vectors 
   var angle = line1.angleTo(line2);
 
-  var modAngle;
   var compAngle = util.toDeg(angle);
 
+  var modAngle;
   //create a ruleset for which angle to use
   for (var i = 0; i < 181; i += 45) {
     if (compAngle > i - 45 / 2 && compAngle < i + 45 / 2) {
@@ -200,4 +198,78 @@ module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y,
   // particles2.scale.set( s, s, s );
   // group.add( particles2 );
   return mesh;
+};
+
+module.exports.buildGroup = function buildGroup(group, shapeQue){
+  shapeQue = shapeQue || [];
+  group = group || new THREE.Group();
+  var newChildren = [];
+  var newOutline = new THREE.Shape();
+  function addToOutline(point, i, array) {
+    if (i === 0) {
+      newOutline.moveTo(point.x, point.z);
+    } else {
+      newOutline.lineTo(point.x, point.z);
+    }
+  }
+  if (shapeQue.length > 2){
+    shapeQue.forEach(function (point, i, array){
+      addToOutline(point, i);
+      newChildren.push(module.exports.sphere(point));
+      if (i+1 < array.length){
+        newChildren.push(module.exports.makeLine(point, array[i+1]));
+      } else {
+        newChildren.push(module.exports.makeLine(array[0], point));
+      }
+
+
+    });
+    
+
+  } else {
+    var spheres = [];
+    
+    group.children.forEach(function(child, i, array){
+      if (child.name === "sphere"){
+        addToOutline(child.position, i);
+        spheres.push(child);
+      }
+    });
+    spheres.forEach(function (sphere, i, spheres){
+      newChildren.push(module.exports.sphere(sphere.position));
+
+
+      if (spheres.length > 1 && i < spheres.length-1){
+        newChildren.push(module.exports.makeLine(sphere.position, spheres[i+1].position));
+      }
+      if (sphere === spheres[spheres.length-1]){
+        newChildren.push(module.exports.makeLine(sphere.position, spheres[0].position));
+      }
+
+
+    });
+  }
+
+
+
+  //add final line between the first and last points in the shape
+  // newChildren.push(module.exports.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
+  
+  var shape = module.exports.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
+  shape.name = "mounting plane shape";
+  shape.constructionData = {
+    points: shapeQue,  // copy all the points to make this shape 
+    rotationAxis : undefined, //set by selecting eave or ridge attributes
+    
+    rotationDegrees : undefined,
+    calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
+    calculatedRatioMetric : undefined,
+  }; 
+  newChildren.push(shape);
+
+  //create the group based on points and construction data
+  eventBus.trigger("create:mountingPlane", group);
+  group.children = [];
+  // group.children=[];
+  return newChildren;
 };

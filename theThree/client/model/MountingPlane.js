@@ -4,12 +4,12 @@ var _ = require("lodash");
 var Line = require("./Line");
 var Point = require("./Point");
 
-var MountingPlane = function(name, points) {
+var MountingPlane = function(name, points, lines) {
   this.id = uid.incremental("P");
   this.faceId = uid.incremental("F");
   this.name = name;
   this.points = points;
-  this.lines = this.generateLines();
+  this.lines = lines || this.generateLines();
 };
 module.exports = MountingPlane;
 
@@ -26,19 +26,32 @@ Model.extend(MountingPlane, {
 
   getLines: function() {
     return this.lines;
+  },
+  calculateAzimuth: function(){
+
   }
+
 });
 
 MountingPlane.fromThreeGroup = function(group) {
   var points = [];
+  var lines = [];
   _.each(group.children, function(child) {
     switch (child.name) {
-      case "sphere":
-        points.push(new Point(child.position.x, child.position.y, child.position.z));
+      case "sphere":{
+        points.push(child.position);
+        child.position.id = uid.incremental("C");
         break;
+        
+      }
+      case "cylinder": {
+        var lineData = child.constructionData;
+        lines.push(lineData);
+        break;
+      }
     }
   });
 
-  var mountingPlane = new MountingPlane(group.name, points);
+  var mountingPlane = new MountingPlane(group.name, points, lines);
   return mountingPlane;
 };

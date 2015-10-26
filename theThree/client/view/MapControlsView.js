@@ -19,7 +19,7 @@ var MapControlsView = module.exports = function($el) {
 MapControlsView.prototype = Object.create({
   handleFormChange: function(val) {
     var mapObj = {};
-    $('#mapData').children().each(function(val) {
+    $("#mapData").children().each(function(val) {
       mapObj[this.name] = this.value;
     });
 

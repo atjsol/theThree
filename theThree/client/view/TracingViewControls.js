@@ -16,25 +16,46 @@ var TracingViewControls = module.exports = function(tracingView) {
   _.bindAll(this);
   this.tracingView = tracingView;
   this.$el = tracingView.$el;
-  this.trackMouse();
   this.setUpOrbitalControls();
   this.tracingView.orthEnd = false;
   this.intialHeight = 20;
   this.shapeQue = [];
+  this.dragging = false;
+  this.dragTarget = undefined;
+  this.dragTargetGrabVector=undefined;
   this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"));
+  this.trackMouse();
   //this.$el.on("keyup", this.handleKeyUp);
-  window.addEventListener("keydown", function(event) {
+  $(document).on("keydown", function(event) {
     self.handleKeyDown(event); // TODO: FIX ME
+  });
+  $("#three-view").mousedown(function(e) {
+    var intersects = self.tracingView.getIntersects();
+    self.dragging = true;
+    if (intersects[0].object.parent.name === "sphere"){
+      self.dragTarget = intersects[0].object.parent;
+    } else if (intersects[0].object.name === "cylinder") {
+      self.dragTarget = intersects[0].object;
+    }
+  }).mouseup(function(e){
+    self.dragging = false;
+    self.dragTarget = undefined;
+    self.dragTargetGrabVector = undefined;
+    self.tracingView.scene.children.forEach(function (child){
+      if (child.type === "Group" && child.name !== "grid"){
+        var newChildren = GeometryMaker.buildGroup(child);
+        child.children = newChildren;
+      }
+    });
   });
 
 };
 
 TracingViewControls.prototype = Object.create({
 
-    setUpOrbitalControls: function () {
-        var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
-        this.controls = controls;
-    console.log(this.tracingView.camera)
+  setUpOrbitalControls: function () {
+    var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
+    this.controls = controls;
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.noRotate = true;
@@ -52,6 +73,8 @@ TracingViewControls.prototype = Object.create({
     var mouse = this.mouse;
 
     this.$el.on("mousemove", function($event) {
+
+
       var event = $event.originalEvent;
       mouse.deltaX = mouse.x - event.x;
       mouse.deltaY = mouse.y - event.y;
@@ -68,9 +91,34 @@ TracingViewControls.prototype = Object.create({
           intersects[0].point.z
         );
       }
+      if (self.dragging){
+        self.editObject(event);
+      }
     });
-  },
 
+  },
+  editObject : function (event){
+    var self = this;
+    var intersects = self.tracingView.getIntersects();
+    var x,y,z;
+    _.forEachRight(intersects, function(intersect) {
+      var object = intersect.object;
+      if (object.name === "map" && !x ) {
+          x = intersect.point.x;
+          y = intersect.point.y;
+          z = intersect.point.z;
+          if (self.dragTargetGrabVector === undefined){
+            self.dragTargetGrabVector = intersect.point.clone();
+          }
+      }
+    });
+
+    if (self.dragTarget){
+      self.dragTarget.position.setX(x);
+      self.dragTarget.position.setZ(z);
+    }
+
+  },
   animateLine: function(start, end, name) {
     this.tracingView.removeChildren("mouseline"); // remove the old line before we add a new line
     this.shapeQue[this.shapeQue.length - 1].y = this.intialHeight; //set to the inital height of outline
@@ -80,9 +128,8 @@ TracingViewControls.prototype = Object.create({
       end = GeometryMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
       this.tracingView.orthEnd = end.clone();
     }
-    var mouseline = GeometryMaker.makeLine(start, end);
+    var mouseline = GeometryMaker.makeLine(start, end, 0.25);
     mouseline.name = name || "mouseline";
-
     this.tracingView.scene.add(mouseline);
   },
 
@@ -97,8 +144,7 @@ TracingViewControls.prototype = Object.create({
     }
 
     if (event.which === 65) { // a key
-        var intersects = self.tracingView.getIntersects();
-        console.log(intersects);
+      var intersects = self.tracingView.getIntersects();
       var group = new THREE.Group();
       var x, y, z;
       // get the top layer of intersect
@@ -148,7 +194,7 @@ TracingViewControls.prototype = Object.create({
         //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
         this.tracingView.addToAnimationArray(self.animateLine);
       }
-      var position = shapeQue[shapeQue.length-1].clone();
+      var position = shapeQue[shapeQue.length-1];
       //Add the sphere to the scene to be visible representation of what we have in our queue
       var sphere = GeometryMaker.sphere(position);
 
@@ -157,53 +203,16 @@ TracingViewControls.prototype = Object.create({
 
     if (event.which === 83) { // s key
 
-      if (shapeQue.length < 3) {return}
+      if (shapeQue.length < 3) {return;}
       //remove the mouseline animation when calculating the total shape
       this.tracingView.resetAnimationArray();
 
       // remove any existing mouseline
       this.tracingView.removeChildren("mouseline");
 
-      var newOutline = new THREE.Shape();
-      shapeQue.forEach(function(point, i, array) {
-        if (array.length > 2) {
-          if (i === 0) {
-            newOutline.moveTo(point.x, point.z);
-          } else {
-            newOutline.lineTo(point.x, point.z);
-          }
-        }
-      });
-
-      //add final line between the first and last points in the shape
-      scene.add(GeometryMaker.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
-      
       var group = new THREE.Group();
-      var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
-      shape.name = "mounting plane shape";
-      shape.constructionData = {
-        points: this.shapeQue.slice(0),  // copy all the points to make this shape 
-        rotationAxis : undefined, //set by selecting eave or ridge attributes
-        
-        rotationDegrees : undefined,
-        calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
-        calculatedRatioMetric : undefined,
-      }; 
-      group.add(shape);
+      var newChildren = GeometryMaker.buildGroup(group, shapeQue);
 
-      shape.constructionData.points.forEach(function(point, i, array){
-        //for each point add a sphere
-        //Add the sphere to the scene to represent a point
-        var sphere = GeometryMaker.sphere(point);
-        group.add(sphere);
-
-        //for each subsequent points add a line 
-        var nextPoint = array[i+1] || array[0];
-        var cylinder = GeometryMaker.makeLine(point, nextPoint);
-        group.add(cylinder);
-      }); 
-
-      //create the group based on points and construction data
 
       //delete any objects put into the scene to indicate how the group will be constructed
       for (var i = scene.children.length - 1; i > 0; i--) {
@@ -212,19 +221,30 @@ TracingViewControls.prototype = Object.create({
         }
       }
 
-      //reset the shapeQue
-      this.shapeQue = [];
-
-      //name the group
       var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
       group.name = name;
+        //reset the shapeQue
+      this.shapeQue = [];
+      newChildren.forEach(function (child){ 
+        group.add(child);
+      });
+      // group.children = newChildren;
       scene.add(group);
       eventBus.trigger("create:mountingPlane", group);
-    }   
 
+    }   
+    if (event.which === 90 && event.ctlKey){ // z key
+      var deleteableItems = ["sphere", "mounting plane shape", "mounting plane tilted", "cylinder"];
+      var last = scene.children[scene.children.length-1];
+      if (_.any(deleteableItems, function (val) { return val === last.name;})){
+        scene.children.pop();
+      }
+      
+    }
     if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();
     }
+
     if (event.which === 49 && event.altKey) // 1
     {
         // Top View
@@ -254,7 +274,7 @@ TracingViewControls.prototype = Object.create({
         // Front View
         this.tracingView.camera.position.set(0, 0, 500);
         this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
-        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));6
+        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
     if (event.which === 53 && event.altKey) // 5
@@ -277,5 +297,7 @@ TracingViewControls.prototype = Object.create({
         this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
         this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
+    // event.preventDefault();
+    // event.stopPropagation();
   },
 });

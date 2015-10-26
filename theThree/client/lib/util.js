@@ -8,9 +8,6 @@ exports.centroid = function centriod(mesh){
   return geometry.centroid.divideScalar( geometry.vertices.length );
 };
 
-
-
-
 exports.toDeg = function toDeg(val) {
   return val * 180 / Math.PI;
 };
@@ -39,9 +36,26 @@ exports.arrToObj = function arrToObj (array, useIndex){
   } else {
     array.forEach(function (value, index, arr){
       newObj[value] = value;
-    })
+    });
   }
   return newObj;
-}
+};
 
+exports.getAngle = function getAngle (start, fulcrum, end){
+  //get vector from start fulcrum
+ 
+  var line1 = start.clone().sub(fulcrum);
+
+  //get vector from fulcrum and end
+  var line2 = end.clone().sub(fulcrum);
+
+  // compare the two vectors 
+  var angle = line1.angleTo(line2);
+
+  var compAngle = exports.toDeg(angle);
+
+  return compAngle;
+
+
+};
 

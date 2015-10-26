@@ -23,6 +23,7 @@ var TracingView = module.exports = function($el, job) {
     var structure = job.getStructure(0);
     var mountingPlane = MountingPlane.fromThreeGroup(group);
     structure.addMountingPlane(mountingPlane);
+    group.mountingPlane = mountingPlane; // add reference to model
   });
 };
 
