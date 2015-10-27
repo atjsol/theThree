@@ -13,10 +13,10 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
 
   // direction vector
   var direction = new THREE.Vector3().subVectors(toPoint.clone(), fromPoint.clone());
-  
+
   var helperPoint;
   if (Math.abs(toPoint.y - fromPoint.y) > 1) {
-        helperPoint = new THREE.Vector3(fromPoint.x, toPoint.y, fromPoint.z)
+        helperPoint = new THREE.Vector3(fromPoint.x, toPoint.y, fromPoint.z);
         //helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
     }
     else {
@@ -52,8 +52,8 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   //Set the cylinder to look from one point to the next point
     //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works
   cylinder.lookAt(cross2); //toPoint.x, 10000000000, toPoint.z));
- 
-  
+
+
   cylinder.constructionData = {
     points: [ fromPoint, toPoint ]
   };
@@ -76,7 +76,7 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
   var sphere = new THREE.Mesh(geometry, material);
   sphere.name = "sphere";
 
-  sphere.position.set(point["x"], point["y"], point["z"]);
+  sphere.position.set(point.x, point.y, point.z);
 
   return sphere;
 };
