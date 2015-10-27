@@ -101,6 +101,7 @@ TracingViewControls.prototype = Object.create({
     }
 
   },
+
   animateLine: function(start, end, name) {
     this.tracingView.removeChildren("mouseline"); // remove the old line before we add a new line
     this.shapeQue[this.shapeQue.length - 1].y = this.intialHeight; //set to the inital height of outline
@@ -115,6 +116,104 @@ TracingViewControls.prototype = Object.create({
     this.tracingView.scene.add(mouseline);
   },
 
+  addPoint: function() {
+    var self = this;
+    var scene = this.tracingView.scene;
+    var shapeQue = self.shapeQue;
+
+    var intersects = self.tracingView.getIntersects();
+    var group = new THREE.Group();
+    var x, y, z;
+    // get the top layer of intersect
+    // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
+    _.forEachRight(intersects, function(intersect) {
+      var object = intersect.object;
+      if (object.name === "map" && !x) {
+        x = intersect.point.x;
+        y = intersect.point.y;
+        z = intersect.point.z;
+      }
+
+      //if we happen to hit a sphere- we would like to use the sphere coordinates instead
+      else if (object.name === "sphere") {
+        x = object.position.x;
+        y = object.position.y;
+        z = object.position.z;
+      } else if (object.name === "sphereChild") {
+        x = object.parent.position.x;
+        y = object.parent.position.y;
+        z = object.parent.position.z;
+      }
+    });
+
+    //Add each point to our shapeQue - from which we wull eventually make a shape via extrusion
+    if (orthogonalStatus.getStatus() && shapeQue.length >= 2) {
+      shapeQue.push(new THREE.Vector3(self.tracingView.orthEnd.x, 20, self.tracingView.orthEnd.z));
+    } else {
+      shapeQue.push(new THREE.Vector3(x, 20, z));
+    }
+
+    if (shapeQue.length === 2) {
+      // reqAniFrameArray.push(animateSomething);
+    }
+
+    //add cylinder tubes to show vectors to next point
+    if (shapeQue.length > 1) {
+
+      //get the most recently added sphere position
+      var cylinder = GeometryMaker.makeLine(shapeQue[shapeQue.length - 1], shapeQue[shapeQue.length - 2]);
+
+      scene.add(cylinder);
+    }
+
+    if (shapeQue.length === 1) {
+      //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
+      this.tracingView.addToAnimationArray(self.animateLine);
+    }
+    var position = shapeQue[shapeQue.length - 1];
+    //Add the sphere to the scene to be visible representation of what we have in our queue
+    var sphere = GeometryMaker.sphere(position);
+
+    scene.add(sphere);
+  },
+
+  addShape: function() {
+    var self = this;
+    var scene = this.tracingView.scene;
+    var shapeQue = self.shapeQue;
+
+    if (shapeQue.length < 3) {
+      return;
+    }
+    //remove the mouseline animation when calculating the total shape
+    this.tracingView.resetAnimationArray();
+
+    // remove any existing mouseline
+    this.tracingView.removeChildren("mouseline");
+
+    var group = new THREE.Group();
+    var newChildren = GeometryMaker.buildGroup(group, shapeQue);
+
+
+    //delete any objects put into the scene to indicate how the group will be constructed
+    for (var i = scene.children.length - 1; i > 0; i--) {
+      if (scene.children[i].name === "sphere" || scene.children[i].name === "cylinder") {
+        scene.children.splice(i, 1);
+      }
+    }
+
+    var name = "North Roof"; //jshint ignore:line
+    group.name = name;
+    //reset the shapeQue
+    this.shapeQue = [];
+    newChildren.forEach(function(child) {
+      group.add(child);
+    });
+    // group.children = newChildren;
+    scene.add(group);
+    eventBus.trigger("change:scene");
+  },
+
   handleKeyDown: function(event) {
     var self = this;
     var scene = this.tracingView.scene;
@@ -126,94 +225,10 @@ TracingViewControls.prototype = Object.create({
     }
 
     if (event.which === 65) { // a key
-      var intersects = self.tracingView.getIntersects();
-      var group = new THREE.Group();
-      var x, y, z;
-      // get the top layer of intersect
-      // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
-      _.forEachRight(intersects, function(intersect) {
-        var object = intersect.object;
-        if (object.name === "map" && !x) {
-          x = intersect.point.x;
-          y = intersect.point.y;
-          z = intersect.point.z;
-        }
-
-        //if we happen to hit a sphere- we would like to use the sphere coordinates instead
-        else if (object.name === "sphere") {
-          x = object.position.x;
-          y = object.position.y;
-          z = object.position.z;
-        } else if (object.name === "sphereChild") {
-          x = object.parent.position.x;
-          y = object.parent.position.y;
-          z = object.parent.position.z;
-        }
-      });
-
-      //Add each point to our shapeQue - from which we wull eventually make a shape via extrusion
-      if (orthogonalStatus.getStatus() && shapeQue.length >= 2) {
-        shapeQue.push(new THREE.Vector3(self.tracingView.orthEnd.x, 20, self.tracingView.orthEnd.z));
-      } else {
-        shapeQue.push(new THREE.Vector3(x, 20, z));
-      }
-
-      if (shapeQue.length === 2) {
-        // reqAniFrameArray.push(animateSomething);
-      }
-
-      //add cylinder tubes to show vectors to next point
-      if (shapeQue.length > 1) {
-
-        //get the most recently added sphere position
-        var cylinder = GeometryMaker.makeLine(shapeQue[shapeQue.length - 1], shapeQue[shapeQue.length - 2]);
-
-        scene.add(cylinder);
-      }
-
-      if (shapeQue.length === 1) {
-        //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
-        this.tracingView.addToAnimationArray(self.animateLine);
-      }
-      var position = shapeQue[shapeQue.length - 1];
-      //Add the sphere to the scene to be visible representation of what we have in our queue
-      var sphere = GeometryMaker.sphere(position);
-
-      scene.add(sphere);
+      this.addPoint();
     }
-
     if (event.which === 83) { // s key
-
-      if (shapeQue.length < 3) {
-        return;
-      }
-      //remove the mouseline animation when calculating the total shape
-      this.tracingView.resetAnimationArray();
-
-      // remove any existing mouseline
-      this.tracingView.removeChildren("mouseline");
-
-      var group = new THREE.Group();
-      var newChildren = GeometryMaker.buildGroup(group, shapeQue);
-
-
-      //delete any objects put into the scene to indicate how the group will be constructed
-      for (var i = scene.children.length - 1; i > 0; i--) {
-        if (scene.children[i].name === "sphere" || scene.children[i].name === "cylinder") {
-          scene.children.splice(i, 1);
-        }
-      }
-
-      var name = "North Roof"; //jshint ignore:line
-      group.name = name;
-      //reset the shapeQue
-      this.shapeQue = [];
-      newChildren.forEach(function(child) {
-        group.add(child);
-      });
-      // group.children = newChildren;
-      scene.add(group);
-      eventBus.trigger("change:scene");
+      this.addShape();
     }
     if (event.which === 90 && event.ctlKey) { // z key
       var deleteableItems = ["sphere", "mounting plane shape", "mounting plane tilted", "cylinder"];
