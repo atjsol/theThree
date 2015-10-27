@@ -28,6 +28,7 @@ ObjectAttributeView.prototype = Object.create({
 
   addToInterface: function(objArray) {
     /* beautify preserve:start */
+    /* jshint ignore:start */
     var self = this;
     //ignore things we do not care about - things we created
     var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
@@ -86,8 +87,8 @@ ObjectAttributeView.prototype = Object.create({
     var dialog = _.template('<div id="dialog-confirm" title="<%= title %>">'
       + '<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><%=  text %></p>'
       + '</div>');
-    
-    
+
+
 
     if (someObj.hasOwnProperty("planeRotation")){
       var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-actions="updateRotation" val=<%= planeRotation %></li></ul>');
@@ -141,12 +142,13 @@ ObjectAttributeView.prototype = Object.create({
       heightstyle:"content",
     });
     /* beautify preserve:end */
+    /* jshint ignore:end */
   },
 
-  removeFromScene : function (sceneMember){
-   
-    if(sceneMember && sceneMember.parent){
-      if (sceneMember && sceneMember.parent.type === "Scene"){
+  removeFromScene: function(sceneMember) {
+
+    if (sceneMember && sceneMember.parent) {
+      if (sceneMember && sceneMember.parent.type === "Scene") {
 
         // sceneMember.parent.remove(sceneMember);
         this.parent.tracingView.scene.remove(sceneMember);

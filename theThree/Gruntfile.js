@@ -14,7 +14,7 @@ module.exports = function(grunt) {
                     "!bower_components/**",
                     "!client/**",
                     "!public/**",
-                    "!dist/**"
+                    "!test/**"
                 ],
                 options: {
                     node: true
@@ -26,7 +26,6 @@ module.exports = function(grunt) {
                 "client/**/*.js",
                 "!node_modules/**",
                 "!bower_components/**",
-                "!dist/**"
             ],
             options: {
                 js: {
