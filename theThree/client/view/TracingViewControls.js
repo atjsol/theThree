@@ -31,15 +31,15 @@ var TracingViewControls = module.exports = function(tracingView) {
   });
   $("#three-view").mousedown(function(e) {
     var intersects = self.tracingView.getIntersects();
-    console.log(intersects);
-    console.log(self.tracingView);
     if (intersects.length > 0 && intersects[0].object.parent){
       self.objectAttributeView.addToInterface(intersects);
       self.dragging = true;
       if (intersects[0].object.parent.name === "sphere"){
         self.dragTarget = intersects[0].object.parent;
+       
       } else if (intersects[0].object.name === "cylinder") {
         self.dragTarget = intersects[0].object;
+        
       }
     }
   }).mouseup(function(e){

@@ -99,8 +99,8 @@ ObjectAttributeView.prototype = Object.create({
     }
 
     this.$el.on("click",someObj, function (e){
-      if (e.target.name === "delete"){
-        self.removeFromScene(e.data);
+      if (e.target.name === "delete" && someObj.parent !== null){
+        self.removeFromScene(someObj);
       }
     });
 
@@ -123,15 +123,13 @@ ObjectAttributeView.prototype = Object.create({
     // this.parent.tracingView.scene.traverse(function(level){
     //   level.remove(sceneMember);
     // });
-    if (sceneMember.parent===null){
-      debugger
-    }
-
-    if (sceneMember && sceneMember.parent.type === "Scene"){
-      // sceneMember.parent.remove(sceneMember);
-      this.parent.tracingView.scene.remove(sceneMember);
-    } else {
-      this.removeFromScene(sceneMember.parent);
+    if(sceneMember && sceneMember.parent){
+      if (sceneMember && sceneMember.parent.type === "Scene"){
+        // sceneMember.parent.remove(sceneMember);
+        this.parent.tracingView.scene.remove(sceneMember);
+      } else {
+        this.removeFromScene(sceneMember.parent);
+      }
     }
   },
   closeAccordion : function(e){
