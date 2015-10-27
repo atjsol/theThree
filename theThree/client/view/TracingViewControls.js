@@ -23,7 +23,7 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.dragging = false;
   this.dragTarget = undefined;
   this.dragTargetGrabVector=undefined;
-  this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"));
+  this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"), this);
   this.trackMouse();
   //this.$el.on("keyup", this.handleKeyUp);
   $(document).on("keydown", function(event) {
@@ -31,16 +31,16 @@ var TracingViewControls = module.exports = function(tracingView) {
   });
   $("#three-view").mousedown(function(e) {
     var intersects = self.tracingView.getIntersects();
-    if (intersects.length === 0) {
-      return;
-    }
-
-    if (intersects[0].object.parent.name === "sphere"){
-      self.dragTarget = intersects[0].object.parent;
+    if (intersects.length > 0 && intersects[0].object.parent){
+      self.objectAttributeView.addToInterface(intersects);
       self.dragging = true;
-    } else if (intersects[0].object.name === "cylinder") {
-      self.dragTarget = intersects[0].object;
-      self.dragging = true;
+      if (intersects[0].object.parent.name === "sphere"){
+        self.dragTarget = intersects[0].object.parent;
+       
+      } else if (intersects[0].object.name === "cylinder") {
+        self.dragTarget = intersects[0].object;
+        
+      }
     }
   }).mouseup(function(e){
     if (!self.dragging) {
@@ -59,6 +59,7 @@ var TracingViewControls = module.exports = function(tracingView) {
     self.dragTarget = undefined;
     self.dragTargetGrabVector = undefined;
   });
+
 };
 
 TracingViewControls.prototype = Object.create({

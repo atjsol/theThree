@@ -7,10 +7,11 @@ var util = require("../lib/util");
 var GeometryMaker = require ("../lib/GeometryMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
 
-var ObjectAttributeView = module.exports = function($el) {
+var ObjectAttributeView = module.exports = function($el, parent) {
   _.bindAll(this);
   this.$el = $el;
   this.currentObject = {};
+  this.parent = parent;
 };
 
 
@@ -24,7 +25,7 @@ ObjectAttributeView.prototype = Object.create({
     return brackets(tag + " class=" + clas )+val+brackets("/"+tag);
   },
 
-  addToInterface:function (objArray){
+  addToInterface : function (objArray){
     var self = this;
     //ignore things we do not care about - things we created
     var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
@@ -42,7 +43,7 @@ ObjectAttributeView.prototype = Object.create({
     var total = "";
     var body = "";
     //create header by object name
-    var header = _.template('<h3 class="attribute-list"> <%= name %> </h3>');
+    var header = _.template('<h3 class="attribute-list"> <%= name %> <button name="delete" class="delete" type="button" >Del</button> </h3> ');
     var compiledHeader = header(someObj);
 
 
@@ -97,8 +98,13 @@ ObjectAttributeView.prototype = Object.create({
       this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
     }
 
+    this.$el.on("click",someObj, function (e){
+      if (e.target.name === "delete" && someObj.parent !== null){
+        self.removeFromScene(someObj);
+      }
+    });
 
-    this.$el.on("change", someObj, function (e){
+    this.$el.on("change", someObj, function (e){ 
       // e.data is where our passed in data (from $('change", data, callback)) resides
       // e.target is where the change has occurred
       // e.target.dataset.* can be used to add any additional info as needed
@@ -112,7 +118,21 @@ ObjectAttributeView.prototype = Object.create({
     });
   },
 
-  closeAccordion: function(e){
+  removeFromScene : function (sceneMember){
+    // // debugger
+    // this.parent.tracingView.scene.traverse(function(level){
+    //   level.remove(sceneMember);
+    // });
+    if(sceneMember && sceneMember.parent){
+      if (sceneMember && sceneMember.parent.type === "Scene"){
+        // sceneMember.parent.remove(sceneMember);
+        this.parent.tracingView.scene.remove(sceneMember);
+      } else {
+        this.removeFromScene(sceneMember.parent);
+      }
+    }
+  },
+  closeAccordion : function(e){
     //remove any events
     if (this.$el.hasClass("ui-accordion")){
       this.$el.accordion("destroy");

@@ -9,13 +9,31 @@ var _ = require("lodash");
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   radius = radius || 0.35;
   //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
-  var lookatVector = fromPoint.clone().sub(toPoint);
+  //var lookatVector = toPoint.clone().sub(fromPoint.clone());
+
+  // direction vector
+  var direction = new THREE.Vector3().subVectors(toPoint.clone(), fromPoint.clone());
+  
+  var helperPoint;
+  if (Math.abs(toPoint.y - fromPoint.y) > 1) {
+        helperPoint = new THREE.Vector3(fromPoint.x, toPoint.y, fromPoint.z)
+        //helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
+    }
+    else {
+        helperPoint = new THREE.Vector3(fromPoint.x, fromPoint.y + 1000000, fromPoint.z);
+    }
+
+  var helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
+  var cross1 = direction.clone().cross(helperdirection.clone());
+  var cross2 = fromPoint.clone().add(cross1.clone().cross(direction.clone()));
+
   //calculate the distance
-  var distance = fromPoint.distanceTo(toPoint);
+  var distance = fromPoint.clone().distanceTo(toPoint.clone());
 
   //create cylinder based onlength
   var geometry = new THREE.CylinderGeometry(0.35, 0.35, distance, 32);
-  geometry.dynamic=true;
+  geometry.dynamic = true;
+
   var material = new THREE.MeshBasicMaterial({
     color: 0xff0022
   });
@@ -23,7 +41,7 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   cylinder.name = "cylinder";
 
   //create a line to get the mid point via function
-  var line = new THREE.Line3(fromPoint, new THREE.Vector3(toPoint.x, 20, toPoint.z));
+  var line = new THREE.Line3(fromPoint, toPoint); //new THREE.Vector3(toPoint.x, 20, toPoint.z));
   var mid = line.center();
 
   //Move the cylinder to the calculated mid position because that is the point where the object will pivot
@@ -32,9 +50,10 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   cylinder.position.z = mid.z;
 
   //Set the cylinder to look from one point to the next point
-  //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
-  cylinder.lookAt(new THREE.Vector3(fromPoint.x, 10000000000, fromPoint.z));
-
+    //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works
+  cylinder.lookAt(cross2); //toPoint.x, 10000000000, toPoint.z));
+ 
+  
   cylinder.constructionData = {
     points: [ fromPoint, toPoint ]
   };
