@@ -100,7 +100,6 @@ ObjectAttributeView.prototype = Object.create({
 
     this.$el.on("click",someObj, function (e){
       if (e.target.name === "delete"){
-        console.log(e.data.uuid)
         self.removeFromScene(e.data);
       }
     });
@@ -121,18 +120,19 @@ ObjectAttributeView.prototype = Object.create({
 
   removeFromScene : function (sceneMember){
     // // debugger
-    this.parent.tracingView.scene.traverse(function(level){
-      level.remove(sceneMember);
-    });
+    // this.parent.tracingView.scene.traverse(function(level){
+    //   level.remove(sceneMember);
+    // });
+    if (sceneMember.parent===null){
+      debugger
+    }
 
-    // if (sceneMember && sceneMember.parent.type === "Scene"){
-    //   // sceneMember.parent.remove(sceneMember);
-    //   this.parent.tracingView.scene.remove(sceneMember);
-    // } else {
-    //   console.log(this.parent.tracingView.scene);
-    //   console.log(sceneMember.uuid);
-    //   this.removeFromScene(sceneMember.parent);
-    // }
+    if (sceneMember && sceneMember.parent.type === "Scene"){
+      // sceneMember.parent.remove(sceneMember);
+      this.parent.tracingView.scene.remove(sceneMember);
+    } else {
+      this.removeFromScene(sceneMember.parent);
+    }
   },
   closeAccordion : function(e){
     //remove any events

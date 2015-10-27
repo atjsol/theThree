@@ -41,18 +41,17 @@ var TracingViewControls = module.exports = function(tracingView) {
       } else if (intersects[0].object.name === "cylinder") {
         self.dragTarget = intersects[0].object;
       }
-      
     }
   }).mouseup(function(e){
-    self.dragging = false;
-    self.dragTarget = undefined;
-    self.dragTargetGrabVector = undefined;
-    self.tracingView.scene.children.forEach(function (child){
-      if (child.type === "Group" && child.name !== "grid"){
-        var newChildren = GeometryMaker.buildGroup(child);
-        child.children = newChildren;
-      }
-    });
+    if (self.dragTarget){
+      var newChildren = GeometryMaker.buildGroup(self.dragTarget.parent);
+      newChildren.forEach(function(child){
+        self.dragTarget.parent.add(child);
+      });
+      self.dragging = false;
+      self.dragTarget = undefined;
+      self.dragTargetGrabVector = undefined;
+    }
   });
 
 };
