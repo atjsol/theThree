@@ -15,5 +15,9 @@ Model.extend(Structure, {
 
   getMountingPlane: function(id) {
     return _.findWhere(this.mountingPlanes, { id: id });
+  },
+
+  reset: function() {
+    this.mountingPlanes = [];
   }
 });

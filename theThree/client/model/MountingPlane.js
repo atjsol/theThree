@@ -47,18 +47,22 @@ MountingPlane.fromThreeGroup = function(group) {
     switch (child.name) {
       case "sphere":{
         points.push(child.position);
-        child.position.id = uid.incremental("C");
+        if (!child.position.id) {
+          child.position.id = uid.incremental("C");
+        }
         break;
-        
+
       }
       case "cylinder": {
-        var lineData = child.constructionData;
-        lines.push(lineData);
+        lines.push(child);
         break;
       }
     }
   });
 
-  var mountingPlane = new MountingPlane(group.name, points, lines);
+  var mountingPlane = new MountingPlane(group.name, points); 
+  _.each(mountingPlane.lines, function(line, i) {
+    line.type = lines[i].constructionData.type;
+  });
   return mountingPlane;
 };

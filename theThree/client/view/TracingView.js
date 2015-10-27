@@ -6,10 +6,10 @@ var util = require("../lib/util");
 var TracingViewControls = require("./TracingViewControls");
 var MountingPlane = require("../model/MountingPlane");
 
-var TracingView = module.exports = function($el, job) {
+var TracingView = module.exports = function($el) {
   _.bindAll(this);
+  var self = this;
   this.$el = $el;
-  this.job = job;
   this.width = window.innerWidth;
   this.height = window.innerHeight;
   this.animationArray = [];
@@ -18,18 +18,6 @@ var TracingView = module.exports = function($el, job) {
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
-
-  eventBus.bind("create:mountingPlane", function(group) {
-    var structure = job.getStructure(0);
-    var mountingPlane = MountingPlane.fromThreeGroup(group);
-    structure.addMountingPlane(mountingPlane);
-    group.mountingPlane = mountingPlane; // add reference to model
-  });
-
-  eventBus.bind("update:mountingPlane", function(group) {
-    var structure = job.getStructure(0);
-    group.mountingPlane.updateFromThreeGroup(group);
-  })
 };
 
 TracingView.prototype = Object.create({
@@ -42,7 +30,7 @@ TracingView.prototype = Object.create({
 
   setupScene: function() {
     var self = this;
-    //Create the basic scene for this to work.  
+    //Create the basic scene for this to work.
     //Make a scene
     //Make a camera
     //Set the camera Position
@@ -87,7 +75,7 @@ TracingView.prototype = Object.create({
       //if ( canvasRenderer ) {canvasRenderer.setSize( window.innerWidth, window.innerHeight );}
     }, false);
   },
- 
+
   drawGrid: function(spacing, rows, gridOffset) {
     // This function draws a grid
     spacing = spacing ? spacing : 20;

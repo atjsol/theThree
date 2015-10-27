@@ -20,9 +20,9 @@ ObjectAttributeView.prototype = Object.create({
       return "<"+val+">";
     }
     tag = tag || "div";
-    clas = clas || ""; 
+    clas = clas || "";
     return brackets(tag + " class=" + clas )+val+brackets("/"+tag);
-  }, 
+  },
 
   addToInterface:function (objArray){
     var self = this;
@@ -37,29 +37,29 @@ ObjectAttributeView.prototype = Object.create({
     //only choose the first item
 
     var someObj = this.currentObject = objArray[0].object;
-  
-    
+
+
     var total = "";
     var body = "";
     //create header by object name
     var header = _.template('<h3 class="attribute-list"> <%= name %> </h3>');
     var compiledHeader = header(someObj);
-    
 
-    if (someObj.name === "cylinder"){   
+
+    if (someObj.name === "cylinder"){
       var distance = _.template('<h5>Length</h5>'
         +'<ul class="attribute-list"><li>Computed Length : <%= length %>px</li>'
         +'<li>Real World Length :<input type="number"> </li></ul>'
       );
       var length = someObj.constructionData.points[0].distanceTo(someObj.constructionData.points[1]);
-      var compiledDistance = distance({length:length}); 
+      var compiledDistance = distance({length:length});
       body+=compiledDistance;
 
       var attributes = _.template('<h5>Attributes</h5>'
         +'<input type="radio" name="type" data-actions="setEaveVector assignType" value="EAVE">Eave'
         +'<input type="radio" name="type" data-actions="assignType" value="RIDGE">Ridge'
         +'<input type="radio" name="type" data-actions="assignType" value="VALLEY">Valley'
-        +'<input type="radio" name="type" data-actions="assignType" value="HIP">Hip' 
+        +'<input type="radio" name="type" data-actions="assignType" value="HIP">Hip'
         +'<input type="radio" name="type" data-actions="assignType" value="RAKE">Rake'
         +'<input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash'
         +'<input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing'
@@ -79,15 +79,15 @@ ObjectAttributeView.prototype = Object.create({
       +'</ul>');
     var compiledPosition = position(someObj.getWorldPosition());
     body += compiledPosition;
-    
+
     if (someObj.hasOwnProperty("planeRotation")){
       var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-actions="updateRotation" val=<%= planeRotation %></li></ul>');
-      var compiledRotation = rotation(someObj); 
+      var compiledRotation = rotation(someObj);
       body+=compiledRotation;
-    } 
+    }
 
     body=this.toHtml(body);
-    
+
     total = compiledHeader + body;
 
     this.closeAccordion();
@@ -97,8 +97,8 @@ ObjectAttributeView.prototype = Object.create({
       this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
     }
 
-   
-    this.$el.on("change", someObj, function (e){ 
+
+    this.$el.on("change", someObj, function (e){
       // e.data is where our passed in data (from $('change", data, callback)) resides
       // e.target is where the change has occurred
       // e.target.dataset.* can be used to add any additional info as needed
@@ -115,7 +115,7 @@ ObjectAttributeView.prototype = Object.create({
   closeAccordion: function(e){
     //remove any events
     if (this.$el.hasClass("ui-accordion")){
-      this.$el.accordion("destroy"); 
+      this.$el.accordion("destroy");
     }
     this.$el.off("change"); // remove all previous event handlers
     this.$el.empty();
@@ -126,12 +126,13 @@ ObjectAttributeView.prototype = Object.create({
     //set the linetype
     // e.target.value is where our the type is located
     // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
-    this.currentObject.constructionData.type=e.target.value;
+    this.currentObject.constructionData.type = e.target.value;
+    eventBus.trigger("change:scene");
   },
 
   updateGroupModel : function (e){
     var self = this;
-    
+
     // e.data is where our passed in data (from $('change", data, callback)) resides
     // e.target is where the change has occurred
     // e.target.dataset.* can be used to add any additional info as needed (currently set at target.dataset.action="string")
@@ -229,7 +230,7 @@ ObjectAttributeView.prototype = Object.create({
           //get the closest point
           //calculate if there was already an angle applied
           var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt( Math.pow( (point.x - rayClosest.x), 2) + Math.pow( (point.z - rayClosest.z), 2) );
-   
+
           // TODO: Remove all unecessary Radian/Degree conversions
           child.position.setY(yDestination+group.vectorOffset.y);
         }
@@ -256,7 +257,7 @@ ObjectAttributeView.prototype = Object.create({
 
   verifyUp : function (e){
     var group = e.data.parent;
- 
+
     var result = _.any(group.children, function (child){
       if (child.name === "sphere" && child.getWorldPosition().y > 20){
         return true;
@@ -268,4 +269,3 @@ ObjectAttributeView.prototype = Object.create({
   }
 
 });
-

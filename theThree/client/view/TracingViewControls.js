@@ -47,19 +47,18 @@ var TracingViewControls = module.exports = function(tracingView) {
       return;
     }
 
+    if (self.dragTarget && self.dragTarget.parent) {
+      var child = self.dragTarget;
+      var group = child.parent;
+      var newChildren = GeometryMaker.buildGroup(group);
+      group.children = newChildren;
+      eventBus.trigger("change:scene");
+    }
+
     self.dragging = false;
     self.dragTarget = undefined;
     self.dragTargetGrabVector = undefined;
-    self.tracingView.scene.children.forEach(function (child){
-      if (child.type === "Group" && child.name !== "grid"){
-        var newChildren = GeometryMaker.buildGroup(child);
-        //newChildren.mountingPlane = child.mountingPlane;
-        child.children = newChildren;
-        eventBus.trigger("update:mountingPlane", child);
-      }
-    });
   });
-
 };
 
 TracingViewControls.prototype = Object.create({
@@ -173,7 +172,7 @@ TracingViewControls.prototype = Object.create({
             x = object.position.x;
             y = object.position.y;
             z = object.position.z;
-        }        
+        }
         else if (object.name === "sphereChild") {
             x = object.parent.position.x;
             y = object.parent.position.y;
@@ -236,21 +235,20 @@ TracingViewControls.prototype = Object.create({
       group.name = name;
         //reset the shapeQue
       this.shapeQue = [];
-      newChildren.forEach(function (child){ 
+      newChildren.forEach(function (child){
         group.add(child);
       });
       // group.children = newChildren;
       scene.add(group);
-      eventBus.trigger("create:mountingPlane", group);
-
-    }   
+      eventBus.trigger("change:scene");
+    }
     if (event.which === 90 && event.ctlKey){ // z key
       var deleteableItems = ["sphere", "mounting plane shape", "mounting plane tilted", "cylinder"];
       var last = scene.children[scene.children.length-1];
       if (_.any(deleteableItems, function (val) { return val === last.name;})){
         scene.children.pop();
       }
-      
+
     }
     if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();

@@ -1,8 +1,9 @@
 var THREE = require("three.js");
 var util = require("./util");
-var Line = require("../model/Line");
 var extrudeSettings = require("./extrudeSettings");
 var eventBus = require("../lib/eventBus");
+var uid = require("../lib/uid");
+var _ = require("lodash");
 
 
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
@@ -12,7 +13,7 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   //calculate the distance
   var distance = fromPoint.distanceTo(toPoint);
 
-  //create cylinder based onlength 
+  //create cylinder based onlength
   var geometry = new THREE.CylinderGeometry(0.35, 0.35, distance, 32);
   geometry.dynamic=true;
   var material = new THREE.MeshBasicMaterial({
@@ -33,8 +34,10 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   //Set the cylinder to look from one point to the next point
   //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works.
   cylinder.lookAt(new THREE.Vector3(fromPoint.x, 10000000000, fromPoint.z));
-  
-  cylinder.constructionData = new Line( fromPoint, toPoint );
+
+  cylinder.constructionData = {
+    points: [ fromPoint, toPoint ]
+  };
 
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
@@ -67,17 +70,17 @@ module.exports.sphere = function sphere(point, sphereArgs) {
 
   var tbr = makeSphere(point);
   sphereArgs.forEach(function (sphereArg, i) {
-   if (i !== 0) {
-       var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
-       newSphere.name = "sphereChild";
-       tbr.add(newSphere);
-   }
+    if (i !== 0) {
+      var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
+      newSphere.name = "sphereChild";
+      tbr.add(newSphere);
+    }
   });
 
   return tbr;
 };
 
-//this function will take in 3 points, start, fulcrum, end and return a vector that is either + 90, 180 or 270 from the vector produced from start and fulcrum  
+//this function will take in 3 points, start, fulcrum, end and return a vector that is either + 90, 180 or 270 from the vector produced from start and fulcrum
 module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
   //get vector from start fulcrum
   var line1 = start.clone().sub(fulcrum);
@@ -89,7 +92,7 @@ module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
   var cross = line1.clone();
   cross.cross(line2);
 
-  // compare the two vectors 
+  // compare the two vectors
   var angle = line1.angleTo(line2);
 
   var compAngle = util.toDeg(angle);
@@ -111,7 +114,7 @@ module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
   //set the axis to rotate about
   var axis = new THREE.Vector3(0, 1, 0);
   line2.applyAxisAngle(axis, modAngle);
-  //add the fulcrum back in 
+  //add the fulcrum back in
   line2.add(fulcrum);
   return line2;
 };
@@ -224,47 +227,42 @@ module.exports.buildGroup = function buildGroup(group, shapeQue){
 
 
     });
-    
+
 
   } else {
     var spheres = [];
-    
+    var lines = [];
+
     group.children.forEach(function(child, i, array){
       if (child.name === "sphere"){
         addToOutline(child.position, i);
         spheres.push(child);
+      } else if (child.name === "cylinder") {
+        lines.push(child);
       }
     });
     spheres.forEach(function (sphere, i, spheres){
-      newChildren.push(module.exports.sphere(sphere.position));
+      newChildren.push(sphere);
 
-
-      if (spheres.length > 1 && i < spheres.length-1){
-        newChildren.push(module.exports.makeLine(sphere.position, spheres[i+1].position));
-      }
-      if (sphere === spheres[spheres.length-1]){
-        newChildren.push(module.exports.makeLine(sphere.position, spheres[0].position));
-      }
-
-
+      var fromPoint = sphere.position;
+      var toPoint = i < spheres.length - 1 ? spheres[i+1].position : spheres[0].position;
+      var newLine = module.exports.makeLine(fromPoint, toPoint);
+      var oldLine = lines[i];
+      newLine.constructionData = _.extend(oldLine.constructionData, newLine.constructionData);
+      newChildren.push(newLine);
     });
   }
 
-
-
-  //add final line between the first and last points in the shape
-  // newChildren.push(module.exports.makeLine(shapeQue[0], shapeQue[shapeQue.length - 1]));
-  
   var shape = module.exports.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
   shape.name = "mounting plane shape";
   shape.constructionData = {
-    points: shapeQue,  // copy all the points to make this shape 
+    points: shapeQue,  // copy all the points to make this shape
     rotationAxis : undefined, //set by selecting eave or ridge attributes
-    
+
     rotationDegrees : undefined,
     calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
     calculatedRatioMetric : undefined,
-  }; 
+  };
   newChildren.push(shape);
 
   //create the group based on points and construction data
