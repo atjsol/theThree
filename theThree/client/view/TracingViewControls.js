@@ -29,37 +29,8 @@ var TracingViewControls = module.exports = function(tracingView) {
   $(document).on("keydown", function(event) {
     self.handleKeyDown(event); // TODO: FIX ME
   });
-  $("#three-view").mousedown(function(e) {
-    var intersects = self.tracingView.getIntersects();
-    if (intersects.length > 0 && intersects[0].object.parent) {
-      self.objectAttributeView.addToInterface(intersects);
-      self.dragging = true;
-      if (intersects[0].object.parent.name === "sphere") {
-        self.dragTarget = intersects[0].object.parent;
-
-      } else if (intersects[0].object.name === "cylinder") {
-        self.dragTarget = intersects[0].object;
-
-      }
-    }
-  }).mouseup(function(e) {
-    if (!self.dragging) {
-      return;
-    }
-
-    if (self.dragTarget && self.dragTarget.parent) {
-      var child = self.dragTarget;
-      var group = child.parent;
-      var newChildren = GeometryMaker.buildGroup(group);
-      group.children = newChildren;
-      eventBus.trigger("change:scene");
-    }
-
-    self.dragging = false;
-    self.dragTarget = undefined;
-    self.dragTargetGrabVector = undefined;
-  });
-
+  this.$el.on("mousedown", this.handleMouseDown);
+  this.$el.on("mouseup", this.handleMouseUp);
 };
 
 TracingViewControls.prototype = Object.create({
@@ -313,4 +284,40 @@ TracingViewControls.prototype = Object.create({
     // event.preventDefault();
     // event.stopPropagation();
   },
+
+  handleMouseDown: function(e) {
+    var self = this;
+    var intersects = self.tracingView.getIntersects();
+    if (intersects.length > 0 && intersects[0].object.parent) {
+      self.objectAttributeView.addToInterface(intersects);
+      self.dragging = true;
+      if (intersects[0].object.parent.name === "sphere") {
+        self.dragTarget = intersects[0].object.parent;
+
+      } else if (intersects[0].object.name === "cylinder") {
+        self.dragTarget = intersects[0].object;
+
+      }
+    }
+  },
+
+  handleMouseUp: function(e) {
+    var self = this;
+
+    if (!self.dragging) {
+      return;
+    }
+
+    if (self.dragTarget && self.dragTarget.parent) {
+      var child = self.dragTarget;
+      var group = child.parent;
+      var newChildren = GeometryMaker.buildGroup(group);
+      group.children = newChildren;
+      eventBus.trigger("change:scene");
+    }
+
+    self.dragging = false;
+    self.dragTarget = undefined;
+    self.dragTargetGrabVector = undefined;
+  }
 });
