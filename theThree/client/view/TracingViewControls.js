@@ -22,43 +22,20 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.shapeQue = [];
   this.dragging = false;
   this.dragTarget = undefined;
-  this.dragTargetGrabVector=undefined;
+  this.dragTargetGrabVector = undefined;
   this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"), this);
   this.trackMouse();
   //this.$el.on("keyup", this.handleKeyUp);
   $(document).on("keydown", function(event) {
     self.handleKeyDown(event); // TODO: FIX ME
   });
-  $("#three-view").mousedown(function(e) {
-    var intersects = self.tracingView.getIntersects();
-    if (intersects.length > 0 && intersects[0].object.parent){
-      self.objectAttributeView.addToInterface(intersects);
-      self.dragging = true;
-      if (intersects[0].object.parent.name === "sphere"){
-        self.dragTarget = intersects[0].object.parent;
-       
-      } else if (intersects[0].object.name === "cylinder") {
-        self.dragTarget = intersects[0].object;
-        
-      }
-    }
-  }).mouseup(function(e){
-    if (self.dragTarget){
-      var newChildren = GeometryMaker.buildGroup(self.dragTarget.parent);
-      newChildren.forEach(function(child){
-        self.dragTarget.parent.add(child);
-      });
-      self.dragging = false;
-      self.dragTarget = undefined;
-      self.dragTargetGrabVector = undefined;
-    }
-  });
-
+  this.$el.on("mousedown", this.handleMouseDown);
+  this.$el.on("mouseup", this.handleMouseUp);
 };
 
 TracingViewControls.prototype = Object.create({
 
-  setUpOrbitalControls: function () {
+  setUpOrbitalControls: function() {
     var controls = new THREE.OrbitControls(this.tracingView.camera, this.tracingView.renderer.domElement);
     this.controls = controls;
     controls.enableDamping = true;
@@ -96,29 +73,29 @@ TracingViewControls.prototype = Object.create({
           intersects[0].point.z
         );
       }
-      if (self.dragging){
+      if (self.dragging) {
         self.editObject(event);
       }
     });
 
   },
-  editObject : function (event){
+  editObject: function(event) {
     var self = this;
     var intersects = self.tracingView.getIntersects();
-    var x,y,z;
+    var x, y, z;
     _.forEachRight(intersects, function(intersect) {
       var object = intersect.object;
-      if (object.name === "map" && !x ) {
-          x = intersect.point.x;
-          y = intersect.point.y;
-          z = intersect.point.z;
-          if (self.dragTargetGrabVector === undefined){
-            self.dragTargetGrabVector = intersect.point.clone();
-          }
+      if (object.name === "map" && !x) {
+        x = intersect.point.x;
+        y = intersect.point.y;
+        z = intersect.point.z;
+        if (self.dragTargetGrabVector === undefined) {
+          self.dragTargetGrabVector = intersect.point.clone();
+        }
       }
     });
 
-    if (self.dragTarget){
+    if (self.dragTarget) {
       self.dragTarget.position.setX(x);
       self.dragTarget.position.setZ(z);
     }
@@ -143,7 +120,7 @@ TracingViewControls.prototype = Object.create({
     var scene = this.tracingView.scene;
     var shapeQue = self.shapeQue;
 
-    if (event.which === 16){ // shift key
+    if (event.which === 16) { // shift key
       var intersects = self.tracingView.getIntersects();
       this.objectAttributeView.addToInterface(intersects);
     }
@@ -155,23 +132,22 @@ TracingViewControls.prototype = Object.create({
       // get the top layer of intersect
       // look through the current list of intersects (calculated every frame) to see where our mouse hits the map plane
       _.forEachRight(intersects, function(intersect) {
-          var object = intersect.object;
-        if (object.name === "map" && !x ) {
-            x = intersect.point.x;
-            y = intersect.point.y;
-            z = intersect.point.z;
+        var object = intersect.object;
+        if (object.name === "map" && !x) {
+          x = intersect.point.x;
+          y = intersect.point.y;
+          z = intersect.point.z;
         }
 
         //if we happen to hit a sphere- we would like to use the sphere coordinates instead
         else if (object.name === "sphere") {
-            x = object.position.x;
-            y = object.position.y;
-            z = object.position.z;
-        }        
-        else if (object.name === "sphereChild") {
-            x = object.parent.position.x;
-            y = object.parent.position.y;
-            z = object.parent.position.z;
+          x = object.position.x;
+          y = object.position.y;
+          z = object.position.z;
+        } else if (object.name === "sphereChild") {
+          x = object.parent.position.x;
+          y = object.parent.position.y;
+          z = object.parent.position.z;
         }
       });
 
@@ -190,7 +166,7 @@ TracingViewControls.prototype = Object.create({
       if (shapeQue.length > 1) {
 
         //get the most recently added sphere position
-        var cylinder = GeometryMaker.makeLine(shapeQue[shapeQue.length-1], shapeQue[shapeQue.length-2]);
+        var cylinder = GeometryMaker.makeLine(shapeQue[shapeQue.length - 1], shapeQue[shapeQue.length - 2]);
 
         scene.add(cylinder);
       }
@@ -199,7 +175,7 @@ TracingViewControls.prototype = Object.create({
         //add a function to the reqAniFrameArray to recalc the cylinder & mouse position every time.
         this.tracingView.addToAnimationArray(self.animateLine);
       }
-      var position = shapeQue[shapeQue.length-1];
+      var position = shapeQue[shapeQue.length - 1];
       //Add the sphere to the scene to be visible representation of what we have in our queue
       var sphere = GeometryMaker.sphere(position);
 
@@ -208,7 +184,9 @@ TracingViewControls.prototype = Object.create({
 
     if (event.which === 83) { // s key
 
-      if (shapeQue.length < 3) {return;}
+      if (shapeQue.length < 3) {
+        return;
+      }
       //remove the mouseline animation when calculating the total shape
       this.tracingView.resetAnimationArray();
 
@@ -228,23 +206,24 @@ TracingViewControls.prototype = Object.create({
 
       var name = "North Roof"; //jshint ignore:line
       group.name = name;
-        //reset the shapeQue
+      //reset the shapeQue
       this.shapeQue = [];
-      newChildren.forEach(function (child){ 
+      newChildren.forEach(function(child) {
         group.add(child);
       });
       // group.children = newChildren;
       scene.add(group);
-      eventBus.trigger("create:mountingPlane", group);
-
-    }   
-    if (event.which === 90 && event.ctlKey){ // z key
+      eventBus.trigger("change:scene");
+    }
+    if (event.which === 90 && event.ctlKey) { // z key
       var deleteableItems = ["sphere", "mounting plane shape", "mounting plane tilted", "cylinder"];
-      var last = scene.children[scene.children.length-1];
-      if (_.any(deleteableItems, function (val) { return val === last.name;})){
+      var last = scene.children[scene.children.length - 1];
+      if (_.any(deleteableItems, function(val) {
+          return val === last.name;
+        })) {
         scene.children.pop();
       }
-      
+
     }
     if (event.which === 79) { // o key
       orthogonalStatus.invertStatus();
@@ -252,57 +231,93 @@ TracingViewControls.prototype = Object.create({
 
     if (event.which === 49 && event.altKey) // 1
     {
-        // Top View
-        this.tracingView.camera.position.set(0, 500, 0);
-        this.tracingView.camera.up = new THREE.Vector3(0, 0, -1);
-        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // Top View
+      this.tracingView.camera.position.set(0, 500, 0);
+      this.tracingView.camera.up = new THREE.Vector3(0, 0, -1);
+      this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
     if (event.which === 50 && event.altKey) // 2
     {
-        // Right View
-        this.tracingView.camera.position.set(500, 0, 0);
-        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
-        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // Right View
+      this.tracingView.camera.position.set(500, 0, 0);
+      this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+      this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
     if (event.which === 51 && event.altKey) // 3
     {
-        // Left View
-        this.tracingView.camera.position.set(-500, 0, 0);
-        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
-        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // Left View
+      this.tracingView.camera.position.set(-500, 0, 0);
+      this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+      this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
     if (event.which === 52 && event.altKey) // 4
     {
-        // Front View
-        this.tracingView.camera.position.set(0, 0, 500);
-        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
-        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // Front View
+      this.tracingView.camera.position.set(0, 0, 500);
+      this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+      this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
     if (event.which === 53 && event.altKey) // 5
     {
-        // Back View
-        this.tracingView.camera.position.set(0, 0, -500);
-        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
-        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // Back View
+      this.tracingView.camera.position.set(0, 0, -500);
+      this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+      this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
 
     if (event.which === 54 && event.altKey) // 6
     {
-        // Iso View
-        var rotation = 45;
-        var pitch = 35;
-        var x = 500 * Math.cos(30 * Math.PI / 180) * Math.sin((90 - rotation) * Math.PI / 180);
-        var y = 500 * Math.sin(30 * Math.PI / 180);
-        var z = 500 * Math.cos(30 * Math.PI / 180) * Math.sin(rotation * Math.PI / 180);
-        this.tracingView.camera.position.set(x, y, z);
-        this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
-        this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // Iso View
+      var rotation = 45;
+      var pitch = 35;
+      var x = 500 * Math.cos(30 * Math.PI / 180) * Math.sin((90 - rotation) * Math.PI / 180);
+      var y = 500 * Math.sin(30 * Math.PI / 180);
+      var z = 500 * Math.cos(30 * Math.PI / 180) * Math.sin(rotation * Math.PI / 180);
+      this.tracingView.camera.position.set(x, y, z);
+      this.tracingView.camera.up = new THREE.Vector3(0, 1, 0);
+      this.tracingView.camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
     // event.preventDefault();
     // event.stopPropagation();
   },
+
+  handleMouseDown: function(e) {
+    var self = this;
+    var intersects = self.tracingView.getIntersects();
+    if (intersects.length > 0 && intersects[0].object.parent) {
+      self.objectAttributeView.addToInterface(intersects);
+      self.dragging = true;
+      if (intersects[0].object.parent.name === "sphere") {
+        self.dragTarget = intersects[0].object.parent;
+
+      } else if (intersects[0].object.name === "cylinder") {
+        self.dragTarget = intersects[0].object;
+
+      }
+    }
+  },
+
+  handleMouseUp: function(e) {
+    var self = this;
+
+    if (!self.dragging) {
+      return;
+    }
+
+    if (self.dragTarget && self.dragTarget.parent) {
+      var child = self.dragTarget;
+      var group = child.parent;
+      var newChildren = GeometryMaker.buildGroup(group);
+      group.children = newChildren;
+      eventBus.trigger("change:scene");
+    }
+
+    self.dragging = false;
+    self.dragTarget = undefined;
+    self.dragTargetGrabVector = undefined;
+  }
 });

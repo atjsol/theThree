@@ -4,7 +4,7 @@ var THREE = require("three.js");
 var _ = require("lodash");
 var eventBus = require("../lib/eventBus");
 var util = require("../lib/util");
-var GeometryMaker = require ("../lib/GeometryMaker");
+var GeometryMaker = require("../lib/GeometryMaker");
 var extrudeSettings = require("../lib/extrudeSettings");
 
 var ObjectAttributeView = module.exports = function($el, parent) {
@@ -16,17 +16,18 @@ var ObjectAttributeView = module.exports = function($el, parent) {
 
 
 ObjectAttributeView.prototype = Object.create({
-  toHtml : function (val, tag, clas){
-    function brackets (val){
-      return "<"+val+">";
+  toHtml: function(val, tag, clas) {
+    function brackets(val) {
+      return "<" + val + ">";
     }
     tag = tag || "div";
-    clas = clas || ""; 
-    return brackets(tag + " class=" + clas )+val+brackets("/"+tag);
-  }, 
+    clas = clas || "";
+    return brackets(tag + " class=" + clas) + val + brackets("/" + tag);
+  },
 
-  addToInterface : function (objArray){
 
+  addToInterface: function(objArray) {
+    /* beautify preserve:start */
     var self = this;
     //ignore things we do not care about - things we created
     var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
@@ -39,29 +40,29 @@ ObjectAttributeView.prototype = Object.create({
     //only choose the first item
 
     var someObj = this.currentObject = objArray[0].object;
-  
-    
+
+
     var total = "";
     var body = "";
     //create header by object name
     var header = _.template('<h3 class="attribute-list"> <%= name %> <button name="delete" class="delete" type="button" >Del</button> </h3> ');
     var compiledHeader = header(someObj);
-    
 
-    if (someObj.name === "cylinder"){   
+
+    if (someObj.name === "cylinder"){
       var distance = _.template('<h5>Length</h5>'
         +'<ul class="attribute-list"><li>Computed Length : <%= length %>px</li>'
         +'<li>Real World Length :<input type="number"> </li></ul>'
       );
       var length = someObj.constructionData.points[0].distanceTo(someObj.constructionData.points[1]);
-      var compiledDistance = distance({length:length}); 
+      var compiledDistance = distance({length:length});
       body+=compiledDistance;
 
       var attributes = _.template('<h5>Attributes</h5>'
         +'<input type="radio" name="type" data-actions="setEaveVector assignType" value="EAVE">Eave'
         +'<input type="radio" name="type" data-actions="assignType" value="RIDGE">Ridge'
         +'<input type="radio" name="type" data-actions="assignType" value="VALLEY">Valley'
-        +'<input type="radio" name="type" data-actions="assignType" value="HIP">Hip' 
+        +'<input type="radio" name="type" data-actions="assignType" value="HIP">Hip'
         +'<input type="radio" name="type" data-actions="assignType" value="RAKE">Rake'
         +'<input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash'
         +'<input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing'
@@ -87,11 +88,12 @@ ObjectAttributeView.prototype = Object.create({
       + '</div>');
     
     
+
     if (someObj.hasOwnProperty("planeRotation")){
       var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-actions="updateRotation" val=<%= planeRotation %></li></ul>');
-      var compiledRotation = rotation(someObj); 
+      var compiledRotation = rotation(someObj);
       body+=compiledRotation;
-    } 
+    }
 
     body=this.toHtml(body);
     this.$el.off();
@@ -126,7 +128,7 @@ ObjectAttributeView.prototype = Object.create({
       }
     });
 
-    this.$el.on("change", someObj, function (e){ 
+    this.$el.on("change", someObj, function (e){
       // e.data is where our passed in data (from $('change", data, callback)) resides
       // e.target is where the change has occurred
       // e.target.dataset.* can be used to add any additional info as needed
@@ -138,12 +140,14 @@ ObjectAttributeView.prototype = Object.create({
       collapsible:true,
       heightstyle:"content",
     });
+    /* beautify preserve:end */
   },
 
   removeFromScene : function (sceneMember){
    
     if(sceneMember && sceneMember.parent){
       if (sceneMember && sceneMember.parent.type === "Scene"){
+
         // sceneMember.parent.remove(sceneMember);
         this.parent.tracingView.scene.remove(sceneMember);
       } else {
@@ -151,47 +155,48 @@ ObjectAttributeView.prototype = Object.create({
       }
     }
   },
-  closeAccordion : function(e){
+  closeAccordion: function(e) {
     //remove any events
-    if (this.$el.hasClass("ui-accordion")){
-      this.$el.accordion("destroy"); 
+    if (this.$el.hasClass("ui-accordion")) {
+      this.$el.accordion("destroy");
     }
     this.$el.off(); // remove all previous event handlers
     this.$el.empty();
   },
 
-  assignType : function (e){
+  assignType: function(e) {
     //search through the lines and find where the points match up
     //set the linetype
     // e.target.value is where our the type is located
     // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
-    this.currentObject.constructionData.type=e.target.value;
+    this.currentObject.constructionData.type = e.target.value;
+    eventBus.trigger("change:scene");
   },
 
-  updateGroupModel : function (e){
+  updateGroupModel: function(e) {
     var self = this;
-    
+
     // e.data is where our passed in data (from $('change", data, callback)) resides
     // e.target is where the change has occurred
     // e.target.dataset.* can be used to add any additional info as needed (currently set at target.dataset.action="string")
     // var name = evnt.target.name.split(" ");
     var actions = e.target.dataset.actions;
     var actionArray = actions.split(" ");
-    actionArray.forEach(function (action){
+    actionArray.forEach(function(action) {
       self[action](e);
     });
   },
-  setX: function (e){
+  setX: function(e) {
     e.data.parent.position.setX(e.target.value);
   },
-  setY: function (e){
+  setY: function(e) {
     e.data.parent.position.setY(e.target.value);
   },
-  setZ: function (e){
+  setZ: function(e) {
     e.data.parent.position.setZ(e.target.value);
   },
 
-  setEaveVector : function (e){
+  setEaveVector: function(e) {
     //get the two points used to make the cylinder
     //subtract them from each other to get a resultant vector
     // normalize the vector because the set rotation is expecting normalized.
@@ -209,7 +214,7 @@ ObjectAttributeView.prototype = Object.create({
     //TODO:  Ensure all other lines are not set as eave for this mounting plane
   },
 
-  updateRotation : function (e){
+  updateRotation: function(e) {
     //apply rotation to group
     // rebuild the group based on sphere positions
     // the plane will have to grow in proportion to the rotation i.e. create a new shape
@@ -237,13 +242,13 @@ ObjectAttributeView.prototype = Object.create({
 
   },
 
-  translatePointforRotation : function (e){
+  translatePointforRotation: function(e) {
     var self = this;
     var group = e.data.parent;
     var newMountingPlanePath = [];
     var newShapePath = [];
-    group.children.forEach(function(child){
-      if (child.name === "sphere"){
+    group.children.forEach(function(child) {
+      if (child.name === "sphere") {
 
         var point = child.getWorldPosition();
         point.y = group.vectorOffset.y;
@@ -255,28 +260,27 @@ ObjectAttributeView.prototype = Object.create({
         var ray = new THREE.Ray(offset, normal);
 
 
-
         // create the ray for comparisons
         // get the distance of the closest point
         var rayClosest = ray.closestPointToPoint(point);
         var rayDist = rayClosest.distanceTo(point);
-        if (rayDist < 0.05 ){
+        if (rayDist < 0.05) {
           newShapePath.push(point);
         } else {
           //allow for some error tolerence from calculations
           newShapePath.push(self.calcPathPoint(rayClosest, point, e.target.value));
           //get the closest point
           //calculate if there was already an angle applied
-          var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt( Math.pow( (point.x - rayClosest.x), 2) + Math.pow( (point.z - rayClosest.z), 2) );
-   
+          var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt(Math.pow((point.x - rayClosest.x), 2) + Math.pow((point.z - rayClosest.z), 2));
+
           // TODO: Remove all unecessary Radian/Degree conversions
-          child.position.setY(yDestination+group.vectorOffset.y);
+          child.position.setY(yDestination + group.vectorOffset.y);
         }
       }
     });
     return newShapePath;
   },
-  calcPathPoint : function (closestPoint, point, degree){
+  calcPathPoint: function(closestPoint, point, degree) {
     var vector1 = closestPoint.clone();
     var vector2 = point.clone();
     var originVector = vector2.clone().sub(vector1);
@@ -287,17 +291,17 @@ ObjectAttributeView.prototype = Object.create({
     var updatedDist = distance * Math.cos(util.toRad(degree));
     originVector.setLength(updatedDist);
     vector2.add(originVector);
-    console.log(point,vector1);
+    console.log(point, vector1);
     return vector2;
 
 
   },
 
-  verifyUp : function (e){
+  verifyUp: function(e) {
     var group = e.data.parent;
- 
-    var result = _.any(group.children, function (child){
-      if (child.name === "sphere" && child.getWorldPosition().y > 20){
+
+    var result = _.any(group.children, function(child) {
+      if (child.name === "sphere" && child.getWorldPosition().y > 20) {
         return true;
       } else {
         return false;
@@ -307,4 +311,3 @@ ObjectAttributeView.prototype = Object.create({
   }
 
 });
-

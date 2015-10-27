@@ -27,8 +27,15 @@ Model.extend(MountingPlane, {
   getLines: function() {
     return this.lines;
   },
-  calculateAzimuth: function(){
 
+  calculateAzimuth: function() {
+
+  },
+
+  updateFromThreeGroup: function(group) {
+    var temp = MountingPlane.fromThreeGroup(group);
+    this.points = temp.points;
+    this.lines = temp.lines;
   }
 
 });
@@ -38,20 +45,26 @@ MountingPlane.fromThreeGroup = function(group) {
   var lines = [];
   _.each(group.children, function(child) {
     switch (child.name) {
-      case "sphere":{
-        points.push(child.position);
-        child.position.id = uid.incremental("C");
-        break;
-        
-      }
-      case "cylinder": {
-        var lineData = child.constructionData;
-        lines.push(lineData);
-        break;
-      }
+      case "sphere":
+        {
+          points.push(child.position);
+          if (!child.position.id) {
+            child.position.id = uid.incremental("C");
+          }
+          break;
+
+        }
+      case "cylinder":
+        {
+          lines.push(child);
+          break;
+        }
     }
   });
 
-  var mountingPlane = new MountingPlane(group.name, points, lines);
+  var mountingPlane = new MountingPlane(group.name, points);
+  _.each(mountingPlane.lines, function(line, i) {
+    line.type = lines[i].constructionData.type;
+  });
   return mountingPlane;
 };

@@ -11,5 +11,15 @@ Model.extend(Structure, {
   addMountingPlane: function(mountingPlane) {
     this.mountingPlanes.push(mountingPlane);
     this.trigger("change");
+  },
+
+  getMountingPlane: function(id) {
+    return _.findWhere(this.mountingPlanes, {
+      id: id
+    });
+  },
+
+  reset: function() {
+    this.mountingPlanes = [];
   }
 });

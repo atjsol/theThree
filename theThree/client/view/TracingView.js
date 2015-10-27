@@ -6,10 +6,10 @@ var util = require("../lib/util");
 var TracingViewControls = require("./TracingViewControls");
 var MountingPlane = require("../model/MountingPlane");
 
-var TracingView = module.exports = function($el, job) {
+var TracingView = module.exports = function($el) {
   _.bindAll(this);
+  var self = this;
   this.$el = $el;
-  this.job = job;
   this.width = window.innerWidth;
   this.height = window.innerHeight;
   this.animationArray = [];
@@ -18,13 +18,6 @@ var TracingView = module.exports = function($el, job) {
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
-
-  eventBus.bind("create:mountingPlane", function(group) {
-    var structure = job.getStructure(0);
-    var mountingPlane = MountingPlane.fromThreeGroup(group);
-    structure.addMountingPlane(mountingPlane);
-    group.mountingPlane = mountingPlane; // add reference to model
-  });
 };
 
 TracingView.prototype = Object.create({
@@ -37,7 +30,7 @@ TracingView.prototype = Object.create({
 
   setupScene: function() {
     var self = this;
-    //Create the basic scene for this to work.  
+    //Create the basic scene for this to work.
     //Make a scene
     //Make a camera
     //Set the camera Position
@@ -82,7 +75,7 @@ TracingView.prototype = Object.create({
       //if ( canvasRenderer ) {canvasRenderer.setSize( window.innerWidth, window.innerHeight );}
     }, false);
   },
- 
+
   drawGrid: function(spacing, rows, gridOffset) {
     // This function draws a grid
     spacing = spacing ? spacing : 20;
@@ -98,14 +91,14 @@ TracingView.prototype = Object.create({
       vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, -rows * spacing / 2));
       vert.vertices.push(new THREE.Vector3(spacing * i - offsetCenter, gridOffset, rows * spacing / 2));
       var lineV = new THREE.Line(vert, material);
-      lineV.name="lineV";
+      lineV.name = "lineV";
       group.add(lineV);
 
       var horiz = new THREE.Geometry();
       horiz.vertices.push(new THREE.Vector3(-rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
       horiz.vertices.push(new THREE.Vector3(rows * spacing / 2, gridOffset, spacing * i - offsetCenter));
       var lineH = new THREE.Line(horiz, material);
-      lineH.name="lineH";
+      lineH.name = "lineH";
       group.add(lineH);
     }
     group.name = "grid";
@@ -128,7 +121,6 @@ TracingView.prototype = Object.create({
     cursor.name = "cursor";
     this.scene.add(cursor);
   },
-
 
 
   getIntersects: function() {
