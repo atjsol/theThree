@@ -30,7 +30,9 @@ module.exports = function(grunt) {
             ],
             options: {
                 js: {
-                    indentSize:2
+                    indentSize:2,
+                    maxPreserveNewlines: 3,
+                    preserveNewlines: true
                 },
                 html: {
                     indentSize:2
@@ -44,5 +46,5 @@ module.exports = function(grunt) {
 
     grunt.registerTask("default", ["jshint"]);
 
-    grunt.registerTask("format", ["jshint:client", "jsbeautifier"]);
+    grunt.registerTask("format", ["jsbeautifier"]);
 };

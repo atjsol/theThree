@@ -34,8 +34,8 @@ Model.extend(Job, {
   rebuild: function(scene) {
     var structure = this.getStructure(0);
     structure.reset();
-    scene.children.forEach(function (child){
-      if (child.type === "Group" && child.name !== "grid"){
+    scene.children.forEach(function(child) {
+      if (child.type === "Group" && child.name !== "grid") {
         var mountingPlane = MountingPlane.fromThreeGroup(child);
         structure.addMountingPlane(mountingPlane);
       }

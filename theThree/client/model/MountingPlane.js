@@ -28,7 +28,7 @@ Model.extend(MountingPlane, {
     return this.lines;
   },
 
-  calculateAzimuth: function(){
+  calculateAzimuth: function() {
 
   },
 
@@ -45,22 +45,24 @@ MountingPlane.fromThreeGroup = function(group) {
   var lines = [];
   _.each(group.children, function(child) {
     switch (child.name) {
-      case "sphere":{
-        points.push(child.position);
-        if (!child.position.id) {
-          child.position.id = uid.incremental("C");
-        }
-        break;
+      case "sphere":
+        {
+          points.push(child.position);
+          if (!child.position.id) {
+            child.position.id = uid.incremental("C");
+          }
+          break;
 
-      }
-      case "cylinder": {
-        lines.push(child);
-        break;
-      }
+        }
+      case "cylinder":
+        {
+          lines.push(child);
+          break;
+        }
     }
   });
 
-  var mountingPlane = new MountingPlane(group.name, points); 
+  var mountingPlane = new MountingPlane(group.name, points);
   _.each(mountingPlane.lines, function(line, i) {
     line.type = lines[i].constructionData.type;
   });

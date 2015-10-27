@@ -16,12 +16,11 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
 
   var helperPoint;
   if (Math.abs(toPoint.y - fromPoint.y) > 1) {
-        helperPoint = new THREE.Vector3(fromPoint.x, toPoint.y, fromPoint.z);
-        //helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
-    }
-    else {
-        helperPoint = new THREE.Vector3(fromPoint.x, fromPoint.y + 1000000, fromPoint.z);
-    }
+    helperPoint = new THREE.Vector3(fromPoint.x, toPoint.y, fromPoint.z);
+    //helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
+  } else {
+    helperPoint = new THREE.Vector3(fromPoint.x, fromPoint.y + 1000000, fromPoint.z);
+  }
 
   var helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
   var cross1 = direction.clone().cross(helperdirection.clone());
@@ -50,12 +49,12 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   cylinder.position.z = mid.z;
 
   //Set the cylinder to look from one point to the next point
-    //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works
+  //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works
   cylinder.lookAt(cross2); //toPoint.x, 10000000000, toPoint.z));
 
 
   cylinder.constructionData = {
-    points: [ fromPoint, toPoint ]
+    points: [fromPoint, toPoint]
   };
 
   //return the line so that it can be used by whoever called it.
@@ -63,14 +62,15 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   return cylinder;
 };
 
-module.exports.makeSphere = function makeSphere(point, size, materialArgs)
-{
+module.exports.makeSphere = function makeSphere(point, size, materialArgs) {
   //Add the sphere to the scene to be visible representation of what we have in our queue
   size = size || 0.5;
-  materialArgs = materialArgs || { color: 0xffff00 };
+  materialArgs = materialArgs || {
+    color: 0xffff00
+  };
 
   var geometry = new THREE.SphereGeometry(size, 32, 32);
-  geometry.dynamic=true;
+  geometry.dynamic = true;
   var material = new THREE.MeshBasicMaterial(materialArgs);
 
   var sphere = new THREE.Mesh(geometry, material);
@@ -84,11 +84,17 @@ module.exports.makeSphere = function makeSphere(point, size, materialArgs)
 // sphereArgs = [[size, materialArgs],[size, materialArgs]...] accepts any number of spheres
 module.exports.sphere = function sphere(point, sphereArgs) {
 
-  sphereArgs = sphereArgs || [[undefined, undefined], [3, { transparent: true, opacity: 0.25 }]];
+  sphereArgs = sphereArgs || [
+    [undefined, undefined],
+    [3, {
+      transparent: true,
+      opacity: 0.25
+    }]
+  ];
   var makeSphere = module.exports.makeSphere;
 
   var tbr = makeSphere(point);
-  sphereArgs.forEach(function (sphereArg, i) {
+  sphereArgs.forEach(function(sphereArg, i) {
     if (i !== 0) {
       var newSphere = makeSphere(new THREE.Vector3(0, 0, 0), sphereArg[0], sphereArg[1]);
       newSphere.name = "sphereChild";
@@ -158,14 +164,18 @@ module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y,
 
   // // flat shape
 
-  var geometry = new THREE.ShapeGeometry( shape );
-  geometry.dynamic=true;
+  var geometry = new THREE.ShapeGeometry(shape);
+  geometry.dynamic = true;
 
-  var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { wireframe:false, color: color, side: THREE.DoubleSide } ) );
-  mesh.position.set( x, y, z);
-  mesh.rotation.set( rx, ry, rz );
-  mesh.scale.set( s, s, s );
-  mesh.planeRotation=0;
+  var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+    wireframe: false,
+    color: color,
+    side: THREE.DoubleSide
+  }));
+  mesh.position.set(x, y, z);
+  mesh.rotation.set(rx, ry, rz);
+  mesh.scale.set(s, s, s);
+  mesh.planeRotation = 0;
 
   // var group = new THREE.Group();
   // group.add( mesh );
@@ -222,11 +232,12 @@ module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y,
   return mesh;
 };
 
-module.exports.buildGroup = function buildGroup(group, shapeQue){
+module.exports.buildGroup = function buildGroup(group, shapeQue) {
   shapeQue = shapeQue || [];
   group = group || new THREE.Group();
   var newChildren = [];
   var newOutline = new THREE.Shape();
+
   function addToOutline(point, i, array) {
     if (i === 0) {
       newOutline.moveTo(point.x, point.z);
@@ -234,12 +245,12 @@ module.exports.buildGroup = function buildGroup(group, shapeQue){
       newOutline.lineTo(point.x, point.z);
     }
   }
-  if (shapeQue.length > 2){
-    shapeQue.forEach(function (point, i, array){
+  if (shapeQue.length > 2) {
+    shapeQue.forEach(function(point, i, array) {
       addToOutline(point, i);
       newChildren.push(module.exports.sphere(point));
-      if (i+1 < array.length){
-        newChildren.push(module.exports.makeLine(point, array[i+1]));
+      if (i + 1 < array.length) {
+        newChildren.push(module.exports.makeLine(point, array[i + 1]));
       } else {
         newChildren.push(module.exports.makeLine(array[0], point));
       }
@@ -252,19 +263,19 @@ module.exports.buildGroup = function buildGroup(group, shapeQue){
     var spheres = [];
     var lines = [];
 
-    group.children.forEach(function(child, i, array){
-      if (child.name === "sphere"){
+    group.children.forEach(function(child, i, array) {
+      if (child.name === "sphere") {
         addToOutline(child.position, i);
         spheres.push(child);
       } else if (child.name === "cylinder") {
         lines.push(child);
       }
     });
-    spheres.forEach(function (sphere, i, spheres){
+    spheres.forEach(function(sphere, i, spheres) {
       newChildren.push(sphere);
 
       var fromPoint = sphere.position;
-      var toPoint = i < spheres.length - 1 ? spheres[i+1].position : spheres[0].position;
+      var toPoint = i < spheres.length - 1 ? spheres[i + 1].position : spheres[0].position;
       var newLine = module.exports.makeLine(fromPoint, toPoint);
       var oldLine = lines[i];
       newLine.constructionData = _.extend(oldLine.constructionData, newLine.constructionData);
@@ -275,12 +286,12 @@ module.exports.buildGroup = function buildGroup(group, shapeQue){
   var shape = module.exports.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
   shape.name = "mounting plane shape";
   shape.constructionData = {
-    points: shapeQue,  // copy all the points to make this shape
-    rotationAxis : undefined, //set by selecting eave or ridge attributes
+    points: shapeQue, // copy all the points to make this shape
+    rotationAxis: undefined, //set by selecting eave or ridge attributes
 
-    rotationDegrees : undefined,
-    calculatedRatioImperial : undefined,  //displayed 1= some ratio in feet and inches
-    calculatedRatioMetric : undefined,
+    rotationDegrees: undefined,
+    calculatedRatioImperial: undefined, //displayed 1= some ratio in feet and inches
+    calculatedRatioMetric: undefined,
   };
   newChildren.push(shape);
 
