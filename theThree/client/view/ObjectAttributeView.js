@@ -26,6 +26,7 @@ ObjectAttributeView.prototype = Object.create({
   }, 
 
   addToInterface : function (objArray){
+
     var self = this;
     //ignore things we do not care about - things we created
     var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
@@ -80,6 +81,11 @@ ObjectAttributeView.prototype = Object.create({
       +'</ul>');
     var compiledPosition = position(someObj.getWorldPosition());
     body += compiledPosition;
+
+    var dialog = _.template('<div id="dialog-confirm" title="<%= title %>">'
+      + '<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><%=  text %></p>'
+      + '</div>');
+    
     
     if (someObj.hasOwnProperty("planeRotation")){
       var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRoataion" data-actions="updateRotation" val=<%= planeRotation %></li></ul>');
@@ -88,7 +94,8 @@ ObjectAttributeView.prototype = Object.create({
     } 
 
     body=this.toHtml(body);
-    
+    this.$el.off();
+
     total = compiledHeader + body;
 
     this.closeAccordion();
@@ -99,8 +106,23 @@ ObjectAttributeView.prototype = Object.create({
     }
 
     this.$el.on("click",someObj, function (e){
+
       if (e.target.name === "delete" && someObj.parent !== null){
-        self.removeFromScene(someObj);
+        self.$el.append(dialog({title: "Delete Mounting Plane", text : "Are you sure you want to delete " + someObj.parent.name + "?" }));
+        $( "#dialog-confirm" ).dialog({
+          resizable: false,
+          height:300,
+          modal: true,
+          buttons: {
+            "Yes": function() {
+              self.removeFromScene(someObj);
+              $( this ).dialog( "close" );
+            },
+            Cancel: function() {
+              $( this ).dialog( "close" );
+            }
+          }
+        });
       }
     });
 
@@ -119,10 +141,7 @@ ObjectAttributeView.prototype = Object.create({
   },
 
   removeFromScene : function (sceneMember){
-    // // debugger
-    // this.parent.tracingView.scene.traverse(function(level){
-    //   level.remove(sceneMember);
-    // });
+   
     if(sceneMember && sceneMember.parent){
       if (sceneMember && sceneMember.parent.type === "Scene"){
         // sceneMember.parent.remove(sceneMember);
@@ -137,7 +156,7 @@ ObjectAttributeView.prototype = Object.create({
     if (this.$el.hasClass("ui-accordion")){
       this.$el.accordion("destroy"); 
     }
-    this.$el.off("change"); // remove all previous event handlers
+    this.$el.off(); // remove all previous event handlers
     this.$el.empty();
   },
 

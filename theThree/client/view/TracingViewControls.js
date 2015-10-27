@@ -226,7 +226,7 @@ TracingViewControls.prototype = Object.create({
         }
       }
 
-      var name = prompt("Please name this Object", "North Roof"); //jshint ignore:line
+      var name = "North Roof"; //jshint ignore:line
       group.name = name;
         //reset the shapeQue
       this.shapeQue = [];
