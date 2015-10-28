@@ -334,5 +334,14 @@ TracingViewControls.prototype = Object.create({
     self.dragging = false;
     self.dragTarget = undefined;
     self.dragTargetGrabVector = undefined;
+  },
+
+  alignCamera: function(theta) {
+    var oldNoRotate = this.controls.noRotate;
+    this.controls.reset();
+    this.controls.noRotate = false;
+    this.controls.rotateLeft(-1 * (Math.PI / 2 + theta));
+    this.controls.update();
+    this.controls.noRotate = oldNoRotate;
   }
 });

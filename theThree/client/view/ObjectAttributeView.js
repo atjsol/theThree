@@ -321,16 +321,13 @@ ObjectAttributeView.prototype = Object.create({
 
   alignToGrid: function(e) {
     var currentObject = this.currentObject;
-    if (currentObject && currentObject.constructionData &&  currentObject.constructionData.points) {
+    if (currentObject && currentObject.constructionData && currentObject.constructionData.points) {
       var points = currentObject.constructionData.points;
       var a = points[0].clone();
       var b = points[1].clone();
       var c = a.sub(b).normalize();
       var theta = Math.atan2(c.x, c.z);
-      var axis = new THREE.Vector3(0, 1, 0);
-      var grid = this.parent.tracingView.scene.getObjectByName("grid");
-      grid.rotation.set(0,0,0);
-      grid.rotateY(theta);
+      this.parent.tracingView.align(theta);
     }
   }
 
