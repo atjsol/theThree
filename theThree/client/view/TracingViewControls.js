@@ -328,7 +328,7 @@ TracingViewControls.prototype = Object.create({
       var group = child.parent;
       var newChildren = GeometryMaker.buildGroup(group);
       // group.children = newChildren;
-      newChildren.forEach(function(child){
+      newChildren.forEach(function(child) {
         group.add(child);
       });
       eventBus.trigger("change:scene");
@@ -339,5 +339,14 @@ TracingViewControls.prototype = Object.create({
       self.dragTargetGrabVector = undefined;
 
     }
+  },
+
+  alignCamera: function(theta) {
+    var oldNoRotate = this.controls.noRotate;
+    this.controls.reset();
+    this.controls.noRotate = false;
+    this.controls.rotateLeft(-1 * (Math.PI / 2 + theta));
+    this.controls.update();
+    this.controls.noRotate = oldNoRotate;
   }
 });
