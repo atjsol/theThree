@@ -332,7 +332,13 @@ TracingViewControls.prototype = Object.create({
         group.add(child);
       });
       eventBus.trigger("change:scene");
-      // this.objectAttributeView.updateRotation({data:self.dragTarget});
+      if (self.dragTarget.parent.hasOwnProperty("rotationVector")){
+        this.objectAttributeView.updateRotation({
+          data:self.dragTarget, 
+          target:{value:self.dragTarget.parent.rotationVector.applied}
+        });
+
+      }
 
       self.dragging = false;
       self.dragTarget = undefined;
