@@ -60,19 +60,23 @@ ObjectAttributeView.prototype = Object.create({
       body+=compiledDistance;
 
       var attributes = _.template('<h5>Attributes</h5>'
-        +'<input type="radio" name="type" data-actions="setEaveVector assignType" value="EAVE">Eave'
-        +'<input type="radio" name="type" data-actions="assignType" value="RIDGE">Ridge'
-        +'<input type="radio" name="type" data-actions="assignType" value="VALLEY">Valley'
-        +'<input type="radio" name="type" data-actions="assignType" value="HIP">Hip'
-        +'<input type="radio" name="type" data-actions="assignType" value="RAKE">Rake'
-        +'<input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash'
-        +'<input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing'
+        +'<label><input type="radio" name="type" data-actions="assignType setEaveVector" value="EAVE">Eave</label>'
+        +'<label><input type="radio" name="type" data-actions="assignType" value="RIDGE">Ridge</label>'
+        +'<label><input type="radio" name="type" data-actions="assignType" value="VALLEY">Valley</label>'
+        +'<label><input type="radio" name="type" data-actions="assignType" value="HIP">Hip</label>'
+        +'<label><input type="radio" name="type" data-actions="assignType" value="RAKE">Rake</label>'
+        +'<label><input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash</label>'
+        +'<label><input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing</label>'
       );
       var compiledAttributes = attributes({});
-      var bisect = _.template('<h5><button name="bisectLine" data-actions="bisectLine" type="button">Bisect Line </button></h5><div></div>')
+      var bisect = _.template('<h5><button class="bisectLine" data-actions="bisectLine" type="button">Bisect Line </button></h5><div></div>')
       var compiledBisect = bisect({});
       body+= compiledAttributes + compiledBisect;
 
+      var alignControls = '<h5>Alignment</h5>' +
+        '<button class="alignButton">Align to Grid</button>';
+
+      body += alignControls;
     }
 
     var position = _.template(
@@ -109,31 +113,26 @@ ObjectAttributeView.prototype = Object.create({
       this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
     }
 
-    this.$el.on("click",someObj, function (e){
-      if (e.target.name === "bisectLine"){
-        self.bisectLine(e);
-
-
-      }
-
-      if (e.target.name === "delete" && someObj.parent !== null){
-        self.$el.append(dialog({title: "Delete Mounting Plane", text : "Are you sure you want to delete " + someObj.parent.name + "?" }));
-        $( "#dialog-confirm" ).dialog({
-          resizable: false,
-          height:300,
-          modal: true,
-          buttons: {
-            "Yes": function() {
-              self.removeFromScene(someObj);
-              $( this ).dialog( "close" );
-            },
-            Cancel: function() {
-              $( this ).dialog( "close" );
-            }
+    this.$el.on("click", ".bisectLine", someObj, this.bisectLine);
+    this.$el.on("click", ".alignButton", this.alignToGrid);
+    this.$el.on("click", ".delete", function (e){
+      self.$el.append(dialog({title: "Delete Mounting Plane", text : "Are you sure you want to delete " + someObj.parent.name + "?" }));
+      $( "#dialog-confirm" ).dialog({
+        resizable: false,
+        height:300,
+        modal: true,
+        buttons: {
+          "Yes": function() {
+            self.removeFromScene(someObj);
+            $( this ).dialog( "close" );
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
           }
-        });
-      }
+        }
+      });
     });
+
 
     this.$el.on("change", someObj, function (e){
       // e.data is where our passed in data (from $('change", data, callback)) resides
@@ -174,7 +173,6 @@ ObjectAttributeView.prototype = Object.create({
   },
 
   assignType: function(e) {
-    //search through the lines and find where the points match up
     //set the linetype
     // e.target.value is where our the type is located
     // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
@@ -192,6 +190,7 @@ ObjectAttributeView.prototype = Object.create({
     var actions = e.target.dataset.actions;
     if (actions){
       var actionArray = actions.split(" "); 
+
       actionArray.forEach(function(action) {
         self[action](e);
       });
@@ -215,18 +214,23 @@ ObjectAttributeView.prototype = Object.create({
     //get the two points used to make the cylinder
     //subtract them from each other to get a resultant vector
     // normalize the vector because the set rotation is expecting normalized.
-    var vector1 = e.data.constructionData.points[0].clone();
-    var vector2 = e.data.constructionData.points[1].clone();
-    var normalized = vector1.clone().sub(vector2).normalize();
+    if (this.currentObject) {
+      var constructionData = this.currentObject.constructionData;
+      var vector1 = constructionData.points[0].clone();
+      var vector2 = constructionData.points[1].clone();
+      var normalized = vector1.clone().sub(vector2).normalize();
 
-
-    //sets the group level as holder of the rotation vector
-    e.data.parent.rotationVector = {};
-    e.data.parent.rotationVector.normal = normalized;
-    e.data.parent.rotationVector.start = vector1;
-    e.data.parent.rotationVector.end = vector2;
-    e.data.parent.vectorOffset = e.data.constructionData.points[1].clone();
-    //TODO:  Ensure all other lines are not set as eave for this mounting plane
+      /*var parent = this.currentObject.parent;
+      if (parent) {
+        //sets the group level as holder of the rotation vector
+        parent.rotationVector = {};
+        parent.rotationVector.normal = normalized;
+        parent.rotationVector.start = vector1;
+        parent.rotationVector.end = vector2;
+        parent.vectorOffset = vector2.clone();
+        //TODO:  Ensure all other lines are not set as eave for this mounting plane
+      }*/
+    }
   },
 
   updateRotation: function(e) {
@@ -256,7 +260,7 @@ ObjectAttributeView.prototype = Object.create({
   },
 
   translatePointforRotation: function(e) {
-    if (e.target.value !== undefined && e.data.parent && e.data.parent.rotationVector){
+    if (e.target.value !== undefined && e.data.parent && e.data.parent.rotationVector) {
       e.data.parent.rotationVector.applied = e.target.value || e.data.parent.rotationVector.applied;
       var self = this;
       var group = e.data.parent;
@@ -295,7 +299,7 @@ ObjectAttributeView.prototype = Object.create({
       });
       return newShapePath;
 
-      
+
     }
   },
   calcPathPoint: function(closestPoint, point, degree) {
@@ -326,7 +330,7 @@ ObjectAttributeView.prototype = Object.create({
     });
     return result;
   },
-  bisectLine : function (e){
+  bisectLine: function(e) {
     console.log(e);
     //e.data is the line
     //e.data.constructionData.points are the data points from and to for the line
@@ -341,6 +345,7 @@ ObjectAttributeView.prototype = Object.create({
       if (fromPoint === child.position){
         insertIndex = i;
       }
+
     });
     //calculate a middle point between the two points
     var mid = util.getMid(fromPoint, toPoint);
@@ -349,8 +354,9 @@ ObjectAttributeView.prototype = Object.create({
     var newSphere = GeometryMaker.sphere(pos);
     var line1 = GeometryMaker.makeLine(fromPoint, pos);
     var line2 = GeometryMaker.makeLine(pos, toPoint);
+
     var temp = [];
-    for (var i = group.children.length-1; i>=0; i--){
+    for (var i = group.children.length - 1; i >= 0; i--) {
       temp.push(group.children[i]);
       group.remove(group.children[i]);
     }
@@ -363,6 +369,18 @@ ObjectAttributeView.prototype = Object.create({
       group.add(item);
     });
     
-  }
+  },
 
+
+  alignToGrid: function(e) {
+    var currentObject = this.currentObject;
+    if (currentObject && currentObject.constructionData && currentObject.constructionData.points) {
+      var points = currentObject.constructionData.points;
+      var a = points[0].clone();
+      var b = points[1].clone();
+      var c = a.x <= b.x ? a.sub(b) : b.sub(a);
+      var theta = Math.atan2(c.x, c.z);
+      this.parent.tracingView.align(theta);
+    }
+  }
 });

@@ -218,5 +218,15 @@ TracingView.prototype = Object.create({
       plane.name = "map";
       self.scene.add(plane);
     };
+  },
+
+  align: function(theta) {
+    this.alignment = theta;
+    var axis = new THREE.Vector3(0, 1, 0);
+    var grid = this.scene.getObjectByName("grid");
+    grid.rotation.set(0, 0, 0);
+    grid.rotateY(theta);
+
+    this.controls.alignCamera(theta);
   }
 });
