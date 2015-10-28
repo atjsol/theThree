@@ -327,12 +327,17 @@ TracingViewControls.prototype = Object.create({
       var child = self.dragTarget;
       var group = child.parent;
       var newChildren = GeometryMaker.buildGroup(group);
-      group.children = newChildren;
+      // group.children = newChildren;
+      newChildren.forEach(function(child){
+        group.add(child);
+      });
       eventBus.trigger("change:scene");
-    }
+      // this.objectAttributeView.updateRotation({data:self.dragTarget});
 
-    self.dragging = false;
-    self.dragTarget = undefined;
-    self.dragTargetGrabVector = undefined;
+      self.dragging = false;
+      self.dragTarget = undefined;
+      self.dragTargetGrabVector = undefined;
+
+    }
   }
 });

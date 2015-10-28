@@ -41,7 +41,7 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
 
   //create a line to get the mid point via function
   var line = new THREE.Line3(fromPoint, toPoint); //new THREE.Vector3(toPoint.x, 20, toPoint.z));
-  var mid = line.center();
+  var mid = util.getMid(fromPoint, toPoint);
 
   //Move the cylinder to the calculated mid position because that is the point where the object will pivot
   cylinder.position.x = mid.x;

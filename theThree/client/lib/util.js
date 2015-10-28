@@ -58,3 +58,12 @@ exports.getAngle = function getAngle(start, fulcrum, end) {
 
 
 };
+
+exports.getMid = function getMid(start, end) {
+  //create a line to get the mid point via function
+  var line = new THREE.Line3(start, end); 
+  var mid = line.center();
+  return mid;
+};
+
+
