@@ -9,12 +9,8 @@ module.exports = function(grunt) {
             },
             server: {
                 src: [
-                    "**/*.js",
-                    "!node_modules/**",
-                    "!bower_components/**",
-                    "!client/**",
-                    "!public/**",
-                    "!test/**"
+                    "*.js",
+                    "routes/*.js",
                 ],
                 options: {
                     node: true
