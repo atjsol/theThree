@@ -356,7 +356,6 @@ ObjectAttributeView.prototype = Object.create({
     }
     temp.reverse();
     var removed = temp.splice(insertIndex+1, 1, line1, newSphere, line2);
-    console.log(removed[0].constructionData);
     if (removed[0].constructionData.hasOwnProperty("type")){
       line1.constructionData.type= removed[0].constructionData.type;
     }
