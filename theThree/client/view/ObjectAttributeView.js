@@ -192,7 +192,6 @@ ObjectAttributeView.prototype = Object.create({
     var actions = e.target.dataset.actions;
     if (actions){
       var actionArray = actions.split(" "); 
-      console.log(actionArray);
       actionArray.forEach(function(action) {
         self[action](e);
       });
@@ -340,47 +339,31 @@ ObjectAttributeView.prototype = Object.create({
     //find which position the line exists in the group
     group.children.forEach(function (child, i){
       if (fromPoint === child.position){
-        console.log("found fromPoint", fromPoint, i, child.position);
         insertIndex = i;
-
       }
-
-      if (toPoint === child.position){
-        console.log("found toPoint", toPoint, i, child.position);
-
-      }
-
-
-
     });
+    //calculate a middle point between the two points
     var mid = util.getMid(fromPoint, toPoint);
     var pos = new THREE.Vector3(mid.x, mid.y, mid.z);
     //insert the new sphere after the first sphere
     var newSphere = GeometryMaker.sphere(pos);
     var line1 = GeometryMaker.makeLine(fromPoint, pos);
-    line1.name = line1.name +"1";
     var line2 = GeometryMaker.makeLine(pos, toPoint);
-    line2.name = line2.name +"1";
-    // newSphere.parent = group;
     var temp = [];
     for (var i = group.children.length-1; i>=0; i--){
       temp.push(group.children[i]);
       group.remove(group.children[i]);
     }
-    var removed = temp.splice(insertIndex+2, 1, line1, newSphere, line2);
+    temp.reverse();
+    var removed = temp.splice(insertIndex+1, 1, line1, newSphere, line2);
+    console.log(removed[0].constructionData);
+    if (removed[0].constructionData.hasOwnProperty("type")){
+      line1.constructionData.type= removed[0].constructionData.type;
+    }
     temp.forEach(function(item){
       group.add(item);
     });
     
-    console.log(removed, group.children);
-
-
-    // group.add(line1);
-    // group.add(newSphere);
-    // group.add(line2);
-
-    // group.children.splice(insertIndex, 0, temp);
-
   }
 
 });
