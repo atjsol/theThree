@@ -325,7 +325,7 @@ ObjectAttributeView.prototype = Object.create({
       var points = currentObject.constructionData.points;
       var a = points[0].clone();
       var b = points[1].clone();
-      var c = a.sub(b).normalize();
+      var c = a.x <= b.x ? a.sub(b) : b.sub(a);
       var theta = Math.atan2(c.x, c.z);
       this.parent.tracingView.align(theta);
     }
