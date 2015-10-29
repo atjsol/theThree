@@ -59,22 +59,24 @@ ObjectAttributeView.prototype = Object.create({
       var compiledDistance = distance({length:length});
       body+=compiledDistance;
 
-      var attributes = _.template('<h5>Attributes</h5>'
-        +'<label><input type="radio" name="type" data-actions="assignType setEaveVector" value="EAVE">Eave</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="RIDGE">Ridge</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="VALLEY">Valley</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="HIP">Hip</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="RAKE">Rake</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing</label>'
+      var attributes = _.template('<h5>Attributes</h5>' +
+        '<label>Type: <select name="type" data-actions="assignType">' +
+        '<option></option>' +
+        '<option value="EAVE">Eave</option>' +
+        '<option value="RIDGE">Ridge</option>' +
+        '<option value="VALLEY">Valley</option>' +
+        '<option value="HIP">Hip</option>' +
+        '<option value="RAKE">Rake</option>' +
+        '<option value="STEPFLASH">Stepflash</option>' +
+        '<option value="FLASHING">Flashing</option>' +
+        '</select></label>'
       );
       var compiledAttributes = attributes({});
-      var bisect = _.template('<h5><button class="bisectLine" data-actions="bisectLine" type="button">Bisect Line </button></h5><div></div>')
-      var compiledBisect = bisect({});
-      body+= compiledAttributes + compiledBisect;
+      body+= compiledAttributes;
 
-      var alignControls = '<h5>Alignment</h5>' +
-        '<button class="alignButton">Align to Grid</button>';
+      var alignControls = '<h5>Controls</h5>' +
+        '<button class="alignButton">Align to Grid</button>' +
+        '<button class="bisectLine" data-actions="bisectLine" type="button">Bisect Line </button>';
 
       body += alignControls;
     }
@@ -110,7 +112,7 @@ ObjectAttributeView.prototype = Object.create({
 
     this.$el.append(total);
     if (this.currentObject.name === "cylinder"){
-      this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
+      this.$el.find("option[ value='" + this.currentObject.constructionData.type + "']").prop("selected", true);
     }
 
     this.$el.on("click", ".bisectLine", someObj, this.bisectLine);
