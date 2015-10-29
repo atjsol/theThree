@@ -1,13 +1,13 @@
 body {
     margin: 0;
+    font-size: 9pt;
 }
 
 canvas {
     position:absolute;
-
 }
 
-/* The map and palette are set off screen so they will not be rendered - performance*/ 
+/* The map and palette are set off screen so they will not be rendered - performance*/
 /* Set the threejs canvas, google map and palette all the same height width*/
 .off-screen {
   position: absolute !important;
@@ -20,24 +20,27 @@ canvas {
   padding:1em 1em;
   margin-top:5px;
 }
-#interface{
+#interface {
   border:0;
   padding:0;
-  max-width: 100%;
+  width: 100%;
   display:block;
   position:relative;
+  clear: both;
 }
 
-#interface:first-child{
-
+#tabs {
+  float: left;
 }
-/*#interface:last-child{
-  justify-content:flex-end;
-}*/
+
 #object-attribute-view{
   float : right;
-  color : white !important;
-  width:300px;
+  background-color: white;
+  max-width: 250px;
+}
+
+#object-attribute-view input {
+  max-width: 80px;
 }
 
 .ui-tabs .ui-tabs-panel {
@@ -64,9 +67,16 @@ canvas {
 }
 
 button{
-    height:60px;
-    width:110px;
-    border:0px outset;
+    display: inline-block;
+    border: 0px;
+    padding: 0.5em;
+    cursor: pointer;
+    color: white;
+    background-color: #337ab7;
+    border-radius: 4px;
+    user-select: none;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 .button-outline{
@@ -75,10 +85,4 @@ button{
 
 .delete {
   background-color:red;
-  color:white;
-  position :relative;
-  height:2em;
-  width:3em;
-  
 }
-

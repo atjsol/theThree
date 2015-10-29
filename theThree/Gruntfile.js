@@ -27,7 +27,9 @@ module.exports = function(grunt) {
                 js: {
                     indentSize:2,
                     maxPreserveNewlines: 3,
-                    preserveNewlines: true
+                    preserveNewlines: true,
+                    eol: "\r\n",
+                    end_with_newline: true
                 },
                 html: {
                     indentSize:2

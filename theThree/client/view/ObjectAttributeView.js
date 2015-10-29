@@ -69,22 +69,24 @@ ObjectAttributeView.prototype = Object.create({
       var compiledDistance = distance({length:length});
       body+=compiledDistance;
 
-      var attributes = _.template('<h5>Attributes</h5>'
-        +'<label><input type="radio" name="type" data-actions="assignType setEaveVector" value="EAVE">Eave</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="RIDGE">Ridge</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="VALLEY">Valley</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="HIP">Hip</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="RAKE">Rake</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="STEPFLASH">Stepflash</label>'
-        +'<label><input type="radio" name="type" data-actions="assignType" value="FLASHING">Flashing</label>'
+      var attributes = _.template('<h5>Attributes</h5>' +
+        '<label>Type: <select name="type" data-actions="assignType">' +
+        '<option></option>' +
+        '<option value="EAVE">Eave</option>' +
+        '<option value="RIDGE">Ridge</option>' +
+        '<option value="VALLEY">Valley</option>' +
+        '<option value="HIP">Hip</option>' +
+        '<option value="RAKE">Rake</option>' +
+        '<option value="STEPFLASH">Stepflash</option>' +
+        '<option value="FLASHING">Flashing</option>' +
+        '</select></label>'
       );
       var compiledAttributes = attributes({});
-      var bisect = _.template('<h5><button class="bisectLine" data-actions="bisectLine" type="button">Bisect Line </button></h5><div></div>')
-      var compiledBisect = bisect({});
-      body+= compiledAttributes + compiledBisect;
+      body+= compiledAttributes;
 
-      var alignControls = '<h5>Alignment</h5>' +
-        '<button class="alignButton">Align to Grid</button>';
+      var alignControls = '<h5>Controls</h5>' +
+        '<button class="alignButton">Align to Grid</button>' +
+        '<button class="bisectLine" data-actions="bisectLine" type="button">Bisect Line </button>';
 
       body += alignControls;
     }
@@ -120,7 +122,7 @@ ObjectAttributeView.prototype = Object.create({
 
     this.$el.append(total);
     if (this.currentObject.name === "cylinder"){
-      this.$el.find("input[name='type'][ value='" + this.currentObject.constructionData.type + "']").prop("checked", true);
+      this.$el.find("option[ value='" + this.currentObject.constructionData.type + "']").prop("selected", true);
     }
 
     this.$el.on("click", ".bisectLine", someObj, this.bisectLine);
@@ -198,8 +200,8 @@ ObjectAttributeView.prototype = Object.create({
     // e.target.dataset.* can be used to add any additional info as needed (currently set at target.dataset.action="string")
     // var name = evnt.target.name.split(" ");
     var actions = e.target.dataset.actions;
-    if (actions){
-      var actionArray = actions.split(" "); 
+    if (actions) {
+      var actionArray = actions.split(" ");
 
       actionArray.forEach(function(action) {
         self[action](e);
@@ -350,8 +352,9 @@ ObjectAttributeView.prototype = Object.create({
     var group = e.data.parent;
     //get all of the spheres
     //find which position the line exists in the group
-    group.children.forEach(function (child, i){
-      if (fromPoint.x === child.position.x && fromPoint.z === child.position.z){
+
+    group.children.forEach(function(child, i) {
+      if (fromPoint === child.position) {
         insertIndex = i;
       }
     });
@@ -370,14 +373,15 @@ ObjectAttributeView.prototype = Object.create({
       group.remove(group.children[i]);
     }
     temp.reverse();
-    var removed = temp.splice(insertIndex+1, 1, line1, newSphere, line2);
-    if (removed && removed[0].constructionData.hasOwnProperty("type")){
-      line1.constructionData.type= removed[0].constructionData.type;
+
+    var removed = temp.splice(insertIndex + 1, 1, line1, newSphere, line2);
+    if (removed[0].constructionData.hasOwnProperty("type")) {
+      line1.constructionData.type = removed[0].constructionData.type;
     }
-    temp.forEach(function(item){
+    temp.forEach(function(item) {
       group.add(item);
     });
-    
+
   },
 
 
@@ -387,9 +391,7 @@ ObjectAttributeView.prototype = Object.create({
       var points = currentObject.constructionData.points;
       var a = points[0].clone();
       var b = points[1].clone();
-      var c = a.x <= b.x ? a.sub(b) : b.sub(a);
-      var theta = Math.atan2(c.x, c.z);
-      this.parent.tracingView.align(theta);
+      this.parent.tracingView.align(a, b);
     }
   }
 });

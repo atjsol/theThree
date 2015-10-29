@@ -160,6 +160,12 @@ TracingView.prototype = Object.create({
     });
   },
 
+  getRoofPlanes: function() {
+    return _.where(this.scene.children, {
+      name: "Roof Plane"
+    });
+  },
+
   animate: function() {
     if (this.animationArray.length > 0) {
       this.animationArray.forEach(function(executable) {
@@ -230,12 +236,14 @@ TracingView.prototype = Object.create({
     };
   },
 
-  align: function(theta) {
+  align: function(a, b) {
+    var c = a.x <= b.x ? a.sub(b) : b.sub(a);
+    var theta = Math.atan2(c.x, c.z);
     this.alignment = theta;
     var axis = new THREE.Vector3(0, 1, 0);
     var grid = this.scene.getObjectByName("grid");
     grid.rotation.set(0, 0, 0);
-    grid.rotateY(theta);
+    grid.rotation.y = theta;
 
     this.controls.alignCamera(theta);
   }

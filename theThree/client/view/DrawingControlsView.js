@@ -1,8 +1,8 @@
 var $ = require("jquery");
 var _ = require("lodash");
 var eventBus = require("../lib/eventBus");
-var orthogonalStatus = require("../orthogonalStatus");
-var _2D3DStatus = require("../2D3DStatus");
+var orthogonalStatus = require("./orthogonalStatus");
+var _2D3DStatus = require("./2D3DStatus");
 
 
 var DrawingControlsView = module.exports = function($el) {
@@ -44,11 +44,9 @@ DrawingControlsView.prototype = Object.create({
     if (_2D3DStatus.getStatus()) {
       //button.removeClass("button-outline");
       button.html("2D<b>/3D</b>");
-      window.tracingView.controls.controls.noRotate = !_2D3DStatus.getStatus();
     } else {
       //button.addClass("button-outline");
       button.html("<b>2D/</b>3D");
-      window.tracingView.controls.controls.noRotate = !_2D3DStatus.getStatus();
     }
   },
 
