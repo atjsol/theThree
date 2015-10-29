@@ -39,7 +39,7 @@ MapControlsView.prototype = Object.create({
         var latitude = parseFloat(val.results[0].geometry.location.lat);
         var angle = util.toRad(latitude); 
         //256 is based on tile size - 
-
+        // http://wiki.openstreetmap.org/wiki/Zoom_levels
         //equator length (circumfrence) = 40075.016686km * 1000m/km / 256 tiles
         // (pixels per tile at zoom 0)
 
