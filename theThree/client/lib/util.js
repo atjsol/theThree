@@ -80,3 +80,8 @@ exports.filterRaycast = function filterRaycast(raycastArray, filterArray){
   }
   return someObj;
 };
+
+exports.lengthToInches = function lengthToInches(lengthPixels){
+  var feetScaleLength = (3.28084 * lengthPixels * window.tracingView.scene.scale.map);
+  return feetScaleLength * 36; 
+};

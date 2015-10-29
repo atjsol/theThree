@@ -58,7 +58,12 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   cylinder.constructionData = {
     points: [fromPoint, toPoint]
   };
-  var tooltip = module.exports.addTooltip(cylinder, length.toPrecision(5));
+  var messageMeters = (length * window.tracingView.scene.scale.map).toPrecision(5) + "m";
+  var feetScaleLength = (3.28084 * length * window.tracingView.scene.scale.map);
+  var feet = parseInt(feetScaleLength);
+  var inches = parseInt((feetScaleLength-feet) * 12);
+  var messageImperial = feet+"\'"+inches+"\"";
+  var tooltip = module.exports.addTooltip(cylinder, messageImperial);
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
   tooltip.position=cylinder.position;

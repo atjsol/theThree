@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Map Tests</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.0.0/chai.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.2.5/mocha.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.2.5/mocha.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script>
+
+
+
+</head>
+<body>
+  <div id="mocha"><p><a href=".">Index</a></p></div>
+  <div id="messages"></div>
+  <div id="fixtures"></div>
+
+  <script>mocha.setup('bdd');</script>
+  <script>window.expect = chai.expect;</script>
+  <script src="./MapSpec.js"></script>
+  
+
+
+  <script>mocha.run();</script>
+  <script>
+  
+    // Update every 4 seconds
+    var time = new Date().getTime();
+    $(document.body).bind("mousemove keypress", function(e) {
+      time = new Date().getTime();
+    });
+
+    function refresh() {
+      if(new Date().getTime() - time >= 4000) 
+        window.location.reload(true);
+      else 
+        setTimeout(refresh, 20000);
+      
+     }
+     setTimeout(refresh, 1000);
+
+
+
+  </script>
+</body>
+</html>

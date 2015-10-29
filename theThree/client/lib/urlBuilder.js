@@ -33,7 +33,7 @@ module.exports.buildGeocodeUrl = function(mapObj) {
   //initialize map object if none exists
 
   mapObj.size = mapObj.size || "200x200";
-  mapObj.scale = mapObj.scale || 2;
+  mapObj.scale = mapObj.scale || 1;
   mapObj.key = mapObj.key || "AIzaSyBxxi5-bG4cnbPDPwZw0LfgSNzpPFOHs5E";
   mapObj.maptype = mapObj.maptype || "satellite";
   mapObj.format = mapObj.format || "png";

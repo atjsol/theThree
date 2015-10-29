@@ -2,6 +2,7 @@ var $ = require("jquery");
 var _ = require("lodash");
 var eventBus = require("../lib/eventBus");
 var urlBuilder = require("../lib/urlBuilder");
+var util = require("../lib/util");
 
 var MapControlsView = module.exports = function($el) {
   _.bindAll(this);
@@ -24,8 +25,8 @@ MapControlsView.prototype = Object.create({
       mapObj[this.name] = this.value;
     });
 
-    eventBus.trigger("change:map", mapObj);
     this.calcMapScale(mapObj);
+    eventBus.trigger("change:map", mapObj);
   },
   calcMapScale: function (mapObj){
     // Map resolution = 156543.04 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
@@ -36,10 +37,15 @@ MapControlsView.prototype = Object.create({
       .done(function(val) {
         var zoom = mapObj.zoom;
         var latitude = parseFloat(val.results[0].geometry.location.lat);
-        var angle = latitude * (Math.PI/180); 
+        var angle = util.toRad(latitude); 
         //256 is based on tile size - 
-        var scale =  156543.04 * Math.cos(angle) / (Math.pow(2, zoom)) * (256/size);
-        console.log(scale);
+
+        //equator length (circumfrence) = 40075.016686km * 1000m/km / 256 tiles
+        // (pixels per tile at zoom 0)
+
+        var scale = 1/100 * size/2 * 156543.04 * Math.cos(angle) / (Math.pow(2, zoom) );
+        window.tracingView.scene.scale.map = scale;
+
       })
       .fail(function(error) {
       console.log("calcMapScale fail", error);
