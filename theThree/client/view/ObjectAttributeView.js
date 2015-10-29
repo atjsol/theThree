@@ -188,8 +188,8 @@ ObjectAttributeView.prototype = Object.create({
     // e.target.dataset.* can be used to add any additional info as needed (currently set at target.dataset.action="string")
     // var name = evnt.target.name.split(" ");
     var actions = e.target.dataset.actions;
-    if (actions){
-      var actionArray = actions.split(" "); 
+    if (actions) {
+      var actionArray = actions.split(" ");
 
       actionArray.forEach(function(action) {
         self[action](e);
@@ -341,8 +341,8 @@ ObjectAttributeView.prototype = Object.create({
     var group = e.data.parent;
     //get all of the spheres
     //find which position the line exists in the group
-    group.children.forEach(function (child, i){
-      if (fromPoint === child.position){
+    group.children.forEach(function(child, i) {
+      if (fromPoint === child.position) {
         insertIndex = i;
       }
 
@@ -361,14 +361,14 @@ ObjectAttributeView.prototype = Object.create({
       group.remove(group.children[i]);
     }
     temp.reverse();
-    var removed = temp.splice(insertIndex+1, 1, line1, newSphere, line2);
-    if (removed[0].constructionData.hasOwnProperty("type")){
-      line1.constructionData.type= removed[0].constructionData.type;
+    var removed = temp.splice(insertIndex + 1, 1, line1, newSphere, line2);
+    if (removed[0].constructionData.hasOwnProperty("type")) {
+      line1.constructionData.type = removed[0].constructionData.type;
     }
-    temp.forEach(function(item){
+    temp.forEach(function(item) {
       group.add(item);
     });
-    
+
   },
 
 

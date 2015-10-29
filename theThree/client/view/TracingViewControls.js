@@ -24,13 +24,14 @@ var TracingViewControls = module.exports = function(tracingView) {
   this.dragTarget = undefined;
   this.dragTargetGrabVector = undefined;
   this.objectAttributeView = new ObjectAttributeView($("#object-attribute-view"), this);
+
   this.trackMouse();
-  //this.$el.on("keyup", this.handleKeyUp);
   $(document).on("keydown", function(event) {
     self.handleKeyDown(event); // TODO: FIX ME
   });
   this.$el.on("mousedown", this.handleMouseDown);
   this.$el.on("mouseup", this.handleMouseUp);
+  _2D3DStatus.bind("change:status", this.update2D3D);
 };
 
 TracingViewControls.prototype = Object.create({
@@ -41,6 +42,10 @@ TracingViewControls.prototype = Object.create({
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.noRotate = true;
+  },
+
+  update2D3D: function() {
+    this.controls.noRotate = !_2D3DStatus.getStatus();
   },
 
   trackMouse: function() {
@@ -337,10 +342,12 @@ TracingViewControls.prototype = Object.create({
         group.add(child);
       });
       eventBus.trigger("change:scene");
-      if (self.dragTarget.parent.hasOwnProperty("rotationVector")){
+      if (self.dragTarget.parent.hasOwnProperty("rotationVector")) {
         this.objectAttributeView.updateRotation({
-          data:self.dragTarget,
-          target:{value:self.dragTarget.parent.rotationVector.applied}
+          data: self.dragTarget,
+          target: {
+            value: self.dragTarget.parent.rotationVector.applied
+          }
         });
 
       }

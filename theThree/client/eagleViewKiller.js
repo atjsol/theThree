@@ -16,9 +16,9 @@ $(function() {
   var jobId = jobId || "1234567";
   var job = new Job(jobId);
 
-  window.tracingView = new TracingView($("#three-view"), job);
+  var tracingView = window.tracingView = new TracingView($("#three-view"), job);
   eventBus.bind("change:scene", function() {
-    job.rebuild(window.tracingView.scene);
+    job.rebuild(tracingView.scene);
   });
 
   var mapControlsView = new MapControlsView($("#mapData"));

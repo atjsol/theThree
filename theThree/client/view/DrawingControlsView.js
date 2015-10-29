@@ -44,11 +44,9 @@ DrawingControlsView.prototype = Object.create({
     if (_2D3DStatus.getStatus()) {
       //button.removeClass("button-outline");
       button.html("2D<b>/3D</b>");
-      window.tracingView.controls.controls.noRotate = !_2D3DStatus.getStatus();
     } else {
       //button.addClass("button-outline");
       button.html("<b>2D/</b>3D");
-      window.tracingView.controls.controls.noRotate = !_2D3DStatus.getStatus();
     }
   },
 
