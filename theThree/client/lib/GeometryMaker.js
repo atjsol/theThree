@@ -8,6 +8,7 @@ var _ = require("lodash");
 
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   radius = radius || 0.35;
+  
   //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
   //var lookatVector = toPoint.clone().sub(fromPoint.clone());
 
@@ -22,6 +23,9 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
     helperPoint = new THREE.Vector3(fromPoint.x, fromPoint.y + 1000000, fromPoint.z);
   }
 
+   if (toPoint.x === 0 && toPoint.y === 20 && toPoint.z === 0 ){
+    console.log("zero");
+  }
   var helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
   var cross1 = direction.clone().cross(helperdirection.clone());
   var cross2 = fromPoint.clone().add(cross1.clone().cross(direction.clone()));
@@ -42,23 +46,24 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   //create a line to get the mid point via function
   var line = new THREE.Line3(fromPoint, toPoint); //new THREE.Vector3(toPoint.x, 20, toPoint.z));
   var mid = util.getMid(fromPoint, toPoint);
-
+  var length = fromPoint.clone().distanceTo(toPoint.clone());
   //Move the cylinder to the calculated mid position because that is the point where the object will pivot
   cylinder.position.x = mid.x;
   cylinder.position.y = mid.y;
   cylinder.position.z = mid.z;
 
   //Set the cylinder to look from one point to the next point
-  //the 20000000000 helps to flatten the line to point from on point to another for some reason.  I do not understand this, but it works
-  cylinder.lookAt(cross2); //toPoint.x, 10000000000, toPoint.z));
-
+  cylinder.lookAt(cross2);
 
   cylinder.constructionData = {
     points: [fromPoint, toPoint]
   };
-
+ 
+  var tooltip = module.exports.addTooltip(cylinder, "test");
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
+  tooltip.position=cylinder.position;
+  cylinder.add(tooltip);
   return cylinder;
 };
 
@@ -299,4 +304,82 @@ module.exports.buildGroup = function buildGroup(group, shapeQue) {
   group.children = [];
   // group.children=[];
   return newChildren;
+};
+
+module.exports.addTooltip = function addTooltip(object, message, position) {
+  message = message || "Test Message";
+  // position = position || new THREE.Vector3(0,88,0);
+  var tooltip = makeTextTooltip( " " + message + " ", { fontsize: 32, backgroundColor: {r:100, g:100, b:255, a:1} } );
+  // tooltip.position = position;
+  tooltip.name = "tooltip";
+  return tooltip;
+
+  function makeTextTooltip( message, parameters ) {
+    if ( parameters === undefined ) {
+      parameters = {};
+    }
+    
+    var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
+    
+    var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 12;
+    
+    var borderThickness = parameters.hasOwnProperty("borderThickness") ?  parameters["borderThickness"] : 1;
+    
+    var borderColor = parameters.hasOwnProperty("borderColor") ? parameters["borderColor"] : { r:0, g:0, b:0, a:1.0 };
+    
+    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ? parameters["backgroundColor"] : { r:255, g:255, b:255, a:1.0 };
+
+   
+
+    var canvas = document.createElement("canvas");
+    var context = canvas.getContext("2d");
+    context.font = "Bold " + fontsize + "px " + fontface;
+      
+    // get size data (height depends only on font size)
+    var metrics = context.measureText( message );
+    var textWidth = metrics.width;
+    
+    // background color
+    context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
+    // border color
+    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
+
+    context.lineWidth = borderThickness;
+    roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
+    // 1.4 is extra height factor for text below baseline: g,j,p,q.
+    
+    // text color
+    context.fillStyle = "rgba(0, 0, 0, 1.0)";
+
+    context.fillText( message, borderThickness, fontsize + borderThickness);
+    
+    // canvas contents will be used for a texture
+    var texture = new THREE.Texture(canvas); 
+    texture.needsUpdate = true;
+    texture.minFilter = THREE.NearestFilter;
+
+    var spriteMaterial = new THREE.SpriteMaterial( 
+      { map: texture} );
+    var sprite = new THREE.Sprite( spriteMaterial );
+    return sprite;  
+  }
+
+  // function for drawing rounded rectangles
+  function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.lineTo(x+w-r, y);
+      ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+      ctx.lineTo(x+w, y+h-r);
+      ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+      ctx.lineTo(x+r, y+h);
+      ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+      ctx.lineTo(x, y+r);
+      ctx.quadraticCurveTo(x, y, x+r, y);
+      ctx.closePath();
+      ctx.fill();
+    ctx.stroke();   
+  }
+  
+
 };

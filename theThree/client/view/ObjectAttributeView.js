@@ -31,7 +31,7 @@ ObjectAttributeView.prototype = Object.create({
     /* jshint ignore:start */
     var self = this;
     //ignore things we do not care about - things we created
-    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
+    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH", "tooltip"];
     var ignoreObj = util.arrToObj(ignore);
     if (objArray.length === 0 || ignoreObj[objArray[0].object.name]) {
       this.closeAccordion();
@@ -278,7 +278,6 @@ ObjectAttributeView.prototype = Object.create({
           offset.sub(normal.clone().setLength(2000));
           var ray = new THREE.Ray(offset, normal);
 
-
           // create the ray for comparisons
           // get the distance of the closest point
           var rayClosest = ray.closestPointToPoint(point);
@@ -331,12 +330,12 @@ ObjectAttributeView.prototype = Object.create({
     return result;
   },
   bisectLine: function(e) {
-    console.log(e);
     //e.data is the line
     //e.data.constructionData.points are the data points from and to for the line
     var fromPoint = e.data.constructionData.points[0];
     var toPoint = e.data.constructionData.points[1];
     var insertIndex;
+    var removeIndex;
     //get the group
     var group = e.data.parent;
     //get all of the spheres
@@ -345,7 +344,6 @@ ObjectAttributeView.prototype = Object.create({
       if (fromPoint === child.position){
         insertIndex = i;
       }
-
     });
     //calculate a middle point between the two points
     var mid = util.getMid(fromPoint, toPoint);
@@ -362,7 +360,7 @@ ObjectAttributeView.prototype = Object.create({
     }
     temp.reverse();
     var removed = temp.splice(insertIndex+1, 1, line1, newSphere, line2);
-    if (removed[0].constructionData.hasOwnProperty("type")){
+    if (removed && removed[0].constructionData.hasOwnProperty("type")){
       line1.constructionData.type= removed[0].constructionData.type;
     }
     temp.forEach(function(item){

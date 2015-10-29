@@ -15,6 +15,7 @@ var TracingView = module.exports = function($el) {
   this.animationArray = [];
   this.init();
 
+
   this.controls = new TracingViewControls(this);
   eventBus.bind("change:map", _.debounce(this.handleMapChange, 100));
   this.animate();
@@ -58,6 +59,7 @@ TracingView.prototype = Object.create({
     var renderer = this.renderer = new THREE.WebGLRenderer({
       antialias: true
     });
+    renderer.autoClear = false;
     renderer.setSize(this.width, this.height);
     this.$el.html(renderer.domElement);
 
@@ -125,11 +127,18 @@ TracingView.prototype = Object.create({
 
   getIntersects: function() {
     var intersects = this.raycaster.intersectObjects(this.scene.children, true);
-    intersects.forEach(function(intersect) {
-      // if (intersect.object.name === "map") {
-      //   intersects.satellite = new THREE.Vector3(intersect.point.x, 20, intersect.point.z);
-      // }
+    var self = this;
+    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH", "sprite"];
+    if (!this.ignore){
+      this.ignore = util.arrToObj(ignore);
+    }
+    var arr = [];
+    arr = _.reject(intersects, function (intersect){
+      return self.ignore.hasOwnProperty(intersect.object.name);
     });
+    if (arr.length > 0){
+      console.log(arr);
+    }
     return intersects;
   },
 

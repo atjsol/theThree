@@ -222,6 +222,7 @@ TracingViewControls.prototype = Object.create({
     if (event.which === 16) { // shift key
       var intersects = self.tracingView.getIntersects();
       this.objectAttributeView.addToInterface(intersects);
+      console.log(intersects);
     }
 
     if (event.which === 65) { // a key
