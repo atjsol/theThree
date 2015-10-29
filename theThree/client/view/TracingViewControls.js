@@ -90,8 +90,7 @@ TracingViewControls.prototype = Object.create({
     var intersects = self.tracingView.getIntersects();
     var x, y, z;
     _.forEachRight(intersects, function(intersect) {
-      var object = intersect.object;
-      if (object.name === "map" && !x) {
+      if (intersect.object.name === "map" && !x) {
         x = intersect.point.x;
         y = intersect.point.y;
         z = intersect.point.z;

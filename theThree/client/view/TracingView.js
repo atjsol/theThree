@@ -194,20 +194,18 @@ TracingView.prototype = Object.create({
     var img = new Image();
 
     //this cross origin thing is huge, needs to be set before the img.src is set- if this is not set the canvas will be dirty and webGL will give us a bunch of errors
-    img.crossOrigin = "";
+    img.crossOrigin = "anonymous";
     img.src = path;
-    img.onload = function() {
+    img.onload = function(val) {
       var height = img.height;
       var width = img.width;
       canvas.height = height;
       canvas.width = width;
       var degrees;
 
-
       context.translate(width / 2, height / 2);
       // context.rotate(util.toRad(45));
       context.drawImage(img, -width / 2, -height / 2);
-
 
       var group = new THREE.Group();
 
@@ -226,6 +224,9 @@ TracingView.prototype = Object.create({
       plane.rotation.set(util.toRad(-90), 0, 0);
       plane.name = "map";
       self.scene.add(plane);
+    };
+    img.onerror = function (error) {
+      console.log("Error loading map " , error);
     };
   },
 

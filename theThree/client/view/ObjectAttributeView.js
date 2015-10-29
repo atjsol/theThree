@@ -31,17 +31,27 @@ ObjectAttributeView.prototype = Object.create({
     /* jshint ignore:start */
     var self = this;
     //ignore things we do not care about - things we created
-    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH", "tooltip"];
+    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
     var ignoreObj = util.arrToObj(ignore);
-    if (objArray.length === 0 || ignoreObj[objArray[0].object.name]) {
+    if (objArray.length === 0 ) {
       this.closeAccordion();
       return;
     }
     //expecting an array of objects
     //only choose the first item
-
-    var someObj = this.currentObject = objArray[0].object;
-
+    var someObj;
+    ignoreObj.tooltip = "tooltip";
+    if (objArray.length > 0){
+      someObj = _.find(objArray, function (object){
+        var val = !ignoreObj[object.object.name];
+        console.log(val, object.object.name);
+        return val;  
+      });
+    }
+    console.log(someObj);
+    if (!someObj){ return; }
+    someObj = this.currentObject = someObj.object;
+    // var someObj = this.currentObject = objArray[0].object;
 
     var total = "";
     var body = "";
