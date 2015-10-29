@@ -315,12 +315,16 @@ TracingViewControls.prototype = Object.create({
     if (intersects.length > 0 && intersects[0].object.parent) {
       self.objectAttributeView.addToInterface(intersects);
       self.dragging = true;
-      if (intersects[0].object.parent.name === "sphere") {
-        self.dragTarget = intersects[0].object.parent;
+      var firstSelected = util.filterRaycast(intersects);
+      if(firstSelected){
+        if (firstSelected.object.parent.name === "sphere") {
+          self.dragTarget = firstSelected.object.parent;
 
-      } else if (intersects[0].object.name === "cylinder") {
-        self.dragTarget = intersects[0].object;
+        } else if (firstSelected.object.name === "cylinder") {
+          self.dragTarget = firstSelected.object;
 
+        }
+        
       }
     }
   },
@@ -336,7 +340,6 @@ TracingViewControls.prototype = Object.create({
       var child = self.dragTarget;
       var group = child.parent;
       var newChildren = GeometryMaker.buildGroup(group);
-      // group.children = newChildren;
       newChildren.forEach(function(child) {
         group.add(child);
       });

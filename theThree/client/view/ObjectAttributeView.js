@@ -31,7 +31,7 @@ ObjectAttributeView.prototype = Object.create({
     /* jshint ignore:start */
     var self = this;
     //ignore things we do not care about - things we created
-    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH"];
+    var ignore = ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH", "tooltip"];
     var ignoreObj = util.arrToObj(ignore);
     if (objArray.length === 0 ) {
       this.closeAccordion();
@@ -41,17 +41,17 @@ ObjectAttributeView.prototype = Object.create({
     //only choose the first item
     var someObj;
     ignoreObj.tooltip = "tooltip";
+    //filter anything in the ignore array
+    util.filterRaycast(objArray, ignore);
     if (objArray.length > 0){
       someObj = _.find(objArray, function (object){
         var val = !ignoreObj[object.object.name];
-        console.log(val, object.object.name);
         return val;  
       });
     }
-    console.log(someObj);
     if (!someObj){ return; }
+    someObj = util.filterRaycast(objArray);
     someObj = this.currentObject = someObj.object;
-    // var someObj = this.currentObject = objArray[0].object;
 
     var total = "";
     var body = "";
@@ -351,10 +351,11 @@ ObjectAttributeView.prototype = Object.create({
     //get all of the spheres
     //find which position the line exists in the group
     group.children.forEach(function (child, i){
-      if (fromPoint === child.position){
+      if (fromPoint.x === child.position.x && fromPoint.z === child.position.z){
         insertIndex = i;
       }
     });
+
     //calculate a middle point between the two points
     var mid = util.getMid(fromPoint, toPoint);
     var pos = new THREE.Vector3(mid.x, mid.y, mid.z);

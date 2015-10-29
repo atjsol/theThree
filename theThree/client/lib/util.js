@@ -1,4 +1,5 @@
 var THREE = require("three.js");
+var _ = require("lodash");
 exports.centroid = function centriod(mesh) {
   var geometry = mesh.geometry;
   geometry.centroid = new THREE.Vector3();
@@ -64,4 +65,18 @@ exports.getMid = function getMid(start, end) {
   var line = new THREE.Line3(start, end);
   var mid = line.center();
   return mid;
+};
+
+exports.filterRaycast = function filterRaycast(raycastArray, filterArray){
+  // returns the first item that is not in the filter array
+  filterArray = filterArray || ["map", "grid", "Orthographic Camera", "cursor", "lineV", "lineH", "tooltip"];
+  var someObj;
+  var ignoreObj = exports.arrToObj(filterArray);
+  if (raycastArray.length > 0){
+    someObj = _.find(raycastArray, function (object){
+      var val = !ignoreObj[object.object.name];
+      return val;  
+    });
+  }
+  return someObj;
 };
