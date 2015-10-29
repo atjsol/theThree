@@ -154,7 +154,12 @@ TracingViewControls.prototype = Object.create({
     }
 
     if (shapeQue.length === 2) {
-      // reqAniFrameArray.push(animateSomething);
+      var a = shapeQue[0].clone();
+      var b = shapeQue[1].clone();
+      var roofPlanes = this.tracingView.getRoofPlanes();
+      if (roofPlanes && roofPlanes.length < 1) {
+        this.tracingView.align(a, b);
+      }
     }
 
     //add cylinder tubes to show vectors to next point
@@ -202,7 +207,7 @@ TracingViewControls.prototype = Object.create({
       }
     }
 
-    var name = "North Roof"; //jshint ignore:line
+    var name = "Roof Plane";
     group.name = name;
     //reset the shapeQue
     this.shapeQue = [];

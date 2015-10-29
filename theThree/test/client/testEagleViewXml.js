@@ -26,7 +26,7 @@ exports.testBasicXml = function(test) {
     test.ok(structure);
     test.equals(structure, job.structures[0]);
 
-    var mountingPlane = new MountingPlane("North Roof", [
+    var mountingPlane = new MountingPlane("Roof Plane", [
         new Point(24, 7, 32),
         new Point(-24, 7, 32),
         new Point(-24, 7, -32),
@@ -48,7 +48,7 @@ exports.testBasicXml = function(test) {
         var structures = result.EAGLEVIEW_EXPORT.STRUCTURES;
         test.ok(structures);
         test.equals(0, structures.$.northorientation);
-        
+
         var roof = structures.ROOF;
         test.ok(roof);
         test.equals("ROOF1", roof.$.id);
