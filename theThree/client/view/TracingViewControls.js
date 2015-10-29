@@ -6,8 +6,8 @@ var extrudeSettings = require("../lib/extrudeSettings");
 var util = require("../lib/util");
 var eventBus = require("../lib/eventBus");
 var GeometryMaker = require("../lib/GeometryMaker");
-var orthogonalStatus = require("../orthogonalStatus");
-var _2D3DStatus = require("../2D3DStatus");
+var orthogonalStatus = require("./orthogonalStatus");
+var _2D3DStatus = require("./2D3DStatus");
 var extrudeSettings = require("../lib/extrudeSettings");
 var ObjectAttributeView = require("./ObjectAttributeView");
 
@@ -339,7 +339,7 @@ TracingViewControls.prototype = Object.create({
       eventBus.trigger("change:scene");
       if (self.dragTarget.parent.hasOwnProperty("rotationVector")){
         this.objectAttributeView.updateRotation({
-          data:self.dragTarget, 
+          data:self.dragTarget,
           target:{value:self.dragTarget.parent.rotationVector.applied}
         });
 

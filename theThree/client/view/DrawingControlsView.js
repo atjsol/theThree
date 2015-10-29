@@ -1,8 +1,8 @@
 var $ = require("jquery");
 var _ = require("lodash");
 var eventBus = require("../lib/eventBus");
-var orthogonalStatus = require("../orthogonalStatus");
-var _2D3DStatus = require("../2D3DStatus");
+var orthogonalStatus = require("./orthogonalStatus");
+var _2D3DStatus = require("./2D3DStatus");
 
 
 var DrawingControlsView = module.exports = function($el) {
