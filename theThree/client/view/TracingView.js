@@ -137,7 +137,7 @@ TracingView.prototype = Object.create({
       return self.ignore.hasOwnProperty(intersect.object.name);
     });
     if (arr.length > 0){
-      console.log(arr);
+      // console.log(arr);
     }
     return intersects;
   },

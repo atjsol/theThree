@@ -58,6 +58,8 @@ TracingViewControls.prototype = Object.create({
 
 
       var event = $event.originalEvent;
+
+
       mouse.deltaX = mouse.x - event.x;
       mouse.deltaY = mouse.y - event.y;
 
@@ -66,13 +68,17 @@ TracingViewControls.prototype = Object.create({
       mouse.x = (event.clientX / self.tracingView.width) * 2 - 1;
       mouse.y = -(event.clientY / self.tracingView.height) * 2 + 1;
       var intersects = self.tracingView.getIntersects();
-      if (intersects[0]) {
-        self.mouse3D = new THREE.Vector3(
-          intersects[0].point.x,
-          this.intialHeight,
-          intersects[0].point.z
-        );
-      }
+      intersects.forEach(function(intersect){
+        if (intersect.object.name==="map"){
+          intersect.object.getWorldPosition();
+          self.mouse3D = new THREE.Vector3(
+            intersect.point.x,
+            self.intialHeight,
+            intersect.point.z
+          );
+        }
+      });
+
       if (self.dragging) {
         self.editObject(event);
       }
@@ -110,6 +116,9 @@ TracingViewControls.prototype = Object.create({
     if (this.shapeQue.length > 1 && orthogonalStatus.getStatus()) {
       end = GeometryMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
       this.tracingView.orthEnd = end.clone();
+    }
+    if (end.x === 0 && end.y === 20 && end.z === 0 ){
+      console.log("zero");
     }
     var mouseline = GeometryMaker.makeLine(start, end, 0.25);
     mouseline.name = name || "mouseline";

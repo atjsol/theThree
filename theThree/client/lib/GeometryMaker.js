@@ -24,7 +24,7 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   }
 
    if (toPoint.x === 0 && toPoint.y === 20 && toPoint.z === 0 ){
-    console.log("zero");
+    // console.log("zero");
   }
   var helperdirection = new THREE.Vector3().subVectors(helperPoint.clone(), fromPoint.clone());
   var cross1 = direction.clone().cross(helperdirection.clone());
@@ -58,11 +58,11 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   cylinder.constructionData = {
     points: [fromPoint, toPoint]
   };
- 
-  var tooltip = module.exports.addTooltip(cylinder, "test");
+  var tooltip = module.exports.addTooltip(cylinder, length.toPrecision(5));
   //return the line so that it can be used by whoever called it.
   //can immediately be added to scene or group
   tooltip.position=cylinder.position;
+  // cylinder.add(tooltip);
   cylinder.add(tooltip);
   return cylinder;
 };
@@ -345,10 +345,18 @@ module.exports.addTooltip = function addTooltip(object, message, position) {
     context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
 
     context.lineWidth = borderThickness;
-    roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
+    var scale = 1;
+    roundRect(
+      context, //ctx
+      borderThickness/2 * scale, //x
+      borderThickness/2 * scale, //y
+      (textWidth + borderThickness) * scale, //w
+      (fontsize * 1.4 + borderThickness) * scale, //h
+      6 //r
+    );
     // 1.4 is extra height factor for text below baseline: g,j,p,q.
     
-    // text color
+    // text colora
     context.fillStyle = "rgba(0, 0, 0, 1.0)";
 
     context.fillText( message, borderThickness, fontsize + borderThickness);
@@ -361,6 +369,7 @@ module.exports.addTooltip = function addTooltip(object, message, position) {
     var spriteMaterial = new THREE.SpriteMaterial( 
       { map: texture} );
     var sprite = new THREE.Sprite( spriteMaterial );
+    sprite.scale.set(20,10,1);
     return sprite;  
   }
 
