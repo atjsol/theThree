@@ -176,10 +176,13 @@ ObjectAttributeView.prototype = Object.create({
 
   assignType: function(e) {
     //set the linetype
-    // e.target.value is where our the type is located
-    // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
-    this.currentObject.constructionData.type = e.target.value;
+    var type = e.target.value;
+    this.currentObject.constructionData.type = type;
     eventBus.trigger("change:scene");
+
+    if (type === "EAVE") {
+      this.setEaveVector(this.currentObject);
+    }
   },
 
   updateGroupModel: function(e) {
@@ -212,17 +215,17 @@ ObjectAttributeView.prototype = Object.create({
     e.data.parent.position.setZ(e.target.value);
   },
 
-  setEaveVector: function(e) {
+  setEaveVector: function(object) {
     //get the two points used to make the cylinder
     //subtract them from each other to get a resultant vector
     // normalize the vector because the set rotation is expecting normalized.
-    if (this.currentObject) {
-      var constructionData = this.currentObject.constructionData;
+    if (object) {
+      var constructionData = object.constructionData;
       var vector1 = constructionData.points[0].clone();
       var vector2 = constructionData.points[1].clone();
       var normalized = vector1.clone().sub(vector2).normalize();
 
-      /*var parent = this.currentObject.parent;
+      var parent = object.parent;
       if (parent) {
         //sets the group level as holder of the rotation vector
         parent.rotationVector = {};
@@ -231,7 +234,7 @@ ObjectAttributeView.prototype = Object.create({
         parent.rotationVector.end = vector2;
         parent.vectorOffset = vector2.clone();
         //TODO:  Ensure all other lines are not set as eave for this mounting plane
-      }*/
+      }
     }
   },
 
@@ -241,24 +244,60 @@ ObjectAttributeView.prototype = Object.create({
     // the plane will have to grow in proportion to the rotation i.e. create a new shape
     // the spheres will only rise in proportion to the supplied angle
 
-    // var group = e.data.parent;
+    /*var group = e.data.parent;
     var shapePath = this.translatePointforRotation(e);
 
     var newOutline = new THREE.Shape();
-    // shapePath.forEach(function(point, i, array) {
-    //   if (array.length > 2) {
-    //     if (i === 0) {
-    //       newOutline.moveTo(point.x, point.z);
-    //     } else {
-    //       newOutline.lineTo(point.x, point.z);
-    //     }
-    //   }
-    // });
-    // var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(135), 0, 0, 1);
-    // shape.name = "mounting plane tilted";
-    // shape.position.add(group.getWorldPosition());
-    // group.add(shape);
+    shapePath.forEach(function(point, i, array) {
+      if (array.length > 2) {
+        if (i === 0) {
+          newOutline.moveTo(point.x, point.z);
+        } else {
+          newOutline.lineTo(point.x, point.z);
+        }
+      }
+    });
+    var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(135), 0, 0, 1);
+    shape.name = "mounting plane tilted";
+    shape.position.add(group.getWorldPosition());
+    group.add(shape);*/
 
+
+    var group = e.data.parent;
+    var rotation = util.toRad(e.target.value);
+
+    var eave = _.find(group.children, function(child) {
+      return child.constructionData && child.constructionData.type === "EAVE";
+    });
+    if (!eave) {
+      return;
+    }
+
+    var a = eave.constructionData.points[0];
+    var b = eave.constructionData.points[1];
+    var axis = b.clone().sub(a.clone()).normalize();
+
+    // group.rotation.x = util.toRad(rotation);
+
+    var sp = util.getMid(a, b);
+
+    var farthestPoint = _.max(group.children, function(child) {
+      return child.name === "sphere" ? sp.distanceTo(child.position) : 0;
+    });
+
+    var d = sp.distanceTo(farthestPoint.position);
+    var newDistance = d / Math.cos(rotation);
+
+    var m = new THREE.Matrix4();
+    m.makeTranslation(sp.x,sp.y,sp.z);
+    m.multiply(new THREE.Matrix4().makeRotationAxis(axis, rotation));
+    m.multiply(new THREE.Matrix4().makeScale(1, 1, newDistance / d));
+    m.multiply(new THREE.Matrix4().makeTranslation(-sp.x,-sp.y,-sp.z));
+
+    // group.applyMatrix(m);
+    _.each(group.children, function(child) {
+      child.applyMatrix(m);
+    });
   },
 
   translatePointforRotation: function(e) {
