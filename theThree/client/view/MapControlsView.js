@@ -5,10 +5,15 @@ var urlBuilder = require("../lib/urlBuilder");
 var util = require("../lib/util");
 
 var MapControlsView = module.exports = function($el) {
+  var self = this;
   _.bindAll(this);
   this.$el = $el;
 
-  $el.change(this.handleFormChange);
+  $el.change(function(e){
+    
+    self.handleFormChange();
+    $("#mapData").blur();
+  });
   $el.on("keyup keydown", function(event) {
     event.stopPropagation();
   });
@@ -31,7 +36,7 @@ MapControlsView.prototype = Object.create({
   calcMapScale: function (mapObj){
     // Map resolution = 156543.04 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
     // calculates meters per pixel
-    var size = parseInt(mapObj.size.split("x")[0]);
+    var size = _.parseInt(mapObj.size.split("x")[0]);
     var urll = urlBuilder.buildGeocodeUrl(mapObj);
     $.ajax( urll )
       .done(function(val) {

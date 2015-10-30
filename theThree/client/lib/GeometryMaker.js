@@ -58,10 +58,11 @@ module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   cylinder.constructionData = {
     points: [fromPoint, toPoint]
   };
-  var messageMeters = (length * window.tracingView.scene.scale.map).toPrecision(5) + "m";
-  var feetScaleLength = (3.28084 * length * window.tracingView.scene.scale.map);
-  var feet = parseInt(feetScaleLength);
-  var inches = parseInt((feetScaleLength-feet) * 12);
+  var scale = window.tracingView.scene.scale.actual || (window.tracingView.scene.scale.map * 3.28084);
+  var feetScaleLength = (  length * scale);
+
+  var feet = _.parseInt(feetScaleLength);
+  var inches = _.parseInt((feetScaleLength-feet) * 12);
   var messageImperial = feet+"\'"+inches+"\"";
   var tooltip = module.exports.addTooltip(cylinder, messageImperial);
   //return the line so that it can be used by whoever called it.

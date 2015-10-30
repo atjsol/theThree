@@ -191,9 +191,9 @@ TracingView.prototype = Object.create({
     var planeXY = new THREE.PlaneGeometry(200, 200, 4);
 
     // $('body').on('input','#slider', function (event){
-    //     console.log(this.value, parseInt(this.value,10), toRad(parseInt(this.value, 10)));
+    //     console.log(this.value, _.parseInt(this.value,10), toRad(_.parseInt(this.value, 10)));
     //     console.log(planeXY);
-    //     planeXY.rotation.set(toRad(parseInt(this.value,10)));
+    //     planeXY.rotation.set(toRad(_.parseInt(this.value,10)));
     // })
 
 

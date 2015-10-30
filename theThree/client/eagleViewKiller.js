@@ -22,7 +22,6 @@ $(function() {
   });
 
   var mapControlsView = new MapControlsView($("#mapData"));
-  console.log(mapControlsView);
   window.drawingControlsView = new DrawingControlsView($("#drawing-controls"));
   var exportView = new ExportView($("#export-view"), job);
 

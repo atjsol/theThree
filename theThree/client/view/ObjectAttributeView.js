@@ -14,7 +14,6 @@ var ObjectAttributeView = module.exports = function($el, parent) {
   this.parent = parent;
 };
 
-
 ObjectAttributeView.prototype = Object.create({
   toHtml: function(val, tag, clas) {
     function brackets(val) {
@@ -24,7 +23,6 @@ ObjectAttributeView.prototype = Object.create({
     clas = clas || "";
     return brackets(tag + " class=" + clas) + val + brackets("/" + tag);
   },
-
 
   addToInterface: function(objArray) {
     /* beautify preserve:start */
@@ -62,23 +60,26 @@ ObjectAttributeView.prototype = Object.create({
 
     if (someObj.name === "cylinder"){
       var distance = _.template('<h5>Length</h5>'
-        +'<ul class="attribute-list"><li>Computed Length : <%= length %>px</li>'
-        +'<li>Real World Length :<input type="number"> </li></ul>'
+        +'<ul class="attribute-list"><li>Computed Length : <%= length.toPrecision(5) %>px</li>'
+        +'<li>Real World Length :<div><input id="realFeet" class="feet" data-actions="setRealLength" type="number" value="<%= actualLengthFeet %>"> ft '
+        + '<input id="realInches" class="inch" data-actions="setRealLength" type="number" value="<%= actualLengthInches %>"> in </div></li></ul>'
       );
       var length = someObj.constructionData.points[0].distanceTo(someObj.constructionData.points[1]);
-      var compiledDistance = distance({length:length});
+      var actualLengthFeet = _.parseInt(someObj.constructionData.actualLength) || 0;
+      var actualLengthInches = (someObj.constructionData.actualLength - actualLengthFeet) * 12 || 0;; 
+      var compiledDistance = distance({length:length, actualLengthFeet:actualLengthFeet, actualLengthInches:actualLengthInches});
       body+=compiledDistance;
 
       var attributes = _.template('<h5>Attributes</h5>' +
         '<label>Type: <select name="type" data-actions="assignType">' +
-        '<option></option>' +
-        '<option value="EAVE">Eave</option>' +
-        '<option value="RIDGE">Ridge</option>' +
-        '<option value="VALLEY">Valley</option>' +
-        '<option value="HIP">Hip</option>' +
-        '<option value="RAKE">Rake</option>' +
-        '<option value="STEPFLASH">Stepflash</option>' +
-        '<option value="FLASHING">Flashing</option>' +
+          '<option></option>' +
+          '<option value="EAVE">Eave</option>' +
+          '<option value="RIDGE">Ridge</option>' +
+          '<option value="VALLEY">Valley</option>' +
+          '<option value="HIP">Hip</option>' +
+          '<option value="RAKE">Rake</option>' +
+          '<option value="STEPFLASH">Stepflash</option>' +
+          '<option value="FLASHING">Flashing</option>' +
         '</select></label>'
       );
       var compiledAttributes = attributes({});
@@ -94,9 +95,9 @@ ObjectAttributeView.prototype = Object.create({
     var position = _.template(
        '<h5>Position</h5>'
       +'<ul class="attribute-list">'
-        +'<li> x : <input name="position setX" data-actions="setX" type="number" step="0.01" value="<%= x %>"</li>'
-        +'<li> y (up) : <input name="position setY" data-actions="setY" type="number" step="0.01" value="<%= y %>"</li>'
-        +'<li> z : <input name="position setZ" data-actions="setZ" type="number" step="0.01" value="<%= z %>"</li>'
+        +'<li> x : <input name="position setX" data-actions="setX" type="number" step="0.01" value="<%= x.toPrecision(5) %>"></li>'
+        +'<li> y : <input name="position setY" data-actions="setY" type="number" step="0.01" value="<%= y.toPrecision(5) %>">(up)</li>'
+        +'<li> z : <input name="position setZ" data-actions="setZ" type="number" step="0.01" value="<%= z.toPrecision(5) %>"></li>'
       +'</ul>');
     var compiledPosition = position(someObj.getWorldPosition());
     body += compiledPosition;
@@ -150,9 +151,9 @@ ObjectAttributeView.prototype = Object.create({
       // e.data is where our passed in data (from $('change", data, callback)) resides
       // e.target is where the change has occurred
       // e.target.dataset.* can be used to add any additional info as needed
+      self.updateGroupModel(e);
       e.preventDefault();
       e.stopPropagation();
-      self.updateGroupModel(e);
     });
     this.$el.accordion({
       collapsible:true,
@@ -175,6 +176,7 @@ ObjectAttributeView.prototype = Object.create({
     }
     this.closeAccordion();
   },
+
   closeAccordion: function(e) {
     //remove any events
     if (this.$el.hasClass("ui-accordion")) {
@@ -198,11 +200,9 @@ ObjectAttributeView.prototype = Object.create({
     // e.data is where our passed in data (from $('change", data, callback)) resides
     // e.target is where the change has occurred
     // e.target.dataset.* can be used to add any additional info as needed (currently set at target.dataset.action="string")
-    // var name = evnt.target.name.split(" ");
     var actions = e.target.dataset.actions;
     if (actions) {
       var actionArray = actions.split(" ");
-
       actionArray.forEach(function(action) {
         self[action](e);
       });
@@ -212,12 +212,15 @@ ObjectAttributeView.prototype = Object.create({
     // group.children = newChildren;
     // eventBus.trigger("change:scene");
   },
+
   setX: function(e) {
     e.data.parent.position.setX(e.target.value);
   },
+
   setY: function(e) {
     e.data.parent.position.setY(e.target.value);
   },
+
   setZ: function(e) {
     e.data.parent.position.setZ(e.target.value);
   },
@@ -313,6 +316,7 @@ ObjectAttributeView.prototype = Object.create({
 
     }
   },
+
   calcPathPoint: function(closestPoint, point, degree) {
     var vector1 = closestPoint.clone();
     var vector2 = point.clone();
@@ -341,6 +345,7 @@ ObjectAttributeView.prototype = Object.create({
     });
     return result;
   },
+
   bisectLine: function(e) {
     //e.data is the line
     //e.data.constructionData.points are the data points from and to for the line
@@ -384,7 +389,6 @@ ObjectAttributeView.prototype = Object.create({
 
   },
 
-
   alignToGrid: function(e) {
     var currentObject = this.currentObject;
     if (currentObject && currentObject.constructionData && currentObject.constructionData.points) {
@@ -393,5 +397,28 @@ ObjectAttributeView.prototype = Object.create({
       var b = points[1].clone();
       this.parent.tracingView.align(a, b);
     }
-  }
+  },
+
+  setRealLength: function(e){
+    var object = e.data; 
+    var pixLength = object.constructionData.points[0].distanceTo(object.constructionData.points[1]);
+    
+    var feet = _.parseInt($("#realFeet").val(), 10);
+    var inches = _.parseInt($("#realInches").val(), 10);
+    var total = feet + (inches / 12); 
+    var actualLength = total;
+    // set scale for line
+    object.constructionData.actualLength = total;
+    // set scale for group
+    object.parent.localScale = total;
+    // set scale globally
+    window.tracingView.scene.scale.actual = actualLength/pixLength;
+    var group = object.parent;
+    var newChildren = GeometryMaker.buildGroup(group);
+    newChildren.forEach(function(child) {
+      group.add(child);
+    });
+
+
+  },
 });

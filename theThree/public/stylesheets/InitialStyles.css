@@ -35,7 +35,7 @@ canvas {
 
 #object-attribute-view{
   float : right;
-  background-color: white;
+ 
   max-width: 250px;
 }
 
@@ -44,7 +44,6 @@ canvas {
 }
 
 .ui-tabs .ui-tabs-panel {
-  background-color:white;
   height:100%;
 }
 
@@ -85,4 +84,11 @@ button{
 
 .delete {
   background-color:red;
+}
+
+.feet{
+  width:4em;
+}
+.inch{
+  width:2em;
 }
