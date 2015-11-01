@@ -9,7 +9,7 @@ var tessellate = require("../lib/tessellate");
 
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
   radius = radius || 0.35;
-  
+
   //CylinderGeometry args (radius top, radius bottom, height, radius segments, height segments, openeded, theta start, theta length)
   //var lookatVector = toPoint.clone().sub(fromPoint.clone());
 
@@ -324,30 +324,28 @@ module.exports.addTooltip = function addTooltip(object, message, position) {
   return tooltip;
 
   function makeTextTooltip( message, parameters ) {
-    if ( parameters === undefined ) {
-      parameters = {};
-    }
-    
-    var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
-    
-    var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 12;
-    
-    var borderThickness = parameters.hasOwnProperty("borderThickness") ?  parameters["borderThickness"] : 1;
-    
-    var borderColor = parameters.hasOwnProperty("borderColor") ? parameters["borderColor"] : { r:0, g:0, b:0, a:1.0 };
-    
-    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ? parameters["backgroundColor"] : { r:255, g:255, b:255, a:1.0 };
+    parameters = _.extend({
+      fontface: "Arial",
+      fontsize: 12,
+      borderThickness: 1,
+      borderColor: { r: 0, g: 0, b: 0, a: 1.0 },
+      backgroundColor: { r: 255, g: 255, b: 255, a: 1.0 }
+    }, parameters);
 
-   
+    var fontface = parameters.fontface;
+    var fontsize = parameters.fontsize;
+    var borderThickness = parameters.borderThickness;
+    var borderColor = parameters.borderColor;
+    var backgroundColor = parameters.backgroundColor;
 
     var canvas = document.createElement("canvas");
     var context = canvas.getContext("2d");
     context.font = "Bold " + fontsize + "px " + fontface;
-      
+
     // get size data (height depends only on font size)
     var metrics = context.measureText( message );
     var textWidth = metrics.width;
-    
+
     // background color
     context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
     // border color
@@ -364,22 +362,22 @@ module.exports.addTooltip = function addTooltip(object, message, position) {
       6 //r
     );
     // 1.4 is extra height factor for text below baseline: g,j,p,q.
-    
+
     // text colora
     context.fillStyle = "rgba(0, 0, 0, 1.0)";
 
     context.fillText( message, borderThickness, fontsize + borderThickness);
-    
+
     // canvas contents will be used for a texture
-    var texture = new THREE.Texture(canvas); 
+    var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
     texture.minFilter = THREE.NearestFilter;
 
-    var spriteMaterial = new THREE.SpriteMaterial( 
+    var spriteMaterial = new THREE.SpriteMaterial(
       { map: texture} );
     var sprite = new THREE.Sprite( spriteMaterial );
     sprite.scale.set(20,10,1);
-    return sprite;  
+    return sprite;
   }
 
   // function for drawing rounded rectangles
@@ -396,8 +394,8 @@ module.exports.addTooltip = function addTooltip(object, message, position) {
       ctx.quadraticCurveTo(x, y, x+r, y);
       ctx.closePath();
       ctx.fill();
-    ctx.stroke();   
+    ctx.stroke();
   }
-  
+
 
 };
