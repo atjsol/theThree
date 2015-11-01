@@ -191,6 +191,7 @@ ObjectAttributeView.prototype = Object.create({
     // e.target.value is where our the type is located
     // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
     this.currentObject.constructionData.type = e.target.value;
+    this.setEaveVector(e);
     eventBus.trigger("change:scene");
   },
 
@@ -235,7 +236,7 @@ ObjectAttributeView.prototype = Object.create({
       var vector2 = constructionData.points[1].clone();
       var normalized = vector1.clone().sub(vector2).normalize();
 
-      /*var parent = this.currentObject.parent;
+      var parent = this.currentObject.parent;
       if (parent) {
         //sets the group level as holder of the rotation vector
         parent.rotationVector = {};
@@ -244,43 +245,20 @@ ObjectAttributeView.prototype = Object.create({
         parent.rotationVector.end = vector2;
         parent.vectorOffset = vector2.clone();
         //TODO:  Ensure all other lines are not set as eave for this mounting plane
-      }*/
+      }
     }
   },
 
   updateRotation: function(e) {
-    //apply rotation to group
-    // rebuild the group based on sphere positions
-    // the plane will have to grow in proportion to the rotation i.e. create a new shape
-    // the spheres will only rise in proportion to the supplied angle
-
-    // var group = e.data.parent;
-    var shapePath = this.translatePointforRotation(e);
-
-    var newOutline = new THREE.Shape();
-    // shapePath.forEach(function(point, i, array) {
-    //   if (array.length > 2) {
-    //     if (i === 0) {
-    //       newOutline.moveTo(point.x, point.z);
-    //     } else {
-    //       newOutline.lineTo(point.x, point.z);
-    //     }
-    //   }
-    // });
-    // var shape = GeometryMaker.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(135), 0, 0, 1);
-    // shape.name = "mounting plane tilted";
-    // shape.position.add(group.getWorldPosition());
-    // group.add(shape);
-
+    this.translatePointforRotation(e);
   },
 
   translatePointforRotation: function(e) {
+    
     if (e.target.value !== undefined && e.data.parent && e.data.parent.rotationVector) {
       e.data.parent.rotationVector.applied = e.target.value || e.data.parent.rotationVector.applied;
       var self = this;
       var group = e.data.parent;
-      var newMountingPlanePath = [];
-      var newShapePath = [];
       group.children.forEach(function(child) {
         if (child.name === "sphere") {
 
@@ -297,21 +275,19 @@ ObjectAttributeView.prototype = Object.create({
           // get the distance of the closest point
           var rayClosest = ray.closestPointToPoint(point);
           var rayDist = rayClosest.distanceTo(point);
-          if (rayDist < 0.05) {
-            newShapePath.push(point);
-          } else {
-            //allow for some error tolerence from calculations
-            newShapePath.push(self.calcPathPoint(rayClosest, point, e.target.value));
-            //get the closest point
-            //calculate if there was already an angle applied
-            var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt(Math.pow((point.x - rayClosest.x), 2) + Math.pow((point.z - rayClosest.z), 2));
+          //allow for some error tolerence from calculations
+          //get the closest point
+          //calculate if there was already an angle applied
+          var yDestination = Math.tan(util.toRad(e.target.value)) * Math.sqrt(Math.pow((point.x - rayClosest.x), 2) + Math.pow((point.z - rayClosest.z), 2));
 
-            // TODO: Remove all unecessary Radian/Degree conversions
-            child.position.setY(yDestination + group.vectorOffset.y);
-          }
+          // TODO: Remove all unecessary Radian/Degree conversions
+          child.position.setY(yDestination + group.vectorOffset.y);
         }
       });
-      return newShapePath;
+      var newChildren = GeometryMaker.buildGroup(group);
+      newChildren.forEach(function(child) {
+        group.add(child);
+      });
 
 
     }

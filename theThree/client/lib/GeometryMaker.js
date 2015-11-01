@@ -4,6 +4,7 @@ var extrudeSettings = require("./extrudeSettings");
 var eventBus = require("../lib/eventBus");
 var uid = require("../lib/uid");
 var _ = require("lodash");
+var tessellate = require("../lib/tessellate");
 
 
 module.exports.makeLine = function makeLine(fromPoint, toPoint, radius) {
@@ -248,8 +249,10 @@ module.exports.buildGroup = function buildGroup(group, shapeQue) {
   group = group || new THREE.Group();
   var newChildren = [];
   var newOutline = new THREE.Shape();
+  var tessArr = [];
 
   function addToOutline(point, i, array) {
+    tessArr.push(point);
     if (i === 0) {
       newOutline.moveTo(point.x, point.z);
     } else {
@@ -304,8 +307,8 @@ module.exports.buildGroup = function buildGroup(group, shapeQue) {
     calculatedRatioImperial: undefined, //displayed 1= some ratio in feet and inches
     calculatedRatioMetric: undefined,
   };
-  newChildren.push(shape);
-
+  // newChildren.push(shape);
+  newChildren.push(tessellate.planeGeo(tessArr));
   //create the group based on points and construction data
   group.children = [];
   // group.children=[];
