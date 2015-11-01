@@ -136,7 +136,7 @@ module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
 
   var modAngle;
   //create a ruleset for which angle to use
-  for (var i = 0; i < 181; i += 45) {
+  for (var i = 0; i <= 180; i += 45) {
     if (compAngle > i - 45 / 2 && compAngle < i + 45 / 2) {
       if (cross.y < 0) {
         modAngle = util.toRad(compAngle) - util.toRad(i);
@@ -156,6 +156,30 @@ module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
   return line2;
 };
 
+module.exports.snapLength = function(shapeQue, end) {
+  var previous = _.last(shapeQue).clone();
+  var currentDistance = end.distanceTo(previous);
+  var angle = Math.atan2(end.x - previous.x, end.z - previous.z);
+
+  var newDistance;
+  for (var i = 0; i < shapeQue.length - 1; i++) {
+    var a = shapeQue[i];
+    var b = shapeQue[i + 1];
+    var distance = a.distanceTo(b);
+    var difference = currentDistance - distance;
+    if (Math.abs(difference) < 2) {
+      newDistance = distance;
+      break;
+    }
+  }
+
+  if (newDistance) {
+    previous.add(new THREE.Vector3(newDistance * Math.sin(angle), 0, newDistance * Math.cos(angle)));
+    return previous;
+  } else {
+    return end;
+  }
+};
 
 module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y, z, rx, ry, rz, s) {
   console.log("add shape run");

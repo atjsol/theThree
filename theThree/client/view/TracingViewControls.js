@@ -119,6 +119,7 @@ TracingViewControls.prototype = Object.create({
     end = end || new THREE.Vector3(this.mouse3D.x, this.intialHeight, this.mouse3D.z);
     if (this.shapeQue.length > 1 && orthogonalStatus.getStatus()) {
       end = GeometryMaker.snapOrth(this.shapeQue[this.shapeQue.length - 2], this.shapeQue[this.shapeQue.length - 1], end);
+      end = GeometryMaker.snapLength(this.shapeQue, end);
       this.tracingView.orthEnd = end.clone();
     }
     if (end.x === 0 && end.y === 20 && end.z === 0 ){
@@ -334,7 +335,7 @@ TracingViewControls.prototype = Object.create({
           self.dragTarget = firstSelected.object;
 
         }
-        
+
       }
     }
   },
