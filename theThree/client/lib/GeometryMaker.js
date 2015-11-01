@@ -158,7 +158,7 @@ module.exports.snapOrth = function snapOrth(start, fulcrum, end) {
 
 
 module.exports.addShape = function addShape(shape, extrudeSettings, color, x, y, z, rx, ry, rz, s) {
-
+  console.log("add shape run");
   var points = shape.createPointsGeometry();
   var spacedPoints = shape.createSpacedPointsGeometry(50);
   // var group = new THREE.Group();
@@ -297,16 +297,16 @@ module.exports.buildGroup = function buildGroup(group, shapeQue) {
     });
   }
 
-  var shape = module.exports.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
-  shape.name = "mounting plane shape";
-  shape.constructionData = {
-    points: shapeQue, // copy all the points to make this shape
-    rotationAxis: undefined, //set by selecting eave or ridge attributes
+  // var shape = module.exports.addShape(newOutline, extrudeSettings, 0xf08000, 0, 20, 0, util.toRad(90), 0, 0, 1);
+  // shape.name = "mounting plane shape";
+  // shape.constructionData = {
+  //   points: shapeQue, // copy all the points to make this shape
+  //   rotationAxis: undefined, //set by selecting eave or ridge attributes
 
-    rotationDegrees: undefined,
-    calculatedRatioImperial: undefined, //displayed 1= some ratio in feet and inches
-    calculatedRatioMetric: undefined,
-  };
+  //   rotationDegrees: undefined,
+  //   calculatedRatioImperial: undefined, //displayed 1= some ratio in feet and inches
+  //   calculatedRatioMetric: undefined,
+  // };
   // newChildren.push(shape);
   newChildren.push(tessellate.planeGeo(tessArr));
   //create the group based on points and construction data
