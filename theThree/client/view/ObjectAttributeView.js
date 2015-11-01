@@ -109,8 +109,10 @@ ObjectAttributeView.prototype = Object.create({
 
 
     if (someObj.hasOwnProperty("planeRotation")){
-      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRotaion" data-actions="updateRotation" val=<%= planeRotation %></li></ul>');
-      var compiledRotation = rotation(someObj);
+      var rotation = _.template('<h5>Rotation</h5><ul class="attribute-list"><li><input type="number" name="updateRotaion" data-actions="updateRotation" value="<%= planeRotation %>"/></li></ul>');
+      var compiledRotation = rotation({
+        planeRotation: _.get(someObj, "parent.rotationVector.applied")
+      });
       body+=compiledRotation;
     }
 
