@@ -193,7 +193,10 @@ ObjectAttributeView.prototype = Object.create({
     // e.target.value is where our the type is located
     // window.tracingView.job.structures[number].mountingPlanes[number].lines would be where a line exists
     this.currentObject.constructionData.type = e.target.value;
-    this.setEaveVector(e);
+    console.log(e);
+    if (e.target.value === "EAVE"){
+      this.setEaveVector(e);
+    }
     eventBus.trigger("change:scene");
   },
 
