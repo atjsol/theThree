@@ -219,16 +219,37 @@ ObjectAttributeView.prototype = Object.create({
     // eventBus.trigger("change:scene");
   },
 
+  updateGroupObject: function(e){
+
+    function getRootGroup(child){
+      if(child.name==="Roof Plane"){
+        return child;
+      } else {
+        return getRootGroup(child.parent);
+      }
+    }
+
+    var group = getRootGroup(e.data);
+    var newChildren = GeometryMaker.buildGroup(group);
+    newChildren.forEach(function(child) {
+      group.add(child);
+    });
+  },
+
   setX: function(e) {
-    e.data.parent.position.setX(e.target.value);
+    e.data.parent.position.setX(parseFloat(e.target.value));
+    this.updateGroupObject(e);
   },
 
   setY: function(e) {
-    e.data.parent.position.setY(e.target.value);
+    e.data.parent.position.setY(parseFloat(e.target.value));
+    this.updateGroupObject(e);
   },
 
   setZ: function(e) {
-    e.data.parent.position.setZ(e.target.value);
+    e.data.parent.position.setZ(parseFloat(e.target.value));
+    this.updateGroupObject(e);
+
   },
 
   setEaveVector: function(e) {

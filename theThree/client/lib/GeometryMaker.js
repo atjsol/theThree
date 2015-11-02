@@ -100,7 +100,7 @@ module.exports.sphere = function sphere(point, sphereArgs) {
     [undefined, undefined],
     [3, {
       transparent: true,
-      opacity: 0.25
+      opacity: 0.05
     }]
   ];
   var makeSphere = module.exports.makeSphere;
@@ -283,6 +283,8 @@ module.exports.buildGroup = function buildGroup(group, shapeQue) {
       newOutline.lineTo(point.x, point.z);
     }
   }
+
+
   if (shapeQue.length > 2) {
     shapeQue.forEach(function(point, i, array) {
       addToOutline(point, i);
@@ -314,6 +316,7 @@ module.exports.buildGroup = function buildGroup(group, shapeQue) {
 
       var fromPoint = sphere.position;
       var toPoint = i < spheres.length - 1 ? spheres[i + 1].position : spheres[0].position;
+      console.log(fromPoint.y, toPoint.y);
       var newLine = module.exports.makeLine(fromPoint, toPoint);
       var oldLine = lines[i];
       newLine.constructionData = _.extend(oldLine.constructionData, newLine.constructionData);
